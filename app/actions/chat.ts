@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { formatarRespostaN8N } from "@/lib/n8nParser"
 
 export async function criarSessaoAction() {
   const session = await auth()
@@ -76,12 +77,7 @@ export async function enviarMensagemAction(sessionId: string, content: string) {
 
     if (response.ok) {
       const data = await response.json()
-      // Accept either a direct JSON property "response" or fall back to returning raw/whole body response
-      if (data && typeof data === "object") {
-        assistantReply = data.response || data.output || data.text || JSON.stringify(data)
-      } else if (typeof data === "string") {
-        assistantReply = data
-      }
+      assistantReply = formatarRespostaN8N(data)
     } else {
       console.error("n8n webhook error status:", response.status)
     }
