@@ -13,7 +13,7 @@ export default async function Home() {
       orderBy: { updatedAt: "desc" },
     })
 
-    const serializedSessions = sessionsData.map((s) => ({
+    const serializedSessions = sessionsData.map((s: any) => ({
       id: s.id,
       title: s.title,
       createdAt: s.createdAt,
