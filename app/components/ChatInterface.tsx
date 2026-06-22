@@ -9,6 +9,7 @@ import {
 } from "@/app/actions/chat"
 import { logoutAction } from "@/app/actions/auth"
 import Link from "next/link"
+import ReactMarkdown from "react-markdown"
 
 interface User {
   id: string
@@ -381,10 +382,28 @@ export default function ChatInterface({ initialSessions, currentUser }: ChatInte
                         className={`max-w-[75%] rounded-2xl px-5 py-3.5 shadow-md leading-relaxed text-sm ${
                           isUser
                             ? "bg-indigo-600 text-white rounded-br-none"
-                            : "bg-zinc-900/60 backdrop-blur-md border border-zinc-800 text-zinc-200 rounded-bl-none"
+                            : "bg-zinc-900/60 backdrop-blur-md border border-zinc-800 text-zinc-200 rounded-bl-none w-full"
                         }`}
                       >
-                        <p className="whitespace-pre-wrap">{msg.content}</p>
+                        {isUser ? (
+                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                        ) : (
+                          <div className="w-full">
+                            <ReactMarkdown
+                              components={{
+                                p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>,
+                                strong: ({ children }) => <strong className="font-semibold text-white bg-white/5 px-1 py-0.5 rounded">{children}</strong>,
+                                ul: ({ children }) => <ul className="list-disc pl-5 mb-3 space-y-1">{children}</ul>,
+                                ol: ({ children }) => <ol className="list-decimal pl-5 mb-3 space-y-1">{children}</ol>,
+                                li: ({ children }) => <li className="text-zinc-300 mb-0.5 last:mb-0">{children}</li>,
+                                code: ({ children }) => <code className="bg-zinc-950 px-1.5 py-0.5 rounded font-mono text-xs text-indigo-300 border border-zinc-800">{children}</code>,
+                                pre: ({ children }) => <pre className="bg-zinc-950 p-3 rounded-lg border border-zinc-800 my-3 overflow-x-auto text-xs font-mono">{children}</pre>,
+                              }}
+                            >
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )
