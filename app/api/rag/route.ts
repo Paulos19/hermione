@@ -19,12 +19,19 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
+    const userRag = session.user.ragContext || "Nenhuma instrução ou contexto RAG adicional configurado pelo usuário no banco de dados."
+
     return NextResponse.json({
       user: {
         name: session.user.name,
         email: session.user.email,
       },
-      ragContext: `Você é a Hermione, uma assistente virtual inteligente desenvolvida pela equipe da Google DeepMind. O usuário atual é o(a) ${session.user.name || "Visitante"} (${session.user.email}). Responda a todas as perguntas sempre em português do Brasil, de forma extremamente elegante, prestativa e objetiva. Use os dados dele quando apropriado.`,
+      ragContext: `Você é a Hermione, uma assistente virtual inteligente desenvolvida pela equipe da Google DeepMind. O usuário atual é o(a) ${session.user.name || "Visitante"} (${session.user.email}).
+Aqui está o contexto RAG associado a este usuário recuperado do banco de dados:
+---
+${userRag}
+---
+Responda a todas as perguntas sempre em português do Brasil, de forma extremamente elegante, prestativa e objetiva. Use os dados dele quando apropriado.`,
     })
   } catch (error: any) {
     console.error("Erro na API RAG:", error)
