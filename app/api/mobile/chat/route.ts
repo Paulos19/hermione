@@ -21,9 +21,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Parâmetros inválidos." }, { status: 400 })
     }
 
-    // Verify session ownership
+    // Verify session ownership and get user details
     const session = await prisma.chatSession.findUnique({
       where: { id: sessionId },
+      include: { user: true }
     })
 
     if (!session || session.userId !== user.id) {
@@ -45,7 +46,12 @@ export async function POST(request: Request) {
       const webhookResponse = await fetch("https://n8n-n8n.qqfurw.easypanel.host/webhook/hermione", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: content, sessionId }),
+        body: JSON.stringify({ 
+          message: content, 
+          sessionId,
+          userName: session.user.name,
+          ragContext: session.user.ragContext
+        }),
         signal: AbortSignal.timeout(30000),
       })
 
