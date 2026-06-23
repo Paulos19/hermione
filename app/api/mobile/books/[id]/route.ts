@@ -9,13 +9,14 @@ function getUserFromRequest(request: Request) {
   return verifyToken(token)
 }
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const id = (await params).id;
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
     const book = await prisma.book.findUnique({
-      where: { id: params.id, userId: user.id },
+      where: { id, userId: user.id },
       include: {
         documents: {
           orderBy: { createdAt: 'asc' }
@@ -31,8 +32,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const id = (await params).id;
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
@@ -40,7 +42,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const { title, coverImage } = body
 
     const book = await prisma.book.update({
-      where: { id: params.id, userId: user.id },
+      where: { id, userId: user.id },
       data: {
         ...(title !== undefined && { title }),
         ...(coverImage !== undefined && { coverImage }),
@@ -53,13 +55,14 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const id = (await params).id;
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
     await prisma.book.delete({
-      where: { id: params.id, userId: user.id },
+      where: { id, userId: user.id },
     })
 
     return NextResponse.json({ success: true })
