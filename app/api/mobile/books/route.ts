@@ -14,12 +14,12 @@ export async function GET(request: Request) {
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
-    const documents = await prisma.document.findMany({
+    const books = await prisma.book.findMany({
       where: { userId: user.id },
       orderBy: { updatedAt: "desc" },
     })
 
-    return NextResponse.json({ documents })
+    return NextResponse.json({ books })
   } catch (error) {
     return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 })
   }
@@ -30,26 +30,18 @@ export async function POST(request: Request) {
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
-    const body = await request.json().catch(() => ({}))
-    const { bookId } = body
+    const body = await request.json()
+    const { title, coverImage } = body
 
-    const document = await prisma.document.create({
+    const book = await prisma.book.create({
       data: {
         userId: user.id,
-        bookId: bookId || null,
-        title: "Sem Título",
-        content: JSON.stringify({
-          type: "doc",
-          content: [
-            {
-              type: "paragraph",
-            },
-          ],
-        }),
+        title: title || "Novo Livro",
+        coverImage: coverImage || null,
       },
     })
 
-    return NextResponse.json({ document }, { status: 201 })
+    return NextResponse.json({ book }, { status: 201 })
   } catch (error) {
     return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 })
   }

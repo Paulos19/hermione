@@ -16,6 +16,7 @@ model User {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   sessions      ChatSession[]
+  books         Book[]
   documents     Document[]
 }
 
@@ -42,6 +43,19 @@ model ChatMessage {
   @@index([sessionId])
 }
 
+model Book {
+  id          String     @id @default(cuid())
+  userId      String
+  title       String     @default("Sem Título")
+  coverImage  String?    @db.Text
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents   Document[]
+
+  @@index([userId])
+}
+
 model Document {
   id        String   @id @default(cuid())
   userId    String
@@ -49,7 +63,10 @@ model Document {
   content   String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  bookId    String?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book      Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([bookId])
 }
