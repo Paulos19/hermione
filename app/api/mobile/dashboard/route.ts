@@ -22,6 +22,11 @@ export async function GET(request: Request) {
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { dailyGoal: true }
+    })
+
     // 1. Fetch books and documents for overview
     const books = await prisma.book.findMany({
       where: { userId: user.id },
@@ -62,7 +67,7 @@ export async function GET(request: Request) {
       weeklyData[dayIndex] = record.words;
     });
 
-    return NextResponse.json({ books, weeklyData })
+    return NextResponse.json({ books, weeklyData, dailyGoal: dbUser?.dailyGoal || 1000 })
   } catch (error) {
     console.error("Dashboard API Error:", error)
     return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 })

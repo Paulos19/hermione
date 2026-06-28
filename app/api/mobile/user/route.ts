@@ -39,15 +39,16 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
     }
 
-    const { name, ragContext } = await request.json()
+    const { name, ragContext, dailyGoal } = await request.json()
 
     const updatedUser = await prisma.user.update({
       where: { id: userPayload.id },
       data: {
         name,
         ragContext,
+        dailyGoal,
       },
-      select: { id: true, name: true, email: true, ragContext: true }
+      select: { id: true, name: true, email: true, ragContext: true, dailyGoal: true }
     })
 
     return NextResponse.json({ user: updatedUser })
