@@ -9,6 +9,25 @@ function getUserFromRequest(request: Request) {
   return verifyToken(token)
 }
 
+function getWordCount(content: string) {
+  if (!content) return 0;
+  try {
+    const json = JSON.parse(content);
+    let text = "";
+    function extract(node: any) {
+      if (node.type === "text" && node.text) {
+        text += node.text + " ";
+      } else if (node.content && Array.isArray(node.content)) {
+        node.content.forEach(extract);
+      }
+    }
+    extract(json);
+    return text.trim().split(/\s+/).filter((w) => w.length > 0).length;
+  } catch (e) {
+    return content.trim().split(/\s+/).filter((w) => w.length > 0).length;
+  }
+}
+
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = getUserFromRequest(request)
@@ -42,7 +61,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     // Only update allowed fields
     const dataToUpdate: any = {}
     if (body.title !== undefined) dataToUpdate.title = body.title
-    if (body.content !== undefined) dataToUpdate.content = body.content
     if (body.wordGoal !== undefined) dataToUpdate.wordGoal = body.wordGoal
     if (body.customGoal !== undefined) dataToUpdate.customGoal = body.customGoal
 
@@ -52,6 +70,32 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     if (!document || document.userId !== user.id) {
       return NextResponse.json({ error: "Documento não encontrado." }, { status: 404 })
+    }
+
+    if (body.content !== undefined) {
+      dataToUpdate.content = body.content
+      const newWordCount = getWordCount(body.content)
+      dataToUpdate.wordCount = newWordCount
+      
+      const wordsDiff = newWordCount - (document.wordCount || 0)
+      
+      if (wordsDiff !== 0) {
+        const today = new Date().toISOString().split("T")[0] // YYYY-MM-DD
+        
+        await prisma.dailyProgress.upsert({
+          where: {
+             userId_date: { userId: user.id, date: today }
+          },
+          update: {
+             words: { increment: wordsDiff }
+          },
+          create: {
+             userId: user.id,
+             date: today,
+             words: Math.max(0, wordsDiff)
+          }
+        })
+      }
     }
 
     const updatedDocument = await prisma.document.update({
