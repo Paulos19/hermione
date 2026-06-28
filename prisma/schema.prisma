@@ -61,6 +61,7 @@ model Document {
   userId    String
   title     String   @default("Sem Título")
   content   String?  @db.Text
+  wordGoal  Int      @default(5000)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   bookId    String?

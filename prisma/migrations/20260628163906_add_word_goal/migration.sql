@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Document" ADD COLUMN     "wordGoal" INTEGER NOT NULL DEFAULT 5000;
