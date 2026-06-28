@@ -43,6 +43,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (body.title !== undefined) dataToUpdate.title = body.title
     if (body.content !== undefined) dataToUpdate.content = body.content
     if (body.wordGoal !== undefined) dataToUpdate.wordGoal = body.wordGoal
+    if (body.customGoal !== undefined) dataToUpdate.customGoal = body.customGoal
 
     const document = await prisma.document.findUnique({
       where: { id },
