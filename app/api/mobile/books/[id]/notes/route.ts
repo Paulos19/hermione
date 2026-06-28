@@ -4,14 +4,15 @@ import { auth } from '@/auth';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
 
     const notes = await prisma.bookNote.findMany({
-      where: { bookId: params.id, book: { userId: session.user.id } },
+      where: { bookId: id, book: { userId: session.user.id } },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -24,14 +25,15 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
 
     const book = await prisma.book.findUnique({
-      where: { id: params.id, userId: session.user.id }
+      where: { id: id, userId: session.user.id }
     });
     if (!book) return new NextResponse("Book not found", { status: 404 });
 
@@ -43,7 +45,7 @@ export async function POST(
       data: {
         title,
         content: content || null,
-        bookId: params.id
+        bookId: id
       }
     });
 

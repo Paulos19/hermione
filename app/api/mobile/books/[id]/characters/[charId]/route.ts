@@ -4,14 +4,15 @@ import { auth } from '@/auth';
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string, charId: string } }
+  { params }: { params: Promise<{ id: string, charId: string }> }
 ) {
   try {
+    const { id, charId } = await params;
     const session = await auth();
     if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
 
     const book = await prisma.book.findUnique({
-      where: { id: params.id, userId: session.user.id }
+      where: { id: id, userId: session.user.id }
     });
     if (!book) return new NextResponse("Book not found", { status: 404 });
 
@@ -19,7 +20,7 @@ export async function PUT(
     const { name, role, description } = body;
 
     const character = await prisma.character.update({
-      where: { id: params.charId, bookId: params.id },
+      where: { id: charId, bookId: id },
       data: {
         ...(name && { name }),
         ...(role !== undefined && { role }),
@@ -36,19 +37,20 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string, charId: string } }
+  { params }: { params: Promise<{ id: string, charId: string }> }
 ) {
   try {
+    const { id, charId } = await params;
     const session = await auth();
     if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
 
     const book = await prisma.book.findUnique({
-      where: { id: params.id, userId: session.user.id }
+      where: { id: id, userId: session.user.id }
     });
     if (!book) return new NextResponse("Book not found", { status: 404 });
 
     await prisma.character.delete({
-      where: { id: params.charId, bookId: params.id }
+      where: { id: charId, bookId: id }
     });
 
     return new NextResponse("Deleted", { status: 200 });
