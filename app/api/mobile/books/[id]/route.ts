@@ -20,7 +20,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       include: {
         documents: {
           orderBy: { order: 'asc' }
-        }
+        },
+        characters: true,
+        notes: true,
       }
     })
 

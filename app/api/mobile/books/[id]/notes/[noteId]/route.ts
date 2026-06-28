@@ -1,0 +1,58 @@
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
+
+export async function PUT(
+  req: Request,
+  { params }: { params: { id: string, noteId: string } }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+
+    const book = await prisma.book.findUnique({
+      where: { id: params.id, userId: session.user.id }
+    });
+    if (!book) return new NextResponse("Book not found", { status: 404 });
+
+    const body = await req.json();
+    const { title, content } = body;
+
+    const note = await prisma.bookNote.update({
+      where: { id: params.noteId, bookId: params.id },
+      data: {
+        ...(title && { title }),
+        ...(content !== undefined && { content }),
+      }
+    });
+
+    return NextResponse.json(note);
+  } catch (error) {
+    console.error("[NOTE_PUT]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string, noteId: string } }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+
+    const book = await prisma.book.findUnique({
+      where: { id: params.id, userId: session.user.id }
+    });
+    if (!book) return new NextResponse("Book not found", { status: 404 });
+
+    await prisma.bookNote.delete({
+      where: { id: params.noteId, bookId: params.id }
+    });
+
+    return new NextResponse("Deleted", { status: 200 });
+  } catch (error) {
+    console.error("[NOTE_DELETE]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}

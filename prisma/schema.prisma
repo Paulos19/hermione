@@ -57,6 +57,8 @@ model Book {
   updatedAt   DateTime   @updatedAt
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   documents   Document[]
+  characters  Character[]
+  notes       BookNote[]
 
   @@index([userId])
 }
@@ -76,5 +78,30 @@ model Document {
   book      Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([bookId])
+}
+
+model Character {
+  id          String   @id @default(cuid())
+  bookId      String
+  name        String
+  role        String?  // Protagonist, Antagonist, etc
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  book        Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+}
+
+model BookNote {
+  id          String   @id @default(cuid())
+  bookId      String
+  title       String
+  content     String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  book        Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
   @@index([bookId])
 }
