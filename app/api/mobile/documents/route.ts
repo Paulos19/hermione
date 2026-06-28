@@ -33,11 +33,20 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}))
     const { bookId } = body
 
+    let order = 0
+    if (bookId) {
+      const count = await prisma.document.count({
+        where: { bookId, userId: user.id }
+      })
+      order = count
+    }
+
     const document = await prisma.document.create({
       data: {
         userId: user.id,
         bookId: bookId || null,
         title: "Sem Título",
+        order,
         content: JSON.stringify({
           type: "doc",
           content: [

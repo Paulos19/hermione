@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       where: { id, userId: user.id },
       include: {
         documents: {
-          orderBy: { createdAt: 'asc' }
+          orderBy: { order: 'asc' }
         }
       }
     })
@@ -39,13 +39,21 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
     const body = await request.json()
-    const { title, coverImage } = body
+    const { 
+      title, coverImage, targetWords, 
+      defaultFontSize, defaultFontFamily, defaultFontWeight, defaultParagraphIndent 
+    } = body
 
     const book = await prisma.book.update({
       where: { id, userId: user.id },
       data: {
         ...(title !== undefined && { title }),
         ...(coverImage !== undefined && { coverImage }),
+        ...(targetWords !== undefined && { targetWords }),
+        ...(defaultFontSize !== undefined && { defaultFontSize }),
+        ...(defaultFontFamily !== undefined && { defaultFontFamily }),
+        ...(defaultFontWeight !== undefined && { defaultFontWeight }),
+        ...(defaultParagraphIndent !== undefined && { defaultParagraphIndent }),
       },
     })
 

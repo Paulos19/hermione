@@ -18,6 +18,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     const document = await prisma.document.findUnique({
       where: { id },
+      include: { book: true }
     })
 
     if (!document || document.userId !== user.id) {
