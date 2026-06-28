@@ -31,13 +31,15 @@ export async function POST(request: Request) {
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
     const body = await request.json()
-    const { title, coverImage } = body
+    const { title, coverImage, securityType, pin } = body
 
     const book = await prisma.book.create({
       data: {
         userId: user.id,
         title: title || "Novo Livro",
         coverImage: coverImage || null,
+        securityType: securityType || "none",
+        pin: pin || null,
       },
     })
 

@@ -43,7 +43,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const body = await request.json()
     const { 
       title, coverImage, targetWords, 
-      defaultFontSize, defaultFontFamily, defaultFontWeight, defaultParagraphIndent 
+      defaultFontSize, defaultFontFamily, defaultFontWeight, defaultParagraphIndent,
+      securityType, pin
     } = body
 
     const book = await prisma.book.update({
@@ -56,6 +57,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         ...(defaultFontFamily !== undefined && { defaultFontFamily }),
         ...(defaultFontWeight !== undefined && { defaultFontWeight }),
         ...(defaultParagraphIndent !== undefined && { defaultParagraphIndent }),
+        ...(securityType !== undefined && { securityType }),
+        ...(pin !== undefined && { pin }),
       },
     })
 
