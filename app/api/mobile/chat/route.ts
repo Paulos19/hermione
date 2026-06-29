@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
-    const { sessionId, content } = await request.json()
+    const { sessionId, content, bookId } = await request.json()
 
     if (!sessionId || !content) {
       return NextResponse.json({ error: "Parâmetros inválidos." }, { status: 400 })
@@ -42,6 +42,36 @@ export async function POST(request: Request) {
 
     let assistantReply = "Desculpe, ocorreu um erro de conexão com o cérebro da Hermione. Tente novamente."
 
+    let enhancedRagContext = session.user.ragContext || "";
+
+    // If bookId is provided, fetch Lore (Characters and Notes)
+    if (bookId) {
+      const book = await prisma.book.findUnique({
+        where: { id: bookId, userId: user.id },
+        include: { characters: true, notes: true }
+      });
+
+      if (book) {
+        let loreContext = `\n\n--- INFORMAÇÕES DA HISTÓRIA (LIVRO: ${book.title}) ---\n`;
+        
+        if (book.characters && book.characters.length > 0) {
+          loreContext += "\nPERSONAGENS:\n";
+          book.characters.forEach((c: any) => {
+            loreContext += `- ${c.name} (${c.role || 'S/N'}): ${c.description || 'S/D'}\n`;
+          });
+        }
+
+        if (book.notes && book.notes.length > 0) {
+          loreContext += "\nNOTAS DE MUNDO (BÍBLIA):\n";
+          book.notes.forEach((n: any) => {
+            loreContext += `- ${n.title}: ${n.content || 'S/D'}\n`;
+          });
+        }
+        
+        enhancedRagContext += loreContext;
+      }
+    }
+
     try {
       const webhookResponse = await fetch("https://n8n-n8n.qqfurw.easypanel.host/webhook/hermione", {
         method: "POST",
@@ -50,7 +80,7 @@ export async function POST(request: Request) {
           message: content, 
           sessionId,
           userName: session.user.name,
-          ragContext: session.user.ragContext
+          ragContext: enhancedRagContext
         }),
         signal: AbortSignal.timeout(30000),
       })
