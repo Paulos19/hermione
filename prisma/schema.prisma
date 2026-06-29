@@ -87,6 +87,10 @@ model Document {
   themeToolbarColor String?  @default("rgba(255,255,255,0.04)")
   themeToolsToolbarColor String? @default("rgba(255,255,255,0.04)")
 
+  chapterNotes      String?  @db.Text
+  checklist         Json?
+  aiHistory         Json?
+
   @@index([userId])
   @@index([bookId])
 }

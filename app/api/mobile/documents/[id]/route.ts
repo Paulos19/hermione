@@ -68,6 +68,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (body.themeFontColor !== undefined) dataToUpdate.themeFontColor = body.themeFontColor
     if (body.themeToolbarColor !== undefined) dataToUpdate.themeToolbarColor = body.themeToolbarColor
     if (body.themeToolsToolbarColor !== undefined) dataToUpdate.themeToolsToolbarColor = body.themeToolsToolbarColor
+    if (body.chapterNotes !== undefined) dataToUpdate.chapterNotes = body.chapterNotes
+    if (body.checklist !== undefined) dataToUpdate.checklist = body.checklist
+    if (body.aiHistory !== undefined) dataToUpdate.aiHistory = body.aiHistory
 
     const document = await prisma.document.findUnique({
       where: { id },
