@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { auth } from '@/auth';
+import { verifyToken } from "@/lib/jwt";
+
+function getUserFromRequest(request: Request) {
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
+  const token = authHeader.split(" ")[1];
+  return verifyToken(token);
+}
 
 export async function PUT(
   req: Request,
@@ -8,11 +15,11 @@ export async function PUT(
 ) {
   try {
     const { id, noteId } = await params;
-    const session = await auth();
-    if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+    const user = getUserFromRequest(req);
+    if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
     const book = await prisma.book.findUnique({
-      where: { id: id, userId: session.user.id }
+      where: { id: id, userId: user.id }
     });
     if (!book) return new NextResponse("Book not found", { status: 404 });
 
@@ -40,11 +47,11 @@ export async function DELETE(
 ) {
   try {
     const { id, noteId } = await params;
-    const session = await auth();
-    if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+    const user = getUserFromRequest(req);
+    if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
     const book = await prisma.book.findUnique({
-      where: { id: id, userId: session.user.id }
+      where: { id: id, userId: user.id }
     });
     if (!book) return new NextResponse("Book not found", { status: 404 });
 
