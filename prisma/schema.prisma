@@ -85,6 +85,7 @@ model Document {
   themeBgImage      String?  @db.Text
   themeFontColor    String?  @default("rgba(255,255,255,0.93)")
   themeToolbarColor String?  @default("rgba(255,255,255,0.04)")
+  themeToolsToolbarColor String? @default("rgba(255,255,255,0.04)")
 
   @@index([userId])
   @@index([bookId])

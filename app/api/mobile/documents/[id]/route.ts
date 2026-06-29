@@ -67,6 +67,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (body.themeBgImage !== undefined) dataToUpdate.themeBgImage = body.themeBgImage
     if (body.themeFontColor !== undefined) dataToUpdate.themeFontColor = body.themeFontColor
     if (body.themeToolbarColor !== undefined) dataToUpdate.themeToolbarColor = body.themeToolbarColor
+    if (body.themeToolsToolbarColor !== undefined) dataToUpdate.themeToolsToolbarColor = body.themeToolsToolbarColor
 
     const document = await prisma.document.findUnique({
       where: { id },
