@@ -73,11 +73,15 @@ export async function POST(request: Request) {
     }
 
     try {
+      const finalMessageToAI = enhancedRagContext 
+        ? `[CONTEXTO DO SISTEMA E BÍBLIA DA HISTÓRIA (USE ESSAS INFORMAÇÕES OBRIGATORIAMENTE)]\n${enhancedRagContext}\n\n[MENSAGEM DO USUÁRIO]\n${content}`
+        : content;
+
       const webhookResponse = await fetch("https://n8n-n8n.qqfurw.easypanel.host/webhook/hermione", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          message: content, 
+          message: finalMessageToAI, 
           sessionId,
           userName: session.user.name,
           ragContext: enhancedRagContext
