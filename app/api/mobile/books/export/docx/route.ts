@@ -16,13 +16,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Gerar o DOCX como Buffer
-    const buffer = await HTMLtoDOCX(html, null, {
+    const docData = await HTMLtoDOCX(html, null, {
       table: { row: { cantSplit: true } },
       footer: true,
       pageNumber: true,
     });
 
-    // Converter para Base64
+    // Converter para Base64 usando Buffer.from
+    const buffer = Buffer.from(docData as any);
     const base64 = buffer.toString('base64');
 
     return NextResponse.json({ success: true, base64 });
