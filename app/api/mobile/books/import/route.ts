@@ -70,7 +70,6 @@ export async function POST(request: Request) {
             name: char.name || "Sem Nome",
             role: char.role || "",
             description: char.description || "",
-            imageUrl: char.imageUrl || null,
           }
         })
       }
