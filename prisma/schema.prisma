@@ -81,6 +81,10 @@ model Document {
   bookId    String?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   book      Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  themeBgColor      String?  @default("#0B0F12")
+  themeBgImage      String?  @db.Text
+  themeFontColor    String?  @default("rgba(255,255,255,0.93)")
+  themeToolbarColor String?  @default("rgba(255,255,255,0.04)")
 
   @@index([userId])
   @@index([bookId])
