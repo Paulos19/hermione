@@ -57,6 +57,11 @@ model Book {
   defaultParagraphIndent Boolean? @default(false)
   securityType String?    @default("none") // "none", "pin", "biometrics"
   pin          String?
+  defaultThemeBgColor String?  @default("#0B0F12")
+  defaultThemeBgImage String?  @db.Text
+  defaultThemeFontColor String?  @default("rgba(255,255,255,0.93)")
+  defaultThemeToolbarColor String?  @default("rgba(255,255,255,0.04)")
+  defaultThemeToolsToolbarColor String? @default("rgba(15, 20, 25, 0.98)")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)

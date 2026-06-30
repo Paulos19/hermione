@@ -44,7 +44,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { 
       title, coverImage, targetWords, 
       defaultFontSize, defaultFontFamily, defaultFontWeight, defaultParagraphIndent,
-      securityType, pin
+      securityType, pin,
+      defaultThemeBgColor, defaultThemeBgImage, defaultThemeFontColor, defaultThemeToolbarColor, defaultThemeToolsToolbarColor,
+      applyToAllChapters
     } = body
 
     const book = await prisma.book.update({
@@ -59,11 +61,30 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         ...(defaultParagraphIndent !== undefined && { defaultParagraphIndent }),
         ...(securityType !== undefined && { securityType }),
         ...(pin !== undefined && { pin }),
+        ...(defaultThemeBgColor !== undefined && { defaultThemeBgColor }),
+        ...(defaultThemeBgImage !== undefined && { defaultThemeBgImage }),
+        ...(defaultThemeFontColor !== undefined && { defaultThemeFontColor }),
+        ...(defaultThemeToolbarColor !== undefined && { defaultThemeToolbarColor }),
+        ...(defaultThemeToolsToolbarColor !== undefined && { defaultThemeToolsToolbarColor }),
       },
     })
 
+    if (applyToAllChapters) {
+      await prisma.document.updateMany({
+        where: { bookId: id, userId: user.id },
+        data: {
+          ...(defaultThemeBgColor !== undefined && { themeBgColor: defaultThemeBgColor }),
+          ...(defaultThemeBgImage !== undefined && { themeBgImage: defaultThemeBgImage }),
+          ...(defaultThemeFontColor !== undefined && { themeFontColor: defaultThemeFontColor }),
+          ...(defaultThemeToolbarColor !== undefined && { themeToolbarColor: defaultThemeToolbarColor }),
+          ...(defaultThemeToolsToolbarColor !== undefined && { themeToolsToolbarColor: defaultThemeToolsToolbarColor }),
+        }
+      })
+    }
+
     return NextResponse.json({ book })
   } catch (error) {
+    console.error("Error updating book settings:", error)
     return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 })
   }
 }

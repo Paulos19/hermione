@@ -41,6 +41,29 @@ export async function POST(request: Request) {
       order = count
     }
 
+    let initialTheme = {
+      themeBgColor: "#0B0F12",
+      themeBgImage: "",
+      themeFontColor: "rgba(255,255,255,0.93)",
+      themeToolbarColor: "rgba(255,255,255,0.04)",
+      themeToolsToolbarColor: "rgba(15, 20, 25, 0.98)"
+    }
+
+    if (bookId) {
+      const book = await prisma.book.findUnique({
+        where: { id: bookId, userId: user.id }
+      })
+      if (book) {
+        initialTheme = {
+          themeBgColor: book.defaultThemeBgColor || "#0B0F12",
+          themeBgImage: book.defaultThemeBgImage || "",
+          themeFontColor: book.defaultThemeFontColor || "rgba(255,255,255,0.93)",
+          themeToolbarColor: book.defaultThemeToolbarColor || "rgba(255,255,255,0.04)",
+          themeToolsToolbarColor: book.defaultThemeToolsToolbarColor || "rgba(15, 20, 25, 0.98)"
+        }
+      }
+    }
+
     const document = await prisma.document.create({
       data: {
         userId: user.id,
@@ -55,6 +78,7 @@ export async function POST(request: Request) {
             },
           ],
         }),
+        ...initialTheme
       },
     })
 
