@@ -46,7 +46,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       defaultFontSize, defaultFontFamily, defaultFontWeight, defaultParagraphIndent,
       securityType, pin,
       defaultThemeBgColor, defaultThemeBgImage, defaultThemeFontColor, defaultThemeToolbarColor, defaultThemeToolsToolbarColor,
-      applyToAllChapters
+      applyToAllChapters,
+      summary, synopsis
     } = body
 
     const book = await prisma.book.update({
@@ -66,6 +67,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         ...(defaultThemeFontColor !== undefined && { defaultThemeFontColor }),
         ...(defaultThemeToolbarColor !== undefined && { defaultThemeToolbarColor }),
         ...(defaultThemeToolsToolbarColor !== undefined && { defaultThemeToolsToolbarColor }),
+        ...(summary !== undefined && { summary }),
+        ...(synopsis !== undefined && { synopsis }),
       },
     })
 

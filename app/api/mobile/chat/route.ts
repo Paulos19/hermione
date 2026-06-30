@@ -54,6 +54,14 @@ export async function POST(request: Request) {
       if (book) {
         let loreContext = `\n\n--- INFORMAÇÕES DA HISTÓRIA (LIVRO: ${book.title}) ---\n`;
         
+        if (book.synopsis) {
+          loreContext += `\nSINOPSE DA HISTÓRIA:\n${book.synopsis}\n`;
+        }
+
+        if (book.summary) {
+          loreContext += `\nRESUMO DA HISTÓRIA:\n${book.summary}\n`;
+        }
+
         if (book.characters && book.characters.length > 0) {
           loreContext += "\nPERSONAGENS:\n";
           book.characters.forEach((c: any) => {
