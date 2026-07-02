@@ -49,6 +49,7 @@ model Book {
   id          String     @id @default(cuid())
   userId      String
   title       String     @default("Sem Título")
+  category    String?    @default("Fantasia")
   coverImage  String?    @db.Text
   targetWords Int        @default(50000)
   defaultFontSize String? @default("18px")

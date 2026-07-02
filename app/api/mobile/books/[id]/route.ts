@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { verifyToken } from "@/lib/jwt"
 
+export const dynamic = "force-dynamic";
+
 function getUserFromRequest(request: Request) {
   const authHeader = request.headers.get("Authorization")
   if (!authHeader || !authHeader.startsWith("Bearer ")) return null
@@ -42,7 +44,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const body = await request.json()
     const { 
-      title, coverImage, targetWords, 
+      title, category, coverImage, targetWords, 
       defaultFontSize, defaultFontFamily, defaultFontWeight, defaultParagraphIndent,
       securityType, pin,
       defaultThemeBgColor, defaultThemeBgImage, defaultThemeFontColor, defaultThemeToolbarColor, defaultThemeToolsToolbarColor,
@@ -54,6 +56,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       where: { id, userId: user.id },
       data: {
         ...(title !== undefined && { title }),
+        ...(category !== undefined && { category }),
         ...(coverImage !== undefined && { coverImage }),
         ...(targetWords !== undefined && { targetWords }),
         ...(defaultFontSize !== undefined && { defaultFontSize }),
