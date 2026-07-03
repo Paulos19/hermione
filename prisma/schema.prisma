@@ -16,6 +16,7 @@ model User {
   dailyGoal     Int           @default(1000)
   resetToken    String?
   resetTokenExpiry DateTime?
+  emailVerified DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   sessions      ChatSession[]

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import nodemailer from "nodemailer";
 import { verifyToken } from "@/lib/jwt";
-import { getResetEmailTemplate } from "@/lib/emailTemplates";
+import { getVerificationEmailTemplate } from "@/lib/emailTemplates";
 
 function getUserFromRequest(request: Request) {
   const authHeader = request.headers.get("Authorization")
@@ -18,8 +18,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { type } = await req.json(); // type can be "pin" or "password"
-    
     // Generate 6 digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
@@ -32,6 +30,10 @@ export async function POST(req: Request) {
       }
     });
 
+    if (user.emailVerified) {
+        return NextResponse.json({ error: "Email já verificado" }, { status: 400 });
+    }
+
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SERVER_HOST,
       port: Number(process.env.EMAIL_SERVER_PORT),
@@ -42,19 +44,18 @@ export async function POST(req: Request) {
       },
     });
 
-    const title = type === "pin" ? "Resetar PIN Mestre" : "Resetar Senha";
-    const body = getResetEmailTemplate(code, type);
+    const body = getVerificationEmailTemplate(code);
 
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: user.email,
-      subject: `Código de Verificação - ${title}`,
+      subject: `Código de Verificação de E-mail`,
       html: body,
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error requesting reset:", error);
-    return NextResponse.json({ error: "Failed to request reset" }, { status: 500 });
+    console.error("Error requesting verification:", error);
+    return NextResponse.json({ error: "Failed to request verification" }, { status: 500 });
   }
 }

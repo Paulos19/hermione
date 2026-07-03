@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: userPayload.id },
-      select: { id: true, name: true, email: true, ragContext: true, image: true }
+      select: { id: true, name: true, email: true, ragContext: true, image: true, emailVerified: true }
     })
 
     if (!user) {
@@ -49,7 +49,7 @@ export async function PUT(request: Request) {
         dailyGoal,
         image,
       },
-      select: { id: true, name: true, email: true, ragContext: true, dailyGoal: true, image: true }
+      select: { id: true, name: true, email: true, ragContext: true, dailyGoal: true, image: true, emailVerified: true }
     })
 
     return NextResponse.json({ user: updatedUser })
