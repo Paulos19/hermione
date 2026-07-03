@@ -1,19 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
 import bcrypt from "bcryptjs";
+import { verifyToken } from "@/lib/jwt";
+
+function getUserFromRequest(request: Request) {
+  const authHeader = request.headers.get("Authorization")
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return null
+  const token = authHeader.split(" ")[1]
+  return verifyToken(token)
+}
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session || !session.user) {
+    const userPayload = getUserFromRequest(req);
+    if (!userPayload || !userPayload.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { type, code, newPassword } = await req.json();
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
+      where: { id: userPayload.id }
     });
 
     if (!user || !user.resetToken || user.resetToken !== code) {
@@ -31,7 +38,7 @@ export async function POST(req: Request) {
       }
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await prisma.user.update({
-        where: { id: session.user.id },
+        where: { id: userPayload.id },
         data: {
           password: hashedPassword,
           resetToken: null,
@@ -41,7 +48,7 @@ export async function POST(req: Request) {
     } else {
       // Se for PIN, só limpamos o token pois o PIN é trocado localmente no device
       await prisma.user.update({
-        where: { id: session.user.id },
+        where: { id: userPayload.id },
         data: {
           resetToken: null,
           resetTokenExpiry: null

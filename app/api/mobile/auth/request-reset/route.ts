@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import nodemailer from "nodemailer";
-import { auth } from "@/auth"; // assuming next-auth
+import { verifyToken } from "@/lib/jwt";
+
+function getUserFromRequest(request: Request) {
+  const authHeader = request.headers.get("Authorization")
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return null
+  const token = authHeader.split(" ")[1]
+  return verifyToken(token)
+}
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session || !session.user) {
+    const userPayload = getUserFromRequest(req);
+    if (!userPayload || !userPayload.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -16,8 +23,8 @@ export async function POST(req: Request) {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
 
-    await prisma.user.update({
-      where: { id: session.user.id },
+    const user = await prisma.user.update({
+      where: { id: userPayload.id },
       data: {
         resetToken: code,
         resetTokenExpiry: expiry
@@ -47,7 +54,7 @@ export async function POST(req: Request) {
 
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
-      to: session.user.email!,
+      to: user.email,
       subject: `Código de Verificação - ${title}`,
       html: body,
     });
