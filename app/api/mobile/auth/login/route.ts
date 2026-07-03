@@ -34,7 +34,8 @@ export async function POST(request: Request) {
         name: user.name,
         email: user.email,
         ragContext: user.ragContext,
-        isPremium: user.isPremium
+        isPremium: user.isPremium,
+        emailVerified: user.emailVerified
       }
     })
   } catch (error) {
