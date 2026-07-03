@@ -46,7 +46,7 @@ export default async function Home() {
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
           Controle de Acesso com{" "}
           <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Hermione
+            Hermiones
           </span>
         </h1>
         <p className="text-lg md:text-xl text-zinc-400 mb-10 max-w-lg">
