@@ -17,6 +17,11 @@ model User {
   resetToken    String?
   resetTokenExpiry DateTime?
   emailVerified DateTime?
+  
+  isPremium     Boolean       @default(false)
+  stripeCustomerId String?    @unique
+  stripeSubscriptionId String? @unique
+
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   sessions      ChatSession[]

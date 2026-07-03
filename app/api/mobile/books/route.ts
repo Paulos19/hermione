@@ -30,6 +30,19 @@ export async function POST(request: Request) {
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        _count: {
+          select: { books: true }
+        }
+      }
+    })
+
+    if (!dbUser?.isPremium && dbUser?._count.books! >= 5) {
+      return NextResponse.json({ error: "Limite de 5 projetos atingido no plano gratuito. Assine o premium para projetos ilimitados!" }, { status: 403 })
+    }
+
     const body = await request.json()
     const { title, coverImage, securityType, pin } = body
 

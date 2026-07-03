@@ -33,7 +33,8 @@ export async function POST(request: Request) {
         id: user.id,
         name: user.name,
         email: user.email,
-        ragContext: user.ragContext
+        ragContext: user.ragContext,
+        isPremium: user.isPremium
       }
     })
   } catch (error) {

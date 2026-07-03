@@ -30,6 +30,15 @@ export async function POST(request: Request) {
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { isPremium: true }
+    })
+
+    if (!dbUser?.isPremium) {
+      return NextResponse.json({ error: "O Chat da Hermione é exclusivo para assinantes Premium." }, { status: 403 })
+    }
+
     const chatSession = await prisma.chatSession.create({
       data: {
         userId: user.id,
