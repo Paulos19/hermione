@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: userPayload.id },
-      select: { id: true, name: true, email: true, ragContext: true }
+      select: { id: true, name: true, email: true, ragContext: true, image: true }
     })
 
     if (!user) {
@@ -39,7 +39,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
     }
 
-    const { name, ragContext, dailyGoal } = await request.json()
+    const { name, ragContext, dailyGoal, image } = await request.json()
 
     const updatedUser = await prisma.user.update({
       where: { id: userPayload.id },
@@ -47,8 +47,9 @@ export async function PUT(request: Request) {
         name,
         ragContext,
         dailyGoal,
+        image,
       },
-      select: { id: true, name: true, email: true, ragContext: true, dailyGoal: true }
+      select: { id: true, name: true, email: true, ragContext: true, dailyGoal: true, image: true }
     })
 
     return NextResponse.json({ user: updatedUser })
