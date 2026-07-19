@@ -191,6 +191,7 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
             let initialContent = activeDocument?.content || ''
             return (
               <TiptapYjsEditor 
+                key={activeDocumentId}
                 documentId={activeDocumentId} 
                 bookId={book.id}
                 currentUser={currentUser} 
