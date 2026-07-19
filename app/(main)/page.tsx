@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import ChatInterface from "@/app/components/ChatInterface"
+import { signToken } from "@/lib/jwt"
 
 export default async function Home() {
   const session = await auth()
@@ -11,6 +12,7 @@ export default async function Home() {
     const sessionsData = await prisma.chatSession.findMany({
       where: { userId: session.user.id },
       orderBy: { updatedAt: "desc" },
+      take: 50, // Limita para não explodir o Next-Router-State-Tree
     })
 
     const serializedSessions = sessionsData.map((s: any) => ({
@@ -25,10 +27,18 @@ export default async function Home() {
       email: session.user.email,
     }
 
+    // Gera um token JWT compatível com o backend móvel (API)
+    const wsToken = signToken({
+      id: currentUser.id,
+      email: currentUser.email,
+      name: currentUser.name,
+    })
+
     return (
       <ChatInterface
         initialSessions={serializedSessions}
         currentUser={currentUser}
+        wsToken={wsToken}
       />
     )
   }
@@ -46,7 +56,7 @@ export default async function Home() {
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
           Controle de Acesso com{" "}
           <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Hermiones
+            Hermione
           </span>
         </h1>
         <p className="text-lg md:text-xl text-zinc-400 mb-10 max-w-lg">

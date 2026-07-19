@@ -4,10 +4,10 @@ import React, { useState, useEffect, useRef, useTransition } from "react"
 import {
   criarSessaoAction,
   deletarSessaoAction,
-  enviarMensagemAction,
   carregarMensagensAction
 } from "@/app/actions/chat"
 import { logoutAction } from "@/app/actions/auth"
+import { useChatWebSocket } from "@/app/hooks/useChatWebSocket"
 import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 
@@ -33,17 +33,43 @@ interface Message {
 interface ChatInterfaceProps {
   initialSessions: Session[]
   currentUser: User
+  wsToken: string
 }
 
-export default function ChatInterface({ initialSessions, currentUser }: ChatInterfaceProps) {
+export default function ChatInterface({ initialSessions, currentUser, wsToken }: ChatInterfaceProps) {
   const [sessions, setSessions] = useState<Session[]>(initialSessions)
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
+  const [systemMessage, setSystemMessage] = useState<string | null>(null)
   
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [isPending, startTransition] = useTransition()
+
+  // Configura WebSocket
+  const { isConnected, sendChatMessage } = useChatWebSocket(
+    activeSessionId,
+    wsToken,
+    (msg) => {
+      // Quando recebe mensagem via WebSocket
+      setMessages((prev) => {
+        // Se a mensagem já existe (optimistic update), não duplica
+        if (prev.some(m => m.id === msg.id)) return prev;
+        return [...prev, { ...msg, createdAt: new Date(msg.createdAt || Date.now()) }];
+      });
+      setIsSending(false);
+      setSystemMessage(null);
+    },
+    (sysMsg) => {
+      setSystemMessage(sysMsg);
+    },
+    (errMsg) => {
+      console.error("WS Error:", errMsg);
+      setIsSending(false);
+      setSystemMessage(null);
+    }
+  )
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -117,14 +143,15 @@ export default function ChatInterface({ initialSessions, currentUser }: ChatInte
   // Handle message send
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || !activeSessionId || isSending) return
+    if (!input.trim() || !activeSessionId || isSending || !isConnected) return
 
     const messageText = input.trim()
     setInput("")
 
     // Optimistic update
+    const tempId = Date.now().toString();
     const tempUserMessage: Message = {
-      id: Math.random().toString(),
+      id: tempId,
       role: "user",
       content: messageText,
       createdAt: new Date(),
@@ -133,19 +160,8 @@ export default function ChatInterface({ initialSessions, currentUser }: ChatInte
     setIsSending(true)
 
     try {
-      const responseMessage = await enviarMensagemAction(activeSessionId, messageText)
-      
-      // Update actual message list with saved db entry and assistant response
-      setMessages((prev) => {
-        // filter out the temporary user message and append the correct DB items
-        const filtered = prev.filter((m) => m.id !== tempUserMessage.id)
-        return [...filtered, {
-          id: responseMessage.id,
-          role: "user", // Keep the user query in position
-          content: messageText,
-          createdAt: new Date(),
-        }, responseMessage]
-      })
+      // Envia via WebSocket em vez de Server Action
+      sendChatMessage(messageText);
 
       // Update session title locally if it was the first message
       const activeSession = sessions.find((s) => s.id === activeSessionId)
@@ -157,7 +173,6 @@ export default function ChatInterface({ initialSessions, currentUser }: ChatInte
       }
     } catch (err) {
       console.error("Erro ao enviar mensagem:", err)
-    } finally {
       setIsSending(false)
     }
   }
@@ -329,13 +344,16 @@ export default function ChatInterface({ initialSessions, currentUser }: ChatInte
           <div className="flex-1 flex flex-col h-full relative z-10 overflow-hidden">
             {/* Header */}
             <header className="p-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/80 backdrop-blur-md">
-              <div>
-                <h2 className="text-base font-semibold text-zinc-100">
-                  {sessions.find((s) => s.id === activeSessionId)?.title}
-                </h2>
-                <p className="text-xs text-zinc-500">
-                  Powered by Hermione AI & n8n
-                </p>
+              <div className="flex items-center gap-3">
+                <div>
+                  <h2 className="text-base font-semibold text-zinc-100 flex items-center gap-2">
+                    {sessions.find((s) => s.id === activeSessionId)?.title}
+                    <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`} title={isConnected ? "Sincronizado" : "Desconectado"} />
+                  </h2>
+                  <p className="text-xs text-zinc-500">
+                    Powered by Hermione AI & n8n
+                  </p>
+                </div>
               </div>
             </header>
 
@@ -410,13 +428,17 @@ export default function ChatInterface({ initialSessions, currentUser }: ChatInte
                 })
               )}
 
-              {/* Typing indicator */}
-              {isSending && (
+              {/* Typing indicator / System Message */}
+              {(isSending || systemMessage) && (
                 <div className="flex justify-start">
-                  <div className="bg-zinc-900/60 backdrop-blur-md border border-zinc-800 rounded-2xl rounded-bl-none px-5 py-3.5 flex items-center gap-1.5">
-                    <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" />
+                  <div className="bg-zinc-900/60 backdrop-blur-md border border-zinc-800 rounded-2xl rounded-bl-none px-5 py-3.5 flex items-center gap-2 text-sm text-zinc-300">
+                    {systemMessage || (
+                      <>
+                        <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                        <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" />
+                      </>
+                    )}
                   </div>
                 </div>
               )}
