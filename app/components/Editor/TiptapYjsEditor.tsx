@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Collaboration from "@tiptap/extension-collaboration"
@@ -38,16 +38,44 @@ interface TiptapYjsEditorProps {
 }
 
 export default function TiptapYjsEditor({ documentId, bookId, currentUser, wsToken, initialContent }: TiptapYjsEditorProps) {
-  const [provider, setProvider] = useState<WebsocketProvider | null>(null)
-  
-  // Random color for cursor
-  const colors = ['#958DF1', '#F98181', '#FBCE41', '#4D96FF', '#68CE86']
-  const cursorColor = colors[Math.floor(Math.random() * colors.length)]
+  const cursorColor = useMemo(() => {
+    const colors = ['#958DF1', '#F98181', '#FBCE41', '#4D96FF', '#68CE86']
+    return colors[Math.floor(Math.random() * colors.length)]
+  }, [])
+
+  const { ydoc, wsProvider } = useMemo(() => {
+    const doc = new Y.Doc()
+    const WS_URL = 'wss://services-websckt.khdya3.easypanel.host/ws/editor'
+    const prov = new WebsocketProvider(WS_URL, documentId, doc, {
+      params: { auth: wsToken }
+    })
+    return { ydoc: doc, wsProvider: prov }
+  }, [documentId, wsToken])
+
+  useEffect(() => {
+    wsProvider.on('status', (event: { status: string }) => {
+      console.log('Status do Yjs Editor Web:', event.status)
+    })
+    return () => {
+      wsProvider.destroy()
+      ydoc.destroy()
+    }
+  }, [wsProvider, ydoc])
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         undoRedo: false, // Desabilitar histórico do StarterKit para o Yjs gerenciar
+      }),
+      Collaboration.configure({
+        document: ydoc,
+      }),
+      CollaborationCursor.configure({
+        provider: wsProvider,
+        user: {
+          name: currentUser.name || currentUser.email.split('@')[0],
+          color: cursorColor,
+        },
       }),
       Underline,
       TextStyle,
@@ -82,52 +110,6 @@ export default function TiptapYjsEditor({ documentId, bookId, currentUser, wsTok
       }, 2000);
     }
   })
-
-  useEffect(() => {
-    if (!editor || !documentId) return
-
-    // 1. Instanciar documento Yjs
-    const ydoc = new Y.Doc()
-
-    // 2. Conectar ao servidor WebSocket
-    const WS_URL = 'wss://services-websckt.khdya3.easypanel.host/ws/editor'
-    
-    // O y-websocket permite passar parâmetros na URL (aqui passamos o token)
-    const wsProvider = new WebsocketProvider(WS_URL, documentId, ydoc, {
-      params: { auth: wsToken }
-    })
-    
-    setProvider(wsProvider)
-
-    // 3. Adicionar as extensões dinamicamente
-    editor.extensionManager.extensions.push(
-      Collaboration.configure({
-        document: ydoc,
-      })
-    )
-    
-    editor.extensionManager.extensions.push(
-      CollaborationCursor.configure({
-        provider: wsProvider,
-        user: {
-          name: currentUser.name || currentUser.email.split('@')[0],
-          color: cursorColor,
-        },
-      })
-    )
-
-    // Precisamos forçar uma recriação das views internas do tiptap ao injetar as extensões colaborativas
-    editor.view.updateState(editor.state)
-
-    wsProvider.on('status', (event: { status: string }) => {
-      console.log('Status do Yjs Editor Web:', event.status) // 'connected' ou 'disconnected'
-    })
-
-    return () => {
-      wsProvider.destroy()
-      ydoc.destroy()
-    }
-  }, [editor, documentId, wsToken, currentUser])
 
   if (!editor) {
     return <div className="p-8 text-zinc-500">Iniciando editor...</div>

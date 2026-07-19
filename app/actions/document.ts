@@ -13,10 +13,17 @@ export async function salvarDocumentoAction(id: string, content: string, bookId:
     where: { id: bookId },
     select: { securityType: true, pin: true }
   })
+  
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { masterPin: true }
+  })
+
+  const pinToUse = user?.masterPin || book?.pin;
 
   let finalContent = content
-  if ((book?.securityType === 'pin' || book?.securityType === 'biometrics') && book.pin) {
-    finalContent = encryptData(content, book.pin) || content
+  if ((book?.securityType === 'pin' || book?.securityType === 'biometrics') && pinToUse) {
+    finalContent = encryptData(content, pinToUse) || content
   }
 
   await prisma.document.update({

@@ -69,21 +69,9 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
     if (!unlocked && isEncrypted) {
       // 1. Tentar com o PIN do servidor (user.masterPin ou book.pin)
       if (pin) {
-        const testDoc = documents.find(d => isEncryptedText(d.content) || isEncryptedText(d.title))
-        if (testDoc) {
-          const textToDecrypt = isEncryptedText(testDoc.content) ? testDoc.content : testDoc.title
-          const decrypted = decryptData(textToDecrypt, pin)
-          if (decrypted !== "ERRO_DESCRIPTOGRAFIA") {
-            setInputPin(pin)
-            setUnlocked(true)
-            return
-          }
-        } else {
-          // Livro marcado como encriptado mas sem docs encriptados
-          setInputPin(pin)
-          setUnlocked(true)
-          return
-        }
+        setInputPin(pin)
+        setUnlocked(true)
+        return
       }
 
       // 2. Fallback: tentar com o PIN do localStorage
