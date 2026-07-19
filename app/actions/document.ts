@@ -26,11 +26,11 @@ export async function salvarDocumentoAction(id: string, content: string, bookId:
     finalContent = encryptData(content, pinToUse) || content
   }
 
+  const doc = await prisma.document.findUnique({ where: { id }, select: { userId: true } })
+  if (doc?.userId !== session.user.id) throw new Error("Não autorizado")
+
   await prisma.document.update({
-    where: { 
-      id,
-      userId: session.user.id
-    },
+    where: { id },
     data: {
       content: finalContent,
     }
