@@ -92,7 +92,8 @@ export default function TiptapYjsEditor({ documentId, bookId, currentUser, wsTok
       UppercaseExtension,
       EmDashExtension
     ],
-    content: initialContent || '',
+    // "content" must not be set here when using Collaboration extension, 
+    // it will cause "Cannot read properties of undefined (reading 'doc')"
     editorProps: {
       attributes: {
         class: 'prose prose-invert prose-lg max-w-none focus:outline-none min-h-[60vh] text-zinc-300 mx-auto mt-8 px-8',
@@ -110,6 +111,33 @@ export default function TiptapYjsEditor({ documentId, bookId, currentUser, wsTok
       }, 2000);
     }
   })
+
+  // Load initial content if the server document is empty
+  useEffect(() => {
+    if (!editor || !wsProvider) return;
+
+    const handleSync = (isSynced: boolean) => {
+      if (isSynced) {
+        // If document is completely empty after syncing, it means the server 
+        // doesn't have it (e.g. server restarted or new document)
+        // We inject the DB content manually.
+        if (editor.isEmpty && initialContent) {
+          editor.commands.setContent(initialContent);
+        }
+      }
+    };
+
+    wsProvider.on('sync', handleSync);
+    
+    // Check if it's already synced
+    if (wsProvider.synced && editor.isEmpty && initialContent) {
+      editor.commands.setContent(initialContent);
+    }
+
+    return () => {
+      wsProvider.off('sync', handleSync);
+    }
+  }, [editor, wsProvider, initialContent]);
 
   if (!editor) {
     return <div className="p-8 text-zinc-500">Iniciando editor...</div>

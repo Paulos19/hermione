@@ -2,8 +2,13 @@
 
 import { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
-import TiptapYjsEditor from "./TiptapYjsEditor"
+import dynamic from "next/dynamic"
 import { decryptData, isEncrypted as isEncryptedText } from "@/lib/encryption"
+
+const TiptapYjsEditor = dynamic(() => import("./TiptapYjsEditor"), {
+  ssr: false,
+  loading: () => <div className="p-8 text-zinc-500 w-full flex justify-center">Iniciando editor colaborativo...</div>
+})
 
 interface EditorClientProps {
   book: any
