@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: userPayload.id },
-      select: { id: true, name: true, email: true, ragContext: true, image: true, emailVerified: true, isPremium: true }
+      select: { id: true, name: true, email: true, ragContext: true, image: true, emailVerified: true, isPremium: true, masterPin: true }
     })
 
     if (!user) {
@@ -39,17 +39,19 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
     }
 
-    const { name, ragContext, dailyGoal, image } = await request.json()
+    const { name, ragContext, dailyGoal, image, masterPin } = await request.json()
+
+    const dataToUpdate: any = {}
+    if (name !== undefined) dataToUpdate.name = name
+    if (ragContext !== undefined) dataToUpdate.ragContext = ragContext
+    if (dailyGoal !== undefined) dataToUpdate.dailyGoal = dailyGoal
+    if (image !== undefined) dataToUpdate.image = image
+    if (masterPin !== undefined) dataToUpdate.masterPin = masterPin
 
     const updatedUser = await prisma.user.update({
       where: { id: userPayload.id },
-      data: {
-        name,
-        ragContext,
-        dailyGoal,
-        image,
-      },
-      select: { id: true, name: true, email: true, ragContext: true, dailyGoal: true, image: true, emailVerified: true }
+      data: dataToUpdate,
+      select: { id: true, name: true, email: true, ragContext: true, dailyGoal: true, image: true, emailVerified: true, masterPin: true }
     })
 
     return NextResponse.json({ user: updatedUser })

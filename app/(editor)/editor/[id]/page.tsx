@@ -4,7 +4,8 @@ import { redirect } from "next/navigation"
 import EditorClient from "@/app/components/Editor/EditorClient"
 import { signToken } from "@/lib/jwt"
 
-export default async function EditorPage({ params }: { params: { id: string } }) {
+export default async function EditorPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth()
   
   if (!session?.user?.id) {
@@ -13,13 +14,14 @@ export default async function EditorPage({ params }: { params: { id: string } })
 
   // Busca o livro com seus capítulos (documents)
   const book = await prisma.book.findUnique({
-    where: { id: params.id, userId: session.user.id },
+    where: { id: id, userId: session.user.id },
     include: {
       documents: {
         select: {
           id: true,
           title: true,
           order: true,
+          content: true,
         },
         orderBy: { order: "asc" }
       }
@@ -29,6 +31,12 @@ export default async function EditorPage({ params }: { params: { id: string } })
   if (!book) {
     redirect("/dashboard")
   }
+
+  // Buscar o masterPin do usuário no banco de dados
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { masterPin: true }
+  })
 
   const currentUser = {
     id: session.user.id,
@@ -42,12 +50,17 @@ export default async function EditorPage({ params }: { params: { id: string } })
     name: currentUser.name,
   })
 
+  // Usar o masterPin do usuário (banco) como fonte principal, com fallback para o pin do livro
+  const masterPin = user?.masterPin || book.pin
+
   return (
     <EditorClient 
       book={book}
       documents={book.documents}
       currentUser={currentUser}
       wsToken={wsToken}
+      pin={masterPin}
+      isEncrypted={book.securityType === 'pin' || book.securityType === 'biometrics'}
     />
   )
 }

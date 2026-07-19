@@ -31,11 +31,13 @@ import EditorToolbar from './EditorToolbar'
 
 interface TiptapYjsEditorProps {
   documentId: string
+  bookId: string
   currentUser: { id: string, name: string | null, email: string }
   wsToken: string
+  initialContent?: string
 }
 
-export default function TiptapYjsEditor({ documentId, currentUser, wsToken }: TiptapYjsEditorProps) {
+export default function TiptapYjsEditor({ documentId, bookId, currentUser, wsToken, initialContent }: TiptapYjsEditorProps) {
   const [provider, setProvider] = useState<WebsocketProvider | null>(null)
   
   // Random color for cursor
@@ -62,7 +64,7 @@ export default function TiptapYjsEditor({ documentId, currentUser, wsToken }: Ti
       UppercaseExtension,
       EmDashExtension
     ],
-    content: '',
+    content: initialContent || '',
     editorProps: {
       attributes: {
         class: 'prose prose-invert prose-lg max-w-none focus:outline-none min-h-[60vh] text-zinc-300 mx-auto mt-8 px-8',
@@ -76,7 +78,7 @@ export default function TiptapYjsEditor({ documentId, currentUser, wsToken }: Ti
         clearTimeout((window as any)._saveTimeout);
       }
       (window as any)._saveTimeout = setTimeout(() => {
-        salvarDocumentoAction(documentId, html).catch(console.error);
+        salvarDocumentoAction(documentId, html, bookId).catch(console.error);
       }, 2000);
     }
   })

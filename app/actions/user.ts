@@ -27,3 +27,24 @@ export async function salvarRagAction(prevState: any, formData: FormData): Promi
     return { error: "Erro ao salvar as configurações. Tente novamente." }
   }
 }
+
+export async function salvarMasterPinAction(pin: string): Promise<{ success?: string; error?: string }> {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { error: "Não autorizado." }
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        masterPin: pin,
+      },
+    })
+
+    return { success: "PIN Mestre salvo com sucesso!" }
+  } catch (error) {
+    console.error("Erro ao salvar PIN Mestre:", error)
+    return { error: "Erro ao salvar o PIN Mestre. Tente novamente." }
+  }
+}

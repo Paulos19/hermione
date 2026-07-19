@@ -1,46 +1,12 @@
 import { auth } from "@/auth"
 import Link from "next/link"
-import { prisma } from "@/lib/prisma"
-import ChatInterface from "@/app/components/ChatInterface"
-import { signToken } from "@/lib/jwt"
+import { redirect } from "next/navigation"
 
 export default async function Home() {
   const session = await auth()
 
   if (session && session.user?.email) {
-    // Query user's previous sessions
-    const sessionsData = await prisma.chatSession.findMany({
-      where: { userId: session.user.id },
-      orderBy: { updatedAt: "desc" },
-      take: 50, // Limita para não explodir o Next-Router-State-Tree
-    })
-
-    const serializedSessions = sessionsData.map((s: any) => ({
-      id: s.id,
-      title: s.title,
-      createdAt: s.createdAt,
-    }))
-
-    const currentUser = {
-      id: session.user.id || "",
-      name: session.user.name || null,
-      email: session.user.email,
-    }
-
-    // Gera um token JWT compatível com o backend móvel (API)
-    const wsToken = signToken({
-      id: currentUser.id,
-      email: currentUser.email,
-      name: currentUser.name,
-    })
-
-    return (
-      <ChatInterface
-        initialSessions={serializedSessions}
-        currentUser={currentUser}
-        wsToken={wsToken}
-      />
-    )
+    redirect("/dashboard")
   }
 
   return (

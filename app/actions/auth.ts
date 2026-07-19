@@ -52,7 +52,7 @@ export async function loginAction(prevState: any, formData: FormData) {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/",
+      redirectTo: "/dashboard",
     })
     return { success: true }
   } catch (error) {

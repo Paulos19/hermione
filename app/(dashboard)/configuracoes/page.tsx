@@ -12,8 +12,8 @@ export default async function ConfiguracoesPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { ragContext: true },
+    select: { ragContext: true, masterPin: true },
   })
 
-  return <ConfigForm initialRag={user?.ragContext || null} />
+  return <ConfigForm initialRag={user?.ragContext || null} initialMasterPin={user?.masterPin || null} />
 }

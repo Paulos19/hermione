@@ -7,23 +7,24 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  name          String?
-  email         String        @unique
-  password      String?
-  image         String?
-  ragContext    String?       @db.Text
-  dailyGoal     Int           @default(1000)
-  resetToken    String?
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  password         String?
+  image            String?
+  ragContext       String?   @db.Text
+  dailyGoal        Int       @default(1000)
+  resetToken       String?
   resetTokenExpiry DateTime?
-  emailVerified DateTime?
-  
-  isPremium     Boolean       @default(false)
-  stripeCustomerId String?    @unique
+  emailVerified    DateTime?
+  masterPin        String?
+
+  isPremium            Boolean @default(false)
+  stripeCustomerId     String? @unique
   stripeSubscriptionId String? @unique
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   sessions      ChatSession[]
   books         Book[]
   documents     Document[]
@@ -45,7 +46,7 @@ model ChatSession {
 model ChatMessage {
   id        String      @id @default(cuid())
   sessionId String
-  role      String      // "user" or "assistant"
+  role      String // "user" or "assistant"
   content   String
   createdAt DateTime    @default(now())
   session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
@@ -54,58 +55,58 @@ model ChatMessage {
 }
 
 model Book {
-  id          String     @id @default(cuid())
-  userId      String
-  title       String     @default("Sem Título")
-  category    String?    @default("Fantasia")
-  coverImage  String?    @db.Text
-  targetWords Int        @default(50000)
-  defaultFontSize String? @default("18px")
-  defaultFontFamily String? @default("Inter")
-  defaultFontWeight String? @default("400")
-  defaultParagraphIndent Boolean? @default(false)
-  securityType String?    @default("none") // "none", "pin", "biometrics"
-  pin          String?
-  defaultThemeBgColor String?  @default("#0B0F12")
-  defaultThemeBgImage String?  @db.Text
-  defaultThemeFontColor String?  @default("rgba(255,255,255,0.93)")
-  defaultThemeToolbarColor String?  @default("rgba(255,255,255,0.04)")
-  defaultThemeToolsToolbarColor String? @default("rgba(15, 20, 25, 0.98)")
-  summary     String?    @db.Text
-  synopsis    String?    @db.Text
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documents   Document[]
-  characters  Character[]
-  notes       BookNote[]
+  id                            String      @id @default(cuid())
+  userId                        String
+  title                         String      @default("Sem Título")
+  category                      String?     @default("Fantasia")
+  coverImage                    String?     @db.Text
+  targetWords                   Int         @default(50000)
+  defaultFontSize               String?     @default("18px")
+  defaultFontFamily             String?     @default("Inter")
+  defaultFontWeight             String?     @default("400")
+  defaultParagraphIndent        Boolean?    @default(false)
+  securityType                  String?     @default("none") // "none", "pin", "biometrics"
+  pin                           String?
+  defaultThemeBgColor           String?     @default("#0B0F12")
+  defaultThemeBgImage           String?     @db.Text
+  defaultThemeFontColor         String?     @default("rgba(255,255,255,0.93)")
+  defaultThemeToolbarColor      String?     @default("rgba(255,255,255,0.04)")
+  defaultThemeToolsToolbarColor String?     @default("rgba(15, 20, 25, 0.98)")
+  summary                       String?     @db.Text
+  synopsis                      String?     @db.Text
+  createdAt                     DateTime    @default(now())
+  updatedAt                     DateTime    @updatedAt
+  user                          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents                     Document[]
+  characters                    Character[]
+  notes                         BookNote[]
 
   @@index([userId])
 }
 
 model Document {
-  id        String   @id @default(cuid())
-  userId    String
-  title     String   @default("Sem Título")
-  order     Int      @default(0)
-  content    String?  @db.Text
-  wordCount  Int      @default(0)
-  wordGoal   Int      @default(5000)
-  customGoal String?  @db.Text
-  createdAt  DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  bookId    String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book      Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  themeBgColor      String?  @default("#0B0F12")
-  themeBgImage      String?  @db.Text
-  themeFontColor    String?  @default("rgba(255,255,255,0.93)")
-  themeToolbarColor String?  @default("rgba(255,255,255,0.04)")
-  themeToolsToolbarColor String? @default("rgba(255,255,255,0.04)")
+  id                     String   @id @default(cuid())
+  userId                 String
+  title                  String   @default("Sem Título")
+  order                  Int      @default(0)
+  content                String?  @db.Text
+  wordCount              Int      @default(0)
+  wordGoal               Int      @default(5000)
+  customGoal             String?  @db.Text
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  bookId                 String?
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book                   Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  themeBgColor           String?  @default("#0B0F12")
+  themeBgImage           String?  @db.Text
+  themeFontColor         String?  @default("rgba(255,255,255,0.93)")
+  themeToolbarColor      String?  @default("rgba(255,255,255,0.04)")
+  themeToolsToolbarColor String?  @default("rgba(255,255,255,0.04)")
 
-  chapterNotes      String?  @db.Text
-  checklist         Json?
-  aiHistory         Json?
+  chapterNotes String? @db.Text
+  checklist    Json?
+  aiHistory    Json?
 
   @@index([userId])
   @@index([bookId])
@@ -115,7 +116,7 @@ model Character {
   id          String   @id @default(cuid())
   bookId      String
   name        String
-  role        String?  // Protagonist, Antagonist, etc
+  role        String? // Protagonist, Antagonist, etc
   description String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -125,13 +126,13 @@ model Character {
 }
 
 model BookNote {
-  id          String   @id @default(cuid())
-  bookId      String
-  title       String
-  content     String?  @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  book        Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  bookId    String
+  title     String
+  content   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@index([bookId])
 }
@@ -139,7 +140,7 @@ model BookNote {
 model DailyProgress {
   id        String   @id @default(cuid())
   userId    String
-  date      String   // Formato YYYY-MM-DD
+  date      String // Formato YYYY-MM-DD
   words     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
