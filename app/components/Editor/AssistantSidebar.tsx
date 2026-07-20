@@ -138,7 +138,7 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
         
         // Clean trailing "undefined" that might come from the n8n webhook concatenation
         const cleanContent = typeof msg.content === 'string' 
-          ? msg.content.replace(/undefined$/, '').trim() 
+          ? msg.content.replace(/(?:undefined\s*)+$/, '').trim() 
           : msg.content;
           
         return [...prev, { ...msg, content: cleanContent, createdAt: new Date(msg.createdAt || Date.now()) }];
