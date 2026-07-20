@@ -21,10 +21,8 @@ export default function DashboardClient({ initialBooks, userName, hasMasterPin }
   const [masterPin, setMasterPin] = useState("")
 
   useEffect(() => {
-    // Só mostrar o modal se o utilizador NÃO tiver PIN salvo no banco de dados
-    if (!hasMasterPin) {
-      setShowPinModal(true)
-    }
+    // Modal de PIN desativado para remover dependência de PIN/criptografia
+    setShowPinModal(false)
   }, [hasMasterPin])
 
   const handleSavePin = async (e: React.FormEvent) => {
