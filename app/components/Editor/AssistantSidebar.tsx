@@ -21,6 +21,40 @@ interface AssistantSidebarProps {
   isPremium: boolean
 }
 
+const TypingMessage = ({ content }: { content: string }) => {
+  const [displayedText, setDisplayedText] = useState("");
+  
+  useEffect(() => {
+    let index = 0;
+    // Split text keeping the delimiters (whitespace) so we don't lose spaces
+    const words = content.split(/(\s+)/);
+    
+    const interval = setInterval(() => {
+      if (index < words.length) {
+        setDisplayedText(prev => prev + words[index]);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 20); // 20ms per word/space
+    
+    return () => clearInterval(interval);
+  }, [content]);
+
+  return (
+    <div className="prose prose-invert prose-sm max-w-none text-gray-900 dark:text-[#F5F5F5]">
+      <ReactMarkdown
+        components={{
+          p: ({ children }) => <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>,
+          code: ({ children }) => <code className="bg-gray-200 dark:bg-black/30 px-1 py-0.5 rounded text-violet-700 dark:text-[#B899FF]">{children}</code>
+        }}
+      >
+        {displayedText}
+      </ReactMarkdown>
+    </div>
+  )
+}
+
 export default function AssistantSidebar({ wsToken, documentContext, onClose, lang, isPremium }: AssistantSidebarProps) {
   const t = dict[lang].assistant;
   const [messages, setMessages] = useState<Message[]>([])
@@ -142,27 +176,20 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
           </div>
         ) : (
           messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
-                msg.role === "user" 
-                  ? "bg-violet-600 text-white dark:bg-[#B899FF] dark:text-[#0A0D12] rounded-tr-sm" 
-                  : "bg-gray-100 dark:bg-white/5 border border-transparent dark:border-white/10 text-gray-900 dark:text-[#F5F5F5] rounded-tl-sm"
-              }`}>
-                {msg.role === "user" ? (
+            <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start w-full"}`}>
+              {msg.role === "user" ? (
+                <div className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm bg-violet-600 text-white dark:bg-[#B899FF] dark:text-[#0A0D12] rounded-tr-sm">
                   <p className="whitespace-pre-wrap">{msg.content}</p>
-                ) : (
-                  <div className="prose prose-invert prose-sm max-w-none">
-                    <ReactMarkdown
-                      components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-                        code: ({ children }) => <code className="bg-gray-200 dark:bg-black/30 px-1 py-0.5 rounded text-violet-700 dark:text-[#B899FF]">{children}</code>
-                      }}
-                    >
-                      {msg.content}
-                    </ReactMarkdown>
+                </div>
+              ) : (
+                <div className="w-full text-sm py-2">
+                  <div className="flex items-center gap-2 mb-3 text-violet-600 dark:text-[#B899FF]">
+                    <Sparkles className="w-4 h-4" />
+                    <span className="font-medium text-xs tracking-wide uppercase">Hermione</span>
                   </div>
-                )}
-              </div>
+                  <TypingMessage content={msg.content} />
+                </div>
+              )}
             </div>
           ))
         )}
