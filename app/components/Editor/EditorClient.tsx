@@ -88,9 +88,10 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
 
   return (
     <div className={`${theme === 'dark' ? 'dark' : ''} antialiased`}>
-      <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 dark:bg-[#0A0D12] text-gray-900 dark:text-[#F5F5F5] font-sans transition-colors duration-200">
+      <div className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-[#0A0D12] text-gray-900 dark:text-[#F5F5F5] font-sans transition-colors duration-200">
         
-        {/* Topbar: Fixed at Top */}
+        <div className="flex flex-col flex-1 h-screen overflow-hidden">
+          {/* Topbar: Fixed at Top */}
         <Topbar 
           bookTitle={book.title} 
           isSynced={isSynced} 
@@ -156,17 +157,6 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
             </div>
           )}
         </main>
-
-        {/* Assistant Sidebar */}
-        {isAssistantOpen && (
-          <AssistantSidebar 
-            wsToken={wsToken}
-            documentContext={editor ? editor.getText() : ""}
-            onClose={() => setIsAssistantOpen(false)}
-            lang={lang as Locale}
-            isPremium={isPremium}
-          />
-        )}
       </div>
 
       {/* StatusBar: Fixed at Bottom */}
@@ -176,6 +166,18 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
         isSynced={isSynced}
         lang={lang as Locale}
       />
+      </div>
+
+      {/* Assistant Sidebar: Full Height on Right */}
+      {isAssistantOpen && (
+        <AssistantSidebar 
+          wsToken={wsToken}
+          documentContext={editor ? editor.getText() : ""}
+          onClose={() => setIsAssistantOpen(false)}
+          lang={lang as Locale}
+          isPremium={isPremium}
+        />
+      )}
       
       {/* Print Preview Overlay */}
       {printScope && (
