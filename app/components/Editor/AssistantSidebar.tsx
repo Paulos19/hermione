@@ -22,9 +22,11 @@ interface AssistantSidebarProps {
   onApplyEdit?: (before: string, after: string) => void
 }
 
-const CorrectionUI = ({ content, onApply }: { content: string, onApply: (b: string, a: string) => void }) => {
+const CorrectionUI = ({ content, onApply, isFinished }: { content: string, onApply: (b: string, a: string) => void, isFinished?: boolean }) => {
   try {
-    const data = JSON.parse(content);
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    const jsonString = jsonMatch ? jsonMatch[0] : content;
+    const data = JSON.parse(jsonString);
     if (!data.before || !data.after) throw new Error();
     return (
       <div className="my-4 border border-violet-200 dark:border-white/10 rounded-lg overflow-hidden bg-white dark:bg-[#11161D] shadow-sm">
@@ -45,29 +47,42 @@ const CorrectionUI = ({ content, onApply }: { content: string, onApply: (b: stri
       </div>
     );
   } catch (e) {
-    return <div className="my-4 animate-pulse bg-gray-100 dark:bg-white/5 border border-transparent dark:border-white/10 p-4 rounded-lg text-xs text-gray-500 dark:text-[#8A94A0] flex items-center gap-2">
-      <Sparkles className="w-3 h-3 text-violet-400 animate-spin" />
-      Gerando sugestão...
-    </div>
+    if (!isFinished) {
+      return (
+        <div className="my-4 animate-pulse bg-gray-100 dark:bg-white/5 border border-transparent dark:border-white/10 p-4 rounded-lg text-xs text-gray-500 dark:text-[#8A94A0] flex items-center gap-2">
+          <Sparkles className="w-3 h-3 text-violet-400 animate-spin" />
+          Gerando sugestão...
+        </div>
+      );
+    } else {
+      return (
+        <div className="my-4 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-lg text-xs text-red-600 dark:text-red-400 font-mono whitespace-pre-wrap">
+          <p className="font-semibold mb-2">Erro ao ler sugestão da IA:</p>
+          {content}
+        </div>
+      );
+    }
   }
 }
 
 const TypingMessage = ({ content, onApplyEdit }: { content: string, onApplyEdit?: (b: string, a: string) => void }) => {
   const [displayedText, setDisplayedText] = useState("");
+  const [isFinished, setIsFinished] = useState(false);
   
   useEffect(() => {
     let index = 0;
-    // Split text keeping the delimiters (whitespace) so we don't lose spaces
     const words = content.split(/(\s+)/);
+    setIsFinished(false);
     
     const interval = setInterval(() => {
       if (index < words.length) {
         setDisplayedText(prev => prev + words[index]);
         index++;
       } else {
+        setIsFinished(true);
         clearInterval(interval);
       }
-    }, 20); // 20ms per word/space
+    }, 20);
     
     return () => clearInterval(interval);
   }, [content]);
@@ -80,7 +95,7 @@ const TypingMessage = ({ content, onApplyEdit }: { content: string, onApplyEdit?
           code: ({ className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '')
             if (match && match[1] === 'correction') {
-              return <CorrectionUI content={String(children)} onApply={onApplyEdit || (() => {})} />
+              return <CorrectionUI content={String(children)} onApply={onApplyEdit || (() => {})} isFinished={isFinished} />
             }
             return <code className="bg-gray-200 dark:bg-black/30 px-1 py-0.5 rounded text-violet-700 dark:text-[#B899FF]">{children}</code>
           }
@@ -191,7 +206,7 @@ IMPORTANT INSTRUCTION: Se você for sugerir uma correção específica no texto,
   "explanation": "motivo da correção"
 }
 \`\`\`
-Lembre-se: O campo 'before' deve ser IDENTICO ao texto que está no documento.
+Lembre-se: O campo 'before' deve ser IDENTICO ao texto que está no documento. NÃO inclua NADA ALÉM DO JSON DENTRO DO BLOCO DE CÓDIGO.
 
 User Question: ${messageText}`;
       }
