@@ -136,9 +136,9 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
       setMessages((prev) => {
         if (prev.some(m => m.id === msg.id)) return prev;
         
-        // Clean trailing "undefined" that might come from the n8n webhook concatenation
+        // Clean any "undefined" that might come from the n8n webhook concatenation
         const cleanContent = typeof msg.content === 'string' 
-          ? msg.content.replace(/(?:undefined\s*)+$/, '').trim() 
+          ? msg.content.replace(/undefined/g, '').trim() 
           : msg.content;
           
         return [...prev, { ...msg, content: cleanContent, createdAt: new Date(msg.createdAt || Date.now()) }];
