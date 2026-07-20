@@ -135,7 +135,13 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
     (msg) => {
       setMessages((prev) => {
         if (prev.some(m => m.id === msg.id)) return prev;
-        return [...prev, { ...msg, createdAt: new Date(msg.createdAt || Date.now()) }];
+        
+        // Clean trailing "undefined" that might come from the n8n webhook concatenation
+        const cleanContent = typeof msg.content === 'string' 
+          ? msg.content.replace(/undefined$/, '').trim() 
+          : msg.content;
+          
+        return [...prev, { ...msg, content: cleanContent, createdAt: new Date(msg.createdAt || Date.now()) }];
       });
       setIsSending(false);
       setSystemMessage(null);
