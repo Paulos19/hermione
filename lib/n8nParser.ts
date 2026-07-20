@@ -3,7 +3,7 @@
  * resolvendo problemas com arrays, objetos aninhados, formatação do tipo OpenAI
  * ou JSONs stringificados.
  */
-export function formatarRespostaN8N(data: any): string {
+function formatarRespostaN8NInternal(data: any): string {
   if (data === null || data === undefined) {
     return ""
   }
@@ -11,7 +11,7 @@ export function formatarRespostaN8N(data: any): string {
   // Se for um array de resultados (padrão do n8n em vários nós), pega o primeiro item
   if (Array.isArray(data)) {
     if (data.length === 0) return ""
-    return formatarRespostaN8N(data[0])
+    return formatarRespostaN8NInternal(data[0])
   }
 
   // Se for uma string pura
@@ -25,7 +25,7 @@ export function formatarRespostaN8N(data: any): string {
     ) {
       try {
         const parsed = JSON.parse(trimmed)
-        return formatarRespostaN8N(parsed)
+        return formatarRespostaN8NInternal(parsed)
       } catch (e) {
         // Não é JSON válido, segue como string pura
       }
@@ -49,7 +49,7 @@ export function formatarRespostaN8N(data: any): string {
 
     for (const key of priorityKeys) {
       if (key in data && data[key] !== undefined && data[key] !== null) {
-        return formatarRespostaN8N(data[key])
+        return formatarRespostaN8NInternal(data[key])
       }
     }
 
@@ -57,10 +57,10 @@ export function formatarRespostaN8N(data: any): string {
     if (data.choices && Array.isArray(data.choices) && data.choices.length > 0) {
       const choice = data.choices[0]
       if (choice.message && choice.message.content) {
-        return formatarRespostaN8N(choice.message.content)
+        return formatarRespostaN8NInternal(choice.message.content)
       }
       if (choice.text) {
-        return formatarRespostaN8N(choice.text)
+        return formatarRespostaN8NInternal(choice.text)
       }
     }
 
@@ -75,5 +75,11 @@ export function formatarRespostaN8N(data: any): string {
     return JSON.stringify(data)
   }
 
-  return String(data)
+  const finalStr = String(data);
+  return finalStr.replace(/undefined/g, "").trim();
+}
+
+export function formatarRespostaN8N(data: any): string {
+  const result = formatarRespostaN8NInternal(data);
+  return result.replace(/undefined/gi, '').trim();
 }
