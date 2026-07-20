@@ -75,9 +75,12 @@ const TypingMessage = ({ content, onApplyEdit }: { content: string, onApplyEdit?
   const [displayedText, setDisplayedText] = useState("");
   const [isFinished, setIsFinished] = useState(false);
   
+  // Final safety net: strip any "undefined" artifact before rendering
+  const cleanedContent = content.replace(/undefined$/g, '').trim();
+  
   useEffect(() => {
     let index = 0;
-    const words = content.split(/(\s+)/);
+    const words = cleanedContent.split(/(\s+)/);
     setIsFinished(false);
     
     const interval = setInterval(() => {
@@ -91,7 +94,7 @@ const TypingMessage = ({ content, onApplyEdit }: { content: string, onApplyEdit?
     }, 20);
     
     return () => clearInterval(interval);
-  }, [content]);
+  }, [cleanedContent]);
 
   return (
     <div className="prose dark:prose-invert prose-sm max-w-none text-gray-900 dark:text-[#F5F5F5]">

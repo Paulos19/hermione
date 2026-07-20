@@ -37,7 +37,12 @@ export function useChatWebSocket(
           const data = JSON.parse(event.data);
           
           if (data.type === 'message') {
-            onMessageReceived(data.message);
+            // Clean trailing "undefined" artifact from n8n/WS pipeline
+            const msg = data.message;
+            if (msg && typeof msg.content === 'string') {
+              msg.content = msg.content.replace(/undefined$/g, '').trim();
+            }
+            onMessageReceived(msg);
           } else if (data.type === 'system') {
             onSystemMessage(data.content);
           } else if (data.type === 'error') {
