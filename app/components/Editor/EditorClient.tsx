@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { Editor } from "@tiptap/react"
+import { useRouter } from "next/navigation"
 
 import Topbar from "./Topbar"
 import Ribbon from "./Ribbon"
@@ -26,9 +27,11 @@ interface EditorClientProps {
   pin?: string | null
   isEncrypted?: boolean
   lang: string
+  isPremium?: boolean
 }
 
-export default function EditorClient({ book, documents, currentUser, wsToken, pin, isEncrypted, lang }: EditorClientProps) {
+export default function EditorClient({ book, documents, currentUser, wsToken, pin, isEncrypted, lang, isPremium = false }: EditorClientProps) {
+  const router = useRouter()
   const [activeDocumentId, setActiveDocumentId] = useState<string>(
     documents.length > 0 ? documents[0].id : ""
   )
@@ -61,6 +64,10 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
   }
 
   const toggleAssistant = () => {
+    if (!isPremium) {
+      router.push(`/${lang}/subscribe`)
+      return
+    }
     setIsAssistantOpen((prev) => {
       const next = !prev
       if (next) setIsLeftSidebarOpen(false) // Collapse left if opening right
@@ -157,6 +164,7 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
             documentContext={editor ? editor.getText() : ""}
             onClose={() => setIsAssistantOpen(false)}
             lang={lang as Locale}
+            isPremium={isPremium}
           />
         )}
       </div>

@@ -29,7 +29,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     }),
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { name: true, masterPin: true }
+      select: { name: true, masterPin: true, isPremium: true }
     }),
     prisma.dailyProgress.findUnique({
       where: {
@@ -77,6 +77,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
         wordsToday={progressToday?.words || 0}
         recentActivity={activity}
         lang={lang}
+        isPremium={user?.isPremium || false}
       />
     </div>
   )

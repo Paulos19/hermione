@@ -35,7 +35,7 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
   // Buscar o masterPin do usuário no banco de dados
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { masterPin: true }
+    select: { masterPin: true, isPremium: true }
   })
 
   const currentUser = {
@@ -62,6 +62,7 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
       pin={masterPin}
       isEncrypted={book.securityType === 'pin' || book.securityType === 'biometrics'}
       lang={lang}
+      isPremium={user?.isPremium || false}
     />
   )
 }

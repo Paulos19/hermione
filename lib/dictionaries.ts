@@ -132,6 +132,22 @@ export const dict = {
       trash: "Lixeira",
       todaysProgress: "Progresso de Hoje",
       hermione: "Hermione IA",
+    },
+    subscription: {
+      title: "Desbloqueie a Hermione IA",
+      subtitle: "Acesse a inteligência artificial mais avançada para autores. Desbloqueie todo o potencial da sua escrita com a Hermione IA.",
+      premiumPlan: "Plano Premium",
+      price: "R$ 49,90",
+      period: "/mês",
+      feature1: "Assistente de IA ilimitado",
+      feature2: "Criação guiada de mundos",
+      feature3: "Sugestões de enredo e personagens",
+      feature4: "Revisão e refinamento avançado",
+      subscribeNow: "Assinar agora",
+      processing: "Redirecionando...",
+      cancel: "Voltar para o Dashboard",
+      activePlan: "Seu plano Premium está ativo!",
+      activePlanDesc: "Você já tem acesso total à Hermione IA.",
     }
   },
   en: {
@@ -265,6 +281,22 @@ export const dict = {
       trash: "Trash",
       todaysProgress: "Today's Progress",
       hermione: "Hermione AI",
+    },
+    subscription: {
+      title: "Unlock Hermione AI",
+      subtitle: "Access the most advanced AI for authors. Unlock your writing's full potential with Hermione AI.",
+      premiumPlan: "Premium Plan",
+      price: "$ 9.90",
+      period: "/month",
+      feature1: "Unlimited AI Assistant",
+      feature2: "Guided world building",
+      feature3: "Plot and character suggestions",
+      feature4: "Advanced review and refinement",
+      subscribeNow: "Subscribe now",
+      processing: "Redirecting...",
+      cancel: "Back to Dashboard",
+      activePlan: "Your Premium plan is active!",
+      activePlanDesc: "You already have full access to Hermione AI.",
     }
   },
   es: {
@@ -398,6 +430,22 @@ export const dict = {
       trash: "Papelera",
       todaysProgress: "Progreso de Hoy",
       hermione: "Hermione IA",
+    },
+    subscription: {
+      title: "Desbloquea Hermione IA",
+      subtitle: "Accede a la inteligencia artificial más avanzada para autores. Desbloquea todo el potencial de tu escritura con Hermione IA.",
+      premiumPlan: "Plan Premium",
+      price: "$ 9.90",
+      period: "/mes",
+      feature1: "Asistente de IA ilimitado",
+      feature2: "Creación guiada de mundos",
+      feature3: "Sugerencias de trama y personajes",
+      feature4: "Revisión y refinamiento avanzado",
+      subscribeNow: "Suscribirse ahora",
+      processing: "Redirigiendo...",
+      cancel: "Volver al Dashboard",
+      activePlan: "¡Tu plan Premium está activo!",
+      activePlanDesc: "Ya tienes acceso total a Hermione IA.",
     }
   }
 }

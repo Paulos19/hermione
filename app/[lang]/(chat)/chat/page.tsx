@@ -4,11 +4,21 @@ import { prisma } from "@/lib/prisma"
 import ChatInterface from "@/app/components/ChatInterface"
 import { signToken } from "@/lib/jwt"
 
-export default async function ChatPage() {
+export default async function ChatPage({ params }: { params: Promise<{ lang: string }> }) {
   const session = await auth()
 
   if (!session || !session.user?.email) {
     redirect("/login")
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { isPremium: true }
+  })
+
+  if (!user?.isPremium) {
+    // If not premium, redirect to subscribe page
+    redirect(`/${(await params).lang}/subscribe`)
   }
 
   // Query user's previous sessions

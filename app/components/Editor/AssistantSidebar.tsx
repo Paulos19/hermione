@@ -18,9 +18,10 @@ interface AssistantSidebarProps {
   documentContext: string
   onClose: () => void
   lang: Language
+  isPremium: boolean
 }
 
-export default function AssistantSidebar({ wsToken, documentContext, onClose, lang }: AssistantSidebarProps) {
+export default function AssistantSidebar({ wsToken, documentContext, onClose, lang, isPremium }: AssistantSidebarProps) {
   const t = dict[lang].assistant;
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -59,13 +60,33 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
-
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, isSending, systemMessage])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, systemMessage])
+
+  if (!isPremium) {
+    return (
+      <aside className="w-[380px] h-full bg-white dark:bg-[#10151B] border-l border-gray-200 dark:border-white/5 flex flex-col shrink-0">
+        <div className="h-[56px] border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4">
+          <div className="flex items-center gap-2 text-violet-600 dark:text-[#B899FF]">
+            <Sparkles className="w-5 h-5" />
+            <h2 className="font-semibold">{t.title || "Hermione IA"}</h2>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors text-gray-500 dark:text-[#8A94A0]">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="flex flex-col items-center justify-center p-8 text-center h-full gap-4">
+          <Sparkles className="w-12 h-12 text-violet-600 dark:text-[#B899FF] opacity-50" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-[#F5F5F5]">Plano Premium Necessário</h3>
+          <p className="text-gray-500 dark:text-[#8A94A0]">Assine o plano Premium para desbloquear a inteligência artificial da Hermione e aprimorar sua escrita.</p>
+          <a href={`/${lang}/subscribe`} className="mt-4 px-6 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors">
+            Assinar Agora
+          </a>
+        </div>
+      </aside>
+    )
+  }
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { 
   BookOpen, 
   Library, 
@@ -16,8 +16,9 @@ import {
 import { dict } from "@/lib/dictionaries"
 import { Locale } from "@/lib/i18n-config"
 
-export function DashboardSidebar({ streak = 0, wordsToday = 0, lang = 'pt' }: { streak?: number; wordsToday?: number; lang?: string }) {
+export function DashboardSidebar({ streak = 0, wordsToday = 0, lang = 'pt', isPremium = false }: { streak?: number; wordsToday?: number; lang?: string; isPremium?: boolean }) {
   const pathname = usePathname()
+  const router = useRouter()
   const t = dict[lang as Locale].nav
 
   const navItems = [
@@ -85,7 +86,16 @@ export function DashboardSidebar({ streak = 0, wordsToday = 0, lang = 'pt' }: { 
           </div>
         </div>
 
-        <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-50 dark:bg-[#141A22] hover:bg-gray-100 dark:hover:bg-[#181F28] border border-gray-200 dark:border-white/5 rounded-lg text-[14px] text-gray-900 dark:text-[#F5F5F5] transition-all duration-150">
+        <button 
+          onClick={() => {
+            if (!isPremium) {
+              router.push(`/${lang}/subscribe`)
+            } else {
+              // Open Hermione AI modal/chat (future feature)
+            }
+          }}
+          className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-50 dark:bg-[#141A22] hover:bg-gray-100 dark:hover:bg-[#181F28] border border-gray-200 dark:border-white/5 rounded-lg text-[14px] text-gray-900 dark:text-[#F5F5F5] transition-all duration-150"
+        >
           <Sparkles className="w-4 h-4 text-violet-600 dark:text-[#B899FF]" />
           {t.hermione}
         </button>
