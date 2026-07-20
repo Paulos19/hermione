@@ -91,10 +91,14 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
     if (!editor) return
     let found = false
     
+    // Clean up ellipses and spaces just in case AI added them
+    const cleanBefore = before.replace(/(^\.\.\.|\.\.\.$)/g, '').trim();
+    if (!cleanBefore) return; // Prevent matching empty string
+    
     editor.state.doc.descendants((node, pos) => {
-      if (node.isText && node.text && node.text.includes(before)) {
-        const index = node.text.indexOf(before)
-        editor.chain().focus().setTextSelection({ from: pos + index, to: pos + index + before.length }).insertContent(after).run()
+      if (node.isText && node.text && node.text.includes(cleanBefore)) {
+        const index = node.text.indexOf(cleanBefore)
+        editor.chain().focus().setTextSelection({ from: pos + index, to: pos + index + cleanBefore.length }).insertContent(after).run()
         found = true
         return false // stop traversal
       }

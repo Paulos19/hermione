@@ -212,7 +212,7 @@ IMPORTANT INSTRUCTION: Se você for sugerir uma correção específica no texto,
   "explanation": "motivo da correção"
 }
 \`\`\`
-Lembre-se: O campo 'before' deve ser IDENTICO ao texto que está no documento. NÃO inclua NADA ALÉM DO JSON DENTRO DO BLOCO DE CÓDIGO.
+Lembre-se: O campo 'before' deve ser IDENTICO ao texto que está no documento. NÃO use reticências (...) para encurtar. NÃO inclua NADA ALÉM DO JSON DENTRO DO BLOCO DE CÓDIGO.
 
 User Question: ${messageText}`;
       }
