@@ -19,9 +19,40 @@ interface AssistantSidebarProps {
   onClose: () => void
   lang: Language
   isPremium: boolean
+  onApplyEdit?: (before: string, after: string) => void
 }
 
-const TypingMessage = ({ content }: { content: string }) => {
+const CorrectionUI = ({ content, onApply }: { content: string, onApply: (b: string, a: string) => void }) => {
+  try {
+    const data = JSON.parse(content);
+    if (!data.before || !data.after) throw new Error();
+    return (
+      <div className="my-4 border border-violet-200 dark:border-white/10 rounded-lg overflow-hidden bg-white dark:bg-[#11161D] shadow-sm">
+        <div className="bg-violet-50 dark:bg-white/5 px-3 py-2 text-xs font-semibold text-violet-700 dark:text-[#B899FF] border-b border-violet-200 dark:border-white/10 flex justify-between items-center">
+          <span>Sugestão de Hermione</span>
+          <button 
+            onClick={() => onApply(data.before, data.after)}
+            className="px-3 py-1 bg-violet-600 hover:bg-violet-700 dark:bg-[#B899FF] dark:hover:bg-[#a682ff] dark:text-[#0A0D12] text-white rounded-md text-[10px] transition-colors font-bold"
+          >
+            Aplicar
+          </button>
+        </div>
+        <div className="p-3 text-xs font-mono space-y-2 leading-relaxed">
+          <div className="text-red-600 dark:text-red-400 line-through bg-red-50 dark:bg-red-900/10 p-2 rounded border border-red-100 dark:border-red-900/20">{data.before}</div>
+          <div className="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 p-2 rounded border border-emerald-100 dark:border-emerald-900/20">{data.after}</div>
+          {data.explanation && <div className="text-gray-500 dark:text-[#8A94A0] font-sans text-[11px] pt-1">{data.explanation}</div>}
+        </div>
+      </div>
+    );
+  } catch (e) {
+    return <div className="my-4 animate-pulse bg-gray-100 dark:bg-white/5 border border-transparent dark:border-white/10 p-4 rounded-lg text-xs text-gray-500 dark:text-[#8A94A0] flex items-center gap-2">
+      <Sparkles className="w-3 h-3 text-violet-400 animate-spin" />
+      Gerando sugestão...
+    </div>
+  }
+}
+
+const TypingMessage = ({ content, onApplyEdit }: { content: string, onApplyEdit?: (b: string, a: string) => void }) => {
   const [displayedText, setDisplayedText] = useState("");
   
   useEffect(() => {
@@ -46,7 +77,13 @@ const TypingMessage = ({ content }: { content: string }) => {
       <ReactMarkdown
         components={{
           p: ({ children }) => <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>,
-          code: ({ children }) => <code className="bg-gray-200 dark:bg-black/30 px-1 py-0.5 rounded text-violet-700 dark:text-[#B899FF]">{children}</code>
+          code: ({ className, children, ...props }) => {
+            const match = /language-(\w+)/.exec(className || '')
+            if (match && match[1] === 'correction') {
+              return <CorrectionUI content={String(children)} onApply={onApplyEdit || (() => {})} />
+            }
+            return <code className="bg-gray-200 dark:bg-black/30 px-1 py-0.5 rounded text-violet-700 dark:text-[#B899FF]">{children}</code>
+          }
         }}
       >
         {displayedText}
@@ -55,7 +92,7 @@ const TypingMessage = ({ content }: { content: string }) => {
   )
 }
 
-export default function AssistantSidebar({ wsToken, documentContext, onClose, lang, isPremium }: AssistantSidebarProps) {
+export default function AssistantSidebar({ wsToken, documentContext, onClose, lang, isPremium, onApplyEdit }: AssistantSidebarProps) {
   const t = dict[lang].assistant;
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -144,7 +181,19 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
       const isFirstMessage = messages.length === 0;
       let finalMessage = messageText;
       if (isFirstMessage) {
-         finalMessage = `[SYSTEM CONTEXT: The user is writing a document. Current text: "${documentContext.substring(0, 3000)}..."]\n\nUser Question: ${messageText}`;
+         finalMessage = `[SYSTEM CONTEXT: The user is writing a document. Current text: "${documentContext.substring(0, 3000)}..."]
+
+IMPORTANT INSTRUCTION: Se você for sugerir uma correção específica no texto, retorne a sugestão usando EXATAMENTE o seguinte formato JSON dentro de um bloco markdown com a linguagem 'correction':
+\`\`\`correction
+{
+  "before": "texto original exato a ser substituído",
+  "after": "texto corrigido",
+  "explanation": "motivo da correção"
+}
+\`\`\`
+Lembre-se: O campo 'before' deve ser IDENTICO ao texto que está no documento.
+
+User Question: ${messageText}`;
       }
       sendChatMessage(finalMessage);
     } catch (err) {
@@ -187,7 +236,7 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
                     <Sparkles className="w-4 h-4" />
                     <span className="font-medium text-xs tracking-wide uppercase">Hermione</span>
                   </div>
-                  <TypingMessage content={msg.content} />
+                  <TypingMessage content={msg.content} onApplyEdit={onApplyEdit} />
                 </div>
               )}
             </div>

@@ -13,6 +13,7 @@ import AssistantSidebar from "./AssistantSidebar"
 import PrintPreview from "./PrintPreview"
 import { dict } from "@/lib/dictionaries"
 import { Locale } from "@/lib/i18n-config"
+import { toast } from "sonner"
 
 const TiptapYjsEditor = dynamic(() => import("./TiptapYjsEditor"), {
   ssr: false,
@@ -85,6 +86,26 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
     }
     return `${minutes} min`
   }, [wordCount])
+
+  const handleApplyEdit = (before: string, after: string) => {
+    if (!editor) return
+    let found = false
+    
+    editor.state.doc.descendants((node, pos) => {
+      if (node.isText && node.text && node.text.includes(before)) {
+        const index = node.text.indexOf(before)
+        editor.chain().focus().setTextSelection({ from: pos + index, to: pos + index + before.length }).insertContent(after).run()
+        found = true
+        return false // stop traversal
+      }
+    })
+
+    if (found) {
+      toast.success("Sugestão aplicada com sucesso!")
+    } else {
+      toast.error("Trecho não encontrado. Ele pode ter sido modificado.")
+    }
+  }
 
   return (
     <div className={`${theme === 'dark' ? 'dark' : ''} antialiased`}>
@@ -176,6 +197,7 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
           onClose={() => setIsAssistantOpen(false)}
           lang={lang as Locale}
           isPremium={isPremium}
+          onApplyEdit={handleApplyEdit}
         />
       )}
       
