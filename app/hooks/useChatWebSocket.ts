@@ -40,7 +40,7 @@ export function useChatWebSocket(
             // Clean trailing "undefined" artifact from n8n/WS pipeline
             const msg = data.message;
             if (msg && typeof msg.content === 'string') {
-              msg.content = msg.content.replace(/undefined$/g, '').trim();
+              msg.content = msg.content.replace(/undefined/gi, '').trim();
             }
             onMessageReceived(msg);
           } else if (data.type === 'system') {

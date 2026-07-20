@@ -75,17 +75,23 @@ const TypingMessage = ({ content, onApplyEdit }: { content: string, onApplyEdit?
   const [displayedText, setDisplayedText] = useState("");
   const [isFinished, setIsFinished] = useState(false);
   
-  // Final safety net: strip any "undefined" artifact before rendering
-  const cleanedContent = content.replace(/undefined$/g, '').trim();
+  // Final safety net: strip any "undefined" artifact before rendering, globally.
+  const cleanedContent = content.replace(/undefined/gi, '').trim();
   
   useEffect(() => {
     let index = 0;
     const words = cleanedContent.split(/(\s+)/);
+    
+    // Reset state when content changes!
+    setDisplayedText("");
     setIsFinished(false);
     
     const interval = setInterval(() => {
       if (index < words.length) {
-        setDisplayedText(prev => prev + words[index]);
+        setDisplayedText(prev => {
+          const word = words[index];
+          return word !== undefined ? prev + word : prev;
+        });
         index++;
       } else {
         setIsFinished(true);
