@@ -92,7 +92,10 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
     let found = false
     
     // Clean up ellipses and spaces just in case AI added them
-    const cleanBefore = before.replace(/(^\.\.\.|\.\.\.$)/g, '').trim();
+    const cleanBefore = before
+      .replace(/^(?:\.\.\.|…)\s*/, '')
+      .replace(/\s*(?:\.\.\.|…)$/, '')
+      .trim();
     if (!cleanBefore) return; // Prevent matching empty string
     
     editor.state.doc.descendants((node, pos) => {

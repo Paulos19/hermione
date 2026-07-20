@@ -48,7 +48,7 @@ const CorrectionUI = ({ content, onApply, isFinished }: { content: string, onApp
         <div className="p-3 text-xs font-mono space-y-2 leading-relaxed">
           <div className="text-red-600 dark:text-red-400 line-through bg-red-50 dark:bg-red-900/10 p-2 rounded border border-red-100 dark:border-red-900/20">{data.before}</div>
           <div className="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 p-2 rounded border border-emerald-100 dark:border-emerald-900/20">{data.after}</div>
-          {data.explanation && <div className="text-gray-500 dark:text-[#8A94A0] font-sans text-[11px] pt-1">{data.explanation}</div>}
+          {data.explanation && <div className="text-gray-500 dark:text-[#8A94A0] font-sans text-[11px] pt-1 whitespace-pre-wrap break-words">{data.explanation}</div>}
         </div>
       </div>
     );
