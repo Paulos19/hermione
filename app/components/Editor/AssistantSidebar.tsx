@@ -71,56 +71,7 @@ const CorrectionUI = ({ content, onApply, isFinished }: { content: string, onApp
   }
 }
 
-const TypingMessage = ({ content, onApplyEdit }: { content: string, onApplyEdit?: (b: string, a: string) => void }) => {
-  const [displayedText, setDisplayedText] = useState("");
-  const [isFinished, setIsFinished] = useState(false);
-  
-  // Final safety net: strip any "undefined" artifact before rendering, globally.
-  const cleanedContent = content.replace(/undefined/gi, '').trim();
-  
-  useEffect(() => {
-    let index = 0;
-    const words = cleanedContent.split(/(\s+)/);
-    
-    // Reset state when content changes!
-    setDisplayedText("");
-    setIsFinished(false);
-    
-    const interval = setInterval(() => {
-      if (index < words.length) {
-        setDisplayedText(prev => {
-          const word = words[index];
-          return word !== undefined ? prev + word : prev;
-        });
-        index++;
-      } else {
-        setIsFinished(true);
-        clearInterval(interval);
-      }
-    }, 20);
-    
-    return () => clearInterval(interval);
-  }, [cleanedContent]);
 
-  return (
-    <div className="prose dark:prose-invert prose-sm max-w-none text-gray-900 dark:text-[#F5F5F5]">
-      <ReactMarkdown
-        components={{
-          p: ({ children }) => <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>,
-          code: ({ className, children, ...props }) => {
-            const match = /language-(\w+)/.exec(className || '')
-            if (match && match[1] === 'correction') {
-              return <CorrectionUI content={String(children)} onApply={onApplyEdit || (() => {})} isFinished={isFinished} />
-            }
-            return <code className="bg-gray-200 dark:bg-black/30 px-1 py-0.5 rounded text-violet-700 dark:text-[#B899FF]">{children}</code>
-          }
-        }}
-      >
-        {displayedText}
-      </ReactMarkdown>
-    </div>
-  )
-}
 
 export default function AssistantSidebar({ wsToken, documentContext, onClose, lang, isPremium, onApplyEdit }: AssistantSidebarProps) {
   const t = dict[lang].assistant;
@@ -272,7 +223,26 @@ User Question: ${messageText}`;
                     <Sparkles className="w-4 h-4" />
                     <span className="font-medium text-xs tracking-wide uppercase">Hermione</span>
                   </div>
-                  <TypingMessage content={msg.content} onApplyEdit={onApplyEdit} />
+                  {msg.role === "assistant" ? (
+                    <div className="prose dark:prose-invert prose-sm max-w-none text-gray-900 dark:text-[#F5F5F5]">
+                      <ReactMarkdown
+                        components={{
+                          p: ({ children }) => <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>,
+                          code: ({ className, children, ...props }) => {
+                            const match = /language-(\w+)/.exec(className || '')
+                            if (match && match[1] === 'correction') {
+                              return <CorrectionUI content={String(children)} onApply={onApplyEdit || (() => {})} isFinished={true} />
+                            }
+                            return <code className="bg-gray-200 dark:bg-black/30 px-1 py-0.5 rounded text-violet-700 dark:text-[#B899FF]">{children}</code>
+                          }
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                  )}
                 </div>
               )}
             </div>
