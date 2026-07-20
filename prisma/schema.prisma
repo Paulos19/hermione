@@ -7,17 +7,18 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  name             String?
-  email            String    @unique
-  password         String?
-  image            String?
-  ragContext       String?   @db.Text
-  dailyGoal        Int       @default(1000)
-  resetToken       String?
-  resetTokenExpiry DateTime?
-  emailVerified    DateTime?
-  masterPin        String?
+  id                 String    @id @default(cuid())
+  name               String?
+  email              String    @unique
+  password           String?
+  image              String?
+  ragContext         String?   @db.Text
+  dailyGoal          Int       @default(1000)
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  emailVerified      DateTime?
+  masterPin          String?
+  personalDictionary String[]  @default([])
 
   isPremium            Boolean @default(false)
   stripeCustomerId     String? @unique

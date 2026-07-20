@@ -1,47 +1,55 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { verifyToken } from "@/lib/jwt";
-import { headers } from "next/headers";
+import { auth } from "@/auth";
 
 const f = createUploadthing();
 
-// FileRouter for your app, can contain multiple FileRoutes
-export const ourFileRouter = {
-  // Define as many FileRoutes as you like, each with a unique routeSlug
-  bookCover: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
-    // Set permissions and file types for this FileRoute
-    .middleware(async ({ req }) => {
-      // This code runs on your server before upload
-      const authHeader = req.headers.get("Authorization");
-      if (!authHeader || !authHeader.startsWith("Bearer ")) throw new Error("Unauthorized");
-      const token = authHeader.split(" ")[1];
-      const user = verifyToken(token);
-      
-      // If you throw, the user will not be able to upload
-      if (!user || !user.id) throw new Error("Unauthorized");
+// Helper to authenticate either via Next-Auth (Web) or JWT Bearer (Mobile)
+async function authenticateUser(req: Request) {
+  // Try Next-Auth (Web)
+  const session = await auth();
+  if (session?.user?.id) {
+    return { id: session.user.id };
+  }
 
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
+  // Try JWT Bearer (Mobile)
+  const authHeader = req.headers.get("Authorization");
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    const user = verifyToken(token);
+    if (user && user.id) {
+      return { id: user.id };
+    }
+  }
+
+  throw new Error("Unauthorized");
+}
+
+export const ourFileRouter = {
+  bookCover: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
+    .middleware(async ({ req }) => {
+      const user = await authenticateUser(req);
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-      console.log("Upload complete for userId:", metadata.userId);
-      console.log("file url", file.ufsUrl);
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId, url: file.ufsUrl };
     }),
 
   themeImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(async ({ req }) => {
-      const authHeader = req.headers.get("Authorization");
-      if (!authHeader || !authHeader.startsWith("Bearer ")) throw new Error("Unauthorized");
-      const token = authHeader.split(" ")[1];
-      const user = verifyToken(token);
-      if (!user || !user.id) throw new Error("Unauthorized");
+      const user = await authenticateUser(req);
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete for themeImage userId:", metadata.userId);
+      return { uploadedBy: metadata.userId, url: file.ufsUrl };
+    }),
+
+  editorImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
+    .middleware(async ({ req }) => {
+      const user = await authenticateUser(req);
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
       return { uploadedBy: metadata.userId, url: file.ufsUrl };
     }),
 } satisfies FileRouter;

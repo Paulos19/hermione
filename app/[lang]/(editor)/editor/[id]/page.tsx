@@ -4,8 +4,8 @@ import { redirect } from "next/navigation"
 import EditorClient from "@/app/components/Editor/EditorClient"
 import { signToken } from "@/lib/jwt"
 
-export default async function EditorPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function EditorPage({ params }: { params: Promise<{ id: string; lang: string }> }) {
+  const { id, lang } = await params;
   const session = await auth()
   
   if (!session?.user?.id) {
@@ -61,6 +61,7 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
       wsToken={wsToken}
       pin={masterPin}
       isEncrypted={book.securityType === 'pin' || book.securityType === 'biometrics'}
+      lang={lang}
     />
   )
 }

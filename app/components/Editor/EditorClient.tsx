@@ -1,13 +1,21 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import Link from "next/link"
+import { useState, useMemo, useEffect } from "react"
 import dynamic from "next/dynamic"
-import { decryptData, isEncrypted as isEncryptedText } from "@/lib/encryption"
+import { Editor } from "@tiptap/react"
+
+import Topbar from "./Topbar"
+import Ribbon from "./Ribbon"
+import Sidebar from "./Sidebar"
+import StatusBar from "./StatusBar"
+import AssistantSidebar from "./AssistantSidebar"
+import PrintPreview from "./PrintPreview"
+import { dict } from "@/lib/dictionaries"
+import { Locale } from "@/lib/i18n-config"
 
 const TiptapYjsEditor = dynamic(() => import("./TiptapYjsEditor"), {
   ssr: false,
-  loading: () => <div className="p-8 text-zinc-500 w-full flex justify-center">Iniciando editor colaborativo...</div>
+  loading: () => <div className="h-full flex items-center justify-center text-[#8A94A0]">Initializing editor...</div>
 })
 
 interface EditorClientProps {
@@ -17,76 +25,109 @@ interface EditorClientProps {
   wsToken: string
   pin?: string | null
   isEncrypted?: boolean
+  lang: string
 }
 
-export default function EditorClient({ book, documents, currentUser, wsToken, pin, isEncrypted }: EditorClientProps) {
+export default function EditorClient({ book, documents, currentUser, wsToken, pin, isEncrypted, lang }: EditorClientProps) {
   const [activeDocumentId, setActiveDocumentId] = useState<string>(
     documents.length > 0 ? documents[0].id : ""
   )
-  const [unlocked, setUnlocked] = useState(true)
-  const [inputPin, setInputPin] = useState("")
-  const [pinError, setPinError] = useState(false)
+  
+  // Editor State Lifted
+  const [editor, setEditor] = useState<Editor | null>(null)
+  const [wordCount, setWordCount] = useState(0)
+  const [isSynced, setIsSynced] = useState(true)
+  const [editorUpdateTick, setEditorUpdateTick] = useState(0)
 
-  const decryptedDocuments = useMemo(() => {
-    return documents
-  }, [documents])
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true)
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false)
+  const [isRibbonOpen, setIsRibbonOpen] = useState(true)
+  const [printScope, setPrintScope] = useState<'chapter' | 'book' | null>(null)
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
 
-  const handleUnlock = () => {
-    setUnlocked(true)
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('hermione-theme') as 'light' | 'dark'
+    if (savedTheme) {
+      setTheme(savedTheme)
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark'
+      localStorage.setItem('hermione-theme', next)
+      return next
+    })
   }
 
+  const toggleAssistant = () => {
+    setIsAssistantOpen((prev) => {
+      const next = !prev
+      if (next) setIsLeftSidebarOpen(false) // Collapse left if opening right
+      return next
+    })
+  }
+
+  // Calcule tempo de leitura (aprox 200 palavras por min)
+  const readingTime = useMemo(() => {
+    const minutes = Math.max(1, Math.ceil(wordCount / 200))
+    if (minutes > 60) {
+      const h = Math.floor(minutes / 60)
+      const m = minutes % 60
+      return `${h}h ${m}m`
+    }
+    return `${minutes} min`
+  }, [wordCount])
+
   return (
-    <div className="flex h-screen w-full bg-zinc-950 text-zinc-50 overflow-hidden">
-      {/* Sidebar - Navegação de Capítulos */}
-      <aside className="w-64 border-r border-zinc-800 bg-zinc-900/30 backdrop-blur-xl flex flex-col h-full shrink-0">
-        <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-          <Link href="/dashboard" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-            Voltar
-          </Link>
-        </div>
+    <div className={`${theme === 'dark' ? 'dark' : ''} antialiased`}>
+      <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-50 dark:bg-[#0A0D12] text-gray-900 dark:text-[#F5F5F5] font-sans transition-colors duration-200">
         
-        <div className="p-4 border-b border-zinc-800">
-          <h2 className="font-bold text-zinc-100 truncate">{book.title}</h2>
-          <p className="text-xs text-zinc-500 mt-1">{decryptedDocuments.length} Capítulos</p>
-        </div>
+        {/* Topbar: Fixed at Top */}
+        <Topbar 
+          bookTitle={book.title} 
+          isSynced={isSynced} 
+          isRibbonOpen={isRibbonOpen}
+          onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
+          lang={lang as Locale}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-1">
-          {decryptedDocuments.map((doc) => (
-            <div
-              key={doc.id}
-              onClick={() => setActiveDocumentId(doc.id)}
-              className={`p-3 rounded-xl cursor-pointer text-sm font-medium transition-all ${
-                activeDocumentId === doc.id
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
-              }`}
-            >
-              {doc.title}
-            </div>
-          ))}
-        </div>
-      </aside>
+      {/* Ribbon: Conditionally rendered below Topbar */}
+      {isRibbonOpen && (
+        <Ribbon 
+          editor={editor} 
+          editorUpdateTick={editorUpdateTick} 
+          onToggleAssistant={toggleAssistant} 
+          isAssistantOpen={isAssistantOpen}
+          book={book}
+          documents={documents}
+          activeDocumentId={activeDocumentId}
+          onPrintPreview={setPrintScope}
+          lang={lang as Locale}
+        />
+      )}
 
-      {/* Área Principal do Editor */}
-      <main className="flex-1 h-full bg-[#0B0F12] relative flex flex-col">
-        {/* Header do Documento */}
-        <header className="h-14 border-b border-zinc-800/50 flex items-center px-6 justify-between shrink-0 bg-[#0B0F12]/80 backdrop-blur-md z-10">
-          <h1 className="text-zinc-300 font-medium">
-            {decryptedDocuments.find(d => d.id === activeDocumentId)?.title || "Selecione um capítulo"}
-          </h1>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 text-xs text-zinc-500 bg-zinc-900/50 px-3 py-1.5 rounded-full border border-zinc-800">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              Yjs Sync Ativo
-            </div>
-          </div>
-        </header>
+      {/* Workspace: Flex-1 remaining space */}
+      <div className="flex flex-1 overflow-hidden">
+        
+        {/* Sidebar */}
+        <Sidebar 
+          documents={documents}
+          activeDocumentId={activeDocumentId}
+          setActiveDocumentId={setActiveDocumentId}
+          wordCount={wordCount}
+          readingTime={readingTime}
+          isOpen={isLeftSidebarOpen}
+          setIsOpen={setIsLeftSidebarOpen}
+          lang={lang as Locale}
+        />
 
-        {/* Tiptap + Yjs Editor Workspace */}
-        <div className="flex-1 overflow-y-auto w-full relative">
+        {/* Main Editor Area */}
+        <main className="flex-1 h-full bg-gray-50 dark:bg-[#0A0D12] px-12 py-8 overflow-y-auto flex justify-center relative transition-colors duration-200">
           {activeDocumentId ? (() => {
-            const activeDocument = decryptedDocuments.find(d => d.id === activeDocumentId)
+            const activeDocument = documents.find(d => d.id === activeDocumentId)
             let initialContent = activeDocument?.content || ''
             return (
               <TiptapYjsEditor 
@@ -96,15 +137,51 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
                 currentUser={currentUser} 
                 wsToken={wsToken} 
                 initialContent={initialContent}
+                onEditorReady={setEditor}
+                onWordCountChange={setWordCount}
+                onSyncStatusChange={setIsSynced}
+                onEditorStateChange={() => setEditorUpdateTick(t => t + 1)}
               />
             )
           })() : (
-            <div className="h-full flex items-center justify-center text-zinc-500">
-              Crie ou selecione um capítulo no menu lateral.
+            <div className="h-full flex items-center justify-center text-[#8A94A0]">
+              {dict[lang as Locale].editor.emptyState}
             </div>
           )}
-        </div>
-      </main>
+        </main>
+
+        {/* Assistant Sidebar */}
+        {isAssistantOpen && (
+          <AssistantSidebar 
+            wsToken={wsToken}
+            documentContext={editor ? editor.getText() : ""}
+            onClose={() => setIsAssistantOpen(false)}
+            lang={lang as Locale}
+          />
+        )}
+      </div>
+
+      {/* StatusBar: Fixed at Bottom */}
+      <StatusBar 
+        wordCount={wordCount}
+        readingTime={readingTime}
+        isSynced={isSynced}
+        lang={lang as Locale}
+      />
+      
+      {/* Print Preview Overlay */}
+      {printScope && (
+        <PrintPreview 
+          book={book}
+          documents={documents}
+          activeDocumentId={activeDocumentId}
+          scope={printScope}
+          onClose={() => setPrintScope(null)}
+          lang={lang as Locale}
+        />
+      )}
+    </div>
     </div>
   )
 }
+

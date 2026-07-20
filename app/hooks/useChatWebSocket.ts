@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-const WS_URL = 'wss://services-websckt.khdya3.easypanel.host/ws/chat';
+const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'wss://services-websckt.khdya3.easypanel.host';
+const WS_URL = `${WS_BASE_URL}/ws/chat`;
 
 export function useChatWebSocket(
   sessionId: string | null,
@@ -56,8 +57,8 @@ export function useChatWebSocket(
         setTimeout(connect, 3000);
       };
 
-      ws.current.onerror = (e) => {
-        console.error('WS Chat error', e);
+      ws.current.onerror = () => {
+        console.warn(`[WS Chat] Não foi possível conectar ao servidor: ${WS_URL}. Verifique se o servidor websocket está rodando (node src/server.js).`);
       };
     };
 
