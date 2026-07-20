@@ -24,9 +24,15 @@ interface AssistantSidebarProps {
 
 const CorrectionUI = ({ content, onApply, isFinished }: { content: string, onApply: (b: string, a: string) => void, isFinished?: boolean }) => {
   try {
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    const jsonString = jsonMatch ? jsonMatch[0] : content;
-    const data = JSON.parse(jsonString);
+    let cleanStr = content
+      .replace(/```(?:undefined)?/g, '')
+      .replace(/undefined$/, '')
+      .trim();
+      
+    if (!cleanStr.startsWith('{')) cleanStr = '{' + cleanStr;
+    if (!cleanStr.endsWith('}')) cleanStr = cleanStr + '}';
+
+    const data = JSON.parse(cleanStr);
     if (!data.before || !data.after) throw new Error();
     return (
       <div className="my-4 border border-violet-200 dark:border-white/10 rounded-lg overflow-hidden bg-white dark:bg-[#11161D] shadow-sm">
