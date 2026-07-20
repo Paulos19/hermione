@@ -42,7 +42,7 @@ const TypingMessage = ({ content }: { content: string }) => {
   }, [content]);
 
   return (
-    <div className="prose prose-invert prose-sm max-w-none text-gray-900 dark:text-[#F5F5F5]">
+    <div className="prose dark:prose-invert prose-sm max-w-none text-gray-900 dark:text-[#F5F5F5]">
       <ReactMarkdown
         components={{
           p: ({ children }) => <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>,
