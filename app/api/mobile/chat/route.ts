@@ -12,14 +12,42 @@ function getUserFromRequest(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = getUserFromRequest(request)
-    if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
-
     const { sessionId, content, bookId } = await request.json()
 
     if (!sessionId || !content) {
       return NextResponse.json({ error: "Parâmetros inválidos." }, { status: 400 })
     }
+
+    // DEMO BYPASS for Landing Page
+    if (sessionId.startsWith("demo-")) {
+      let assistantReply = "Desculpe, ocorreu um erro de conexão com o cérebro da Hermione. Tente novamente."
+      try {
+        const webhookUrl = process.env.N8N_WEBHOOK_URL || "https://n8n-n8n.khdya3.easypanel.host/webhook/hermione";
+        const webhookResponse = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            message: content, 
+            sessionId,
+            userName: "Visitante",
+            ragContext: "Usuário testando a plataforma pela página inicial. Responda de forma sucinta e instigante para mostrar seu potencial."
+          }),
+          signal: AbortSignal.timeout(30000),
+        })
+
+        if (webhookResponse.ok) {
+          const data = await webhookResponse.json()
+          assistantReply = formatarRespostaN8N(data)
+        }
+      } catch (error) {
+        console.error("Erro ao chamar n8n webhook na demo:", error)
+      }
+
+      return NextResponse.json({ message: { role: "assistant", content: assistantReply } })
+    }
+
+    const user = getUserFromRequest(request)
+    if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
     // Verify session ownership and get user details
     const session = await prisma.chatSession.findUnique({
