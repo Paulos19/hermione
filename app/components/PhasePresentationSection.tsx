@@ -188,6 +188,7 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
             loop 
             muted 
             playsInline
+            suppressHydrationWarning
             className="w-full h-full object-cover opacity-80"
           />
         </motion.div>

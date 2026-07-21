@@ -7,6 +7,12 @@ import MobileAppSection from "../../components/MobileAppSection"
 import MetricsSection from "../../components/MetricsSection"
 import PhasePresentationSection from "../../components/PhasePresentationSection"
 import TestimonialSection from "../../components/TestimonialSection"
+import FeaturesSection from "../../components/FeaturesSection"
+import EcosystemSection from "../../components/EcosystemSection"
+import PricingSection from "../../components/PricingSection"
+import FaqSection from "../../components/FaqSection"
+import CtaFinalSection from "../../components/CtaFinalSection"
+import FooterSection from "../../components/FooterSection"
 import { dictionaries, ValidLang } from "../../dictionaries"
 import { getFeedbacksAction } from "@/app/actions/feedback"
 
@@ -34,6 +40,12 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       <MetricsSection dict={dict} />
       <PhasePresentationSection dict={dict} />
       <TestimonialSection initialFeedbacks={initialFeedbacks} />
+      <FeaturesSection />
+      <EcosystemSection />
+      <PricingSection />
+      <FaqSection />
+      <CtaFinalSection />
+      <FooterSection dict={dict} />
       
       {/* Gradient fade out at the very bottom just in case the tablet overflows aggressively */}
       <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#030303] to-transparent pointer-events-none z-50" />
