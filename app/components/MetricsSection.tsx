@@ -208,12 +208,13 @@ export default function MetricsSection({ dict }: { dict?: any }) {
         </div>
 
         {/* Right Column: Globe 3D */}
-        <div className="relative w-full flex items-center justify-center cursor-pointer" onClick={handleGlobeClick}>
+        <div className="relative w-full flex items-center justify-center">
           <div className="absolute inset-0 bg-gradient-radial from-white/5 to-transparent opacity-50 blur-3xl rounded-full" />
           <GlobeStickers 
             markers={markers} 
             className="w-full max-w-[500px] lg:max-w-[600px]" 
             speed={0.002}
+            onMarkerClick={handleGlobeClick}
           />
 
           <AnimatePresence>

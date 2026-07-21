@@ -14,6 +14,7 @@ interface GlobeStickersProps {
   markers?: StickerMarker[]
   className?: string
   speed?: number
+  onMarkerClick?: (marker: StickerMarker) => void
 }
 
 // Default markers with some demo locations
@@ -29,6 +30,7 @@ export function GlobeStickers({
   markers = defaultMarkers,
   className = "",
   speed = 0.003,
+  onMarkerClick,
 }: GlobeStickersProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pointerInteracting = useRef<{ x: number; y: number } | null>(null)
@@ -147,6 +149,10 @@ export function GlobeStickers({
       {markers.map((m, i) => (
         <div
           key={m.id}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMarkerClick?.(m);
+          }}
           style={{
             position: "absolute",
             positionAnchor: `--cobe-${m.id}`,
@@ -154,14 +160,16 @@ export function GlobeStickers({
             left: "anchor(center)",
             translate: "-50% -100%", // Adjust pin upward
             lineHeight: 1,
-            pointerEvents: "none" as const,
+            pointerEvents: "auto" as const,
+            cursor: "pointer",
             opacity: `var(--cobe-visible-${m.id}, 0)`,
-            transition: "opacity 0.2s",
+            transition: "opacity 0.2s, transform 0.2s",
             color: "white",
             filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))"
           }}
+          className="hover:scale-110 hover:-translate-y-1"
         >
-          {m.sticker || <MapPin size={28} className="text-white fill-white/20" strokeWidth={1.5} />}
+          {m.sticker || <MapPin size={32} className="text-[#B899FF] fill-[#B899FF]/20" strokeWidth={1.5} />}
         </div>
       ))}
     </div>

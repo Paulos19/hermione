@@ -30,6 +30,7 @@ model User {
   books         Book[]
   documents     Document[]
   dailyProgress DailyProgress[]
+  feedbacks     Feedback[]
 }
 
 model ChatSession {
@@ -148,5 +149,16 @@ model DailyProgress {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
+  @@index([userId])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String
+  text      String   @db.Text
+  rating    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
