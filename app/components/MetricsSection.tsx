@@ -10,13 +10,6 @@ const cormorant = Cormorant_Garamond({
   weight: ["300", "400", "500", "600"],
 });
 
-// A local default fallback in case WS is down or before connection
-const defaultMarkers: StickerMarker[] = [
-  { id: "br", location: [-23.55, -46.63] }, // SP
-  { id: "us", location: [40.71, -74.01] },  // NY
-  { id: "uk", location: [51.51, -0.13] },   // London
-];
-
 export default function MetricsSection({ dict }: { dict?: any }) {
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -27,7 +20,7 @@ export default function MetricsSection({ dict }: { dict?: any }) {
     words: 0,
     subscribers: 0,
   });
-  const [markers, setMarkers] = useState<StickerMarker[]>(defaultMarkers);
+  const [markers, setMarkers] = useState<StickerMarker[]>([]);
   const [isConnected, setIsConnected] = useState(false);
 
   const { scrollYProgress } = useScroll({
@@ -83,6 +76,8 @@ export default function MetricsSection({ dict }: { dict?: any }) {
               location: loc
             }));
             setMarkers(newMarkers);
+          } else {
+            setMarkers([]);
           }
         }
       } catch (err) {
