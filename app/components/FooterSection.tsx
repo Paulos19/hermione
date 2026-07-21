@@ -97,45 +97,61 @@ export default function FooterSection({ dict }: { dict?: any }) {
 
   // 3. WebSocket connection setup for real-time metrics
   useEffect(() => {
-    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080";
     let ws: WebSocket | null = null;
+    let reconnectTimer: NodeJS.Timeout | null = null;
 
-    try {
-      ws = new WebSocket(`${WS_URL}/ws/metrics`);
-      ws.onopen = () => {
-        setIsConnected(true);
-      };
-      ws.onmessage = (event) => {
-        try {
-          const payload = JSON.parse(event.data);
-          if (payload.type === "metrics_update" && payload.data) {
-            if (payload.data.activeUsers !== undefined) {
-              setActiveUsersCount(payload.data.activeUsers);
+    const connectWS = () => {
+      const rawWsUrl = process.env.NEXT_PUBLIC_WS_URL || "wss://services-websckt.khdya3.easypanel.host";
+      let targetUrl = rawWsUrl;
+      if (typeof window !== "undefined" && window.location.protocol === "https:" && targetUrl.startsWith("ws://")) {
+        targetUrl = targetUrl.replace("ws://", "wss://");
+      }
+      const wsEndpoint = targetUrl.endsWith("/ws/metrics") ? targetUrl : `${targetUrl.replace(/\/$/, "")}/ws/metrics`;
+
+      try {
+        ws = new WebSocket(wsEndpoint);
+        ws.onopen = () => {
+          setIsConnected(true);
+        };
+        ws.onmessage = (event) => {
+          try {
+            const payload = JSON.parse(event.data);
+            if (payload.type === "metrics_update" && payload.data) {
+              if (payload.data.activeUsers !== undefined) {
+                setActiveUsersCount(payload.data.activeUsers);
+              }
+              if (payload.data.chapters !== undefined) {
+                setDbMetrics((prev) => ({
+                  ...prev,
+                  chapters: payload.data.chapters,
+                  words: payload.data.words ?? prev.words,
+                  subscribers: payload.data.subscribers ?? prev.subscribers,
+                }));
+              }
+              if (Array.isArray(payload.data.recentActivity) && payload.data.recentActivity.length > 0) {
+                setRecentActivities(payload.data.recentActivity);
+              }
             }
-            if (payload.data.chapters !== undefined) {
-              setDbMetrics((prev) => ({
-                ...prev,
-                chapters: payload.data.chapters,
-                words: payload.data.words ?? prev.words,
-                subscribers: payload.data.subscribers ?? prev.subscribers,
-              }));
-            }
-            if (Array.isArray(payload.data.recentActivity) && payload.data.recentActivity.length > 0) {
-              setRecentActivities(payload.data.recentActivity);
-            }
+          } catch (err) {
+            // ignore
           }
-        } catch (err) {
-          // ignore
-        }
-      };
-      ws.onerror = () => setIsConnected(false);
-      ws.onclose = () => setIsConnected(false);
-    } catch (e) {
-      setIsConnected(false);
-    }
+        };
+        ws.onerror = () => setIsConnected(false);
+        ws.onclose = () => {
+          setIsConnected(false);
+          reconnectTimer = setTimeout(connectWS, 5000);
+        };
+      } catch (e) {
+        setIsConnected(false);
+        reconnectTimer = setTimeout(connectWS, 5000);
+      }
+    };
+
+    connectWS();
 
     return () => {
       if (ws) ws.close();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
     };
   }, []);
 

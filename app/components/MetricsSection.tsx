@@ -76,60 +76,108 @@ export default function MetricsSection({ dict }: { dict?: any }) {
   const contentY = useTransform(scrollYProgress, [0.1, 0.4], [50, 0]);
 
   useEffect(() => {
-    // 1. Fetch user location
+    // 1. Fetch initial real DB metrics & user location
     let userLocation: [number, number] | null = null;
-    
+
+    fetch("/api/metrics")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) {
+          setMetrics((prev) => ({
+            ...prev,
+            chapters: data.chapters || prev.chapters,
+            words: data.words || prev.words,
+            subscribers: data.subscribers || prev.subscribers,
+            activeUsers: data.activeUsers || prev.activeUsers,
+          }));
+          if (Array.isArray(data.locations) && data.locations.length > 0) {
+            setMarkers(
+              data.locations.map((loc: [number, number], i: number) => ({
+                id: `user-${i}`,
+                location: loc,
+              }))
+            );
+          }
+        }
+      })
+      .catch(() => {});
+
     fetch("https://ipapi.co/json/")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.latitude && data.longitude) {
           userLocation = [data.latitude, data.longitude];
         }
       })
-      .catch(err => console.log("Não foi possível obter a localização do IP"));
+      .catch(() => {});
 
-    // 2. Connect to WebSocket
-    // Substituir pela URL do servidor WS em produção se necessário
-    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080";
-    const ws = new WebSocket(`${WS_URL}/ws/metrics`);
+    // 2. Connect to WebSocket with wss auto-upgrade
+    let ws: WebSocket | null = null;
+    let reconnectTimer: NodeJS.Timeout | null = null;
 
-    ws.onopen = () => {
-      setIsConnected(true);
-      if (userLocation) {
-        ws.send(JSON.stringify({ type: "location", location: userLocation }));
+    const connectWebSocket = () => {
+      const rawWsUrl = process.env.NEXT_PUBLIC_WS_URL || "wss://services-websckt.khdya3.easypanel.host";
+      let targetUrl = rawWsUrl;
+      if (typeof window !== "undefined" && window.location.protocol === "https:" && targetUrl.startsWith("ws://")) {
+        targetUrl = targetUrl.replace("ws://", "wss://");
       }
-    };
+      const wsEndpoint = targetUrl.endsWith("/ws/metrics") ? targetUrl : `${targetUrl.replace(/\/$/, "")}/ws/metrics`;
 
-    ws.onmessage = (event) => {
       try {
-        const payload = JSON.parse(event.data);
-        if (payload.type === "metrics_update" && payload.data) {
-          setMetrics({
-            activeUsers: payload.data.activeUsers || 1,
-            chapters: payload.data.chapters || 0,
-            words: payload.data.words || 0,
-            subscribers: payload.data.subscribers || 0,
-          });
+        ws = new WebSocket(wsEndpoint);
 
-          if (payload.data.locations && payload.data.locations.length > 0) {
-            const newMarkers = payload.data.locations.map((loc: [number, number], index: number) => ({
-              id: `user-${index}`,
-              location: loc
-            }));
-            setMarkers(newMarkers);
-          } else {
-            setMarkers([]);
+        ws.onopen = () => {
+          setIsConnected(true);
+          if (userLocation) {
+            ws?.send(JSON.stringify({ type: "location", location: userLocation }));
           }
-        }
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const payload = JSON.parse(event.data);
+            if (payload.type === "metrics_update" && payload.data) {
+              setMetrics({
+                activeUsers: payload.data.activeUsers || 1,
+                chapters: payload.data.chapters || 0,
+                words: payload.data.words || 0,
+                subscribers: payload.data.subscribers || 0,
+              });
+
+              if (payload.data.locations && payload.data.locations.length > 0) {
+                const newMarkers = payload.data.locations.map((loc: [number, number], index: number) => ({
+                  id: `user-${index}`,
+                  location: loc,
+                }));
+                setMarkers(newMarkers);
+              }
+            }
+          } catch (err) {
+            console.error("Erro ao processar dados do WS de métricas", err);
+          }
+        };
+
+        ws.onerror = () => {
+          setIsConnected(false);
+        };
+
+        ws.onclose = () => {
+          setIsConnected(false);
+          // Try reconnecting in 5s
+          reconnectTimer = setTimeout(connectWebSocket, 5000);
+        };
       } catch (err) {
-        console.error("Erro ao processar dados do WS de métricas", err);
+        console.error("Erro ao conectar WebSocket de métricas:", err);
+        setIsConnected(false);
+        reconnectTimer = setTimeout(connectWebSocket, 5000);
       }
     };
 
-    ws.onclose = () => setIsConnected(false);
+    connectWebSocket();
 
     return () => {
-      ws.close();
+      if (ws) ws.close();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
     };
   }, []);
 
