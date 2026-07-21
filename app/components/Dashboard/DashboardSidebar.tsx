@@ -2,16 +2,19 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { 
-  BookOpen, 
-  Library, 
-  Users, 
-  Globe, 
-  PenTool, 
-  Search, 
-  MessageSquare, 
-  Trash2,
-  Sparkles
+import { logoutAction } from "@/app/actions/auth"
+import {
+  BookOpen,
+  Library,
+  Users,
+  Globe,
+  PenTool,
+  Search,
+  MessageSquare,
+  Sparkles,
+  Star,
+  LogOut,
+  Trash2
 } from "lucide-react"
 import { dict } from "@/lib/dictionaries"
 import { Locale } from "@/lib/i18n-config"
@@ -29,6 +32,7 @@ export function DashboardSidebar({ streak = 0, wordsToday = 0, lang = 'pt', isPr
     { name: t.notes, href: `/${lang}/dashboard/notes`, icon: PenTool },
     { name: t.research, href: `/${lang}/dashboard/research`, icon: Search },
     { name: t.comments, href: `/${lang}/dashboard/comments`, icon: MessageSquare },
+    { name: "Feedback", href: `/${lang}/dashboard/feedback`, icon: Star },
   ]
 
   return (
@@ -45,14 +49,13 @@ export function DashboardSidebar({ streak = 0, wordsToday = 0, lang = 'pt', isPr
           const isActive = pathname === item.href
           const Icon = item.icon
           return (
-            <Link 
-              key={item.name} 
+            <Link
+              key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] transition-all duration-150 ${
-                isActive 
-                  ? "bg-violet-50 dark:bg-[#141A22] text-violet-600 dark:text-[#B899FF] font-medium" 
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] transition-all duration-150 ${isActive
+                  ? "bg-violet-50 dark:bg-[#141A22] text-violet-600 dark:text-[#B899FF] font-medium"
                   : "text-gray-500 dark:text-[#8A94A0] hover:text-gray-900 dark:hover:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-[#141A22]/50"
-              }`}
+                }`}
             >
               <Icon className="w-[18px] h-[18px] opacity-80" />
               {item.name}
@@ -62,13 +65,20 @@ export function DashboardSidebar({ streak = 0, wordsToday = 0, lang = 'pt', isPr
 
         <div className="my-4 mx-4 h-px bg-gray-200 dark:bg-white/5" />
 
-        <Link 
+        <Link
           href={`/${lang}/dashboard/trash`}
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] text-gray-500 dark:text-[#8A94A0] hover:text-red-400 hover:bg-red-50 dark:hover:bg-[#141A22]/50 transition-all duration-150"
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] text-gray-500 dark:text-[#8A94A0] hover:text-gray-900 dark:hover:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-[#141A22]/50 transition-all duration-150"
         >
           <Trash2 className="w-[18px] h-[18px] opacity-80" />
           {t.trash}
         </Link>
+        <button
+          onClick={() => logoutAction()}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] text-gray-500 dark:text-[#8A94A0] hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-150 text-left"
+        >
+          <LogOut className="w-[18px] h-[18px] opacity-80" />
+          Sair
+        </button>
       </nav>
 
       {/* Bottom Section */}
@@ -79,14 +89,14 @@ export function DashboardSidebar({ streak = 0, wordsToday = 0, lang = 'pt', isPr
             <span className="text-[12px] font-semibold text-violet-600 dark:text-[#B899FF]">{wordsToday} / 1000 w</span>
           </div>
           <div className="h-1.5 w-full bg-gray-100 dark:bg-[#141A22] rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-violet-600 dark:bg-[#B899FF] rounded-full transition-all duration-500" 
-              style={{ width: `${Math.min(100, (wordsToday / 1000) * 100)}%` }} 
+            <div
+              className="h-full bg-violet-600 dark:bg-[#B899FF] rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(100, (wordsToday / 1000) * 100)}%` }}
             />
           </div>
         </div>
 
-        <button 
+        <button
           onClick={() => {
             if (!isPremium) {
               router.push(`/${lang}/subscribe`)

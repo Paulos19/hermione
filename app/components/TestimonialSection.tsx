@@ -121,14 +121,22 @@ export default function TestimonialSection({ initialFeedbacks }: { initialFeedba
     image: fb.user?.image || undefined,
   }));
 
-  const allFeedbacks = mappedFeedbacks;
+  // Duplicate to ensure at least 6 items for uniform layout
+  let displayFeedbacks = [...mappedFeedbacks];
+  if (displayFeedbacks.length > 0 && displayFeedbacks.length < 6) {
+    while (displayFeedbacks.length < 6) {
+      displayFeedbacks = [...displayFeedbacks, ...mappedFeedbacks];
+    }
+  }
 
-  // Split logic
-  const [cols, setCols] = useState<[Testimonial[], Testimonial[], Testimonial[]]>([
-    allFeedbacks.slice(0, Math.ceil(allFeedbacks.length / 3)),
-    allFeedbacks.slice(Math.ceil(allFeedbacks.length / 3), Math.ceil(allFeedbacks.length / 3) * 2),
-    allFeedbacks.slice(Math.ceil(allFeedbacks.length / 3) * 2)
-  ]);
+  // Round-robin distribution to keep columns balanced
+  const initialCols: [Testimonial[], Testimonial[], Testimonial[]] = [[], [], []];
+  displayFeedbacks.forEach((fb, i) => {
+    const uniqueFb = { ...fb, id: `${fb.id}-${i}` };
+    initialCols[i % 3].push(uniqueFb);
+  });
+
+  const [cols, setCols] = useState<[Testimonial[], Testimonial[], Testimonial[]]>(initialCols);
 
   const containerRef = useRef<HTMLElement>(null);
   
@@ -140,6 +148,8 @@ export default function TestimonialSection({ initialFeedbacks }: { initialFeedba
   const bgColor = useTransform(scrollYProgress, [0, 1], ["#ffffff", "#030303"]);
   const textColor = useTransform(scrollYProgress, [0, 1], ["#000000", "#ffffff"]);
 
+  const wsCounter = useRef(0);
+
   useEffect(() => {
     // WebSocket Conexão
     const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080";
@@ -150,7 +160,7 @@ export default function TestimonialSection({ initialFeedbacks }: { initialFeedba
         const payload = JSON.parse(event.data);
         if (payload.type === 'live_feedback') {
           const newFeedback: Testimonial = {
-            id: payload.data.id || Date.now().toString(),
+            id: (payload.data.id || Date.now().toString()) + '-live',
             text: payload.data.text,
             rating: payload.data.rating,
             name: payload.data.name,
@@ -159,10 +169,13 @@ export default function TestimonialSection({ initialFeedbacks }: { initialFeedba
             isNew: true
           };
 
-          // Adiciona ao topo da primeira coluna (e rotaciona as outras opcionalmente)
+          // Adiciona e rotaciona entre as colunas para manter o balanceamento visual
           setCols(prev => {
-            const c1 = [newFeedback, ...prev[0]];
-            return [c1, prev[1], prev[2]];
+            const newCols = [...prev] as [Testimonial[], Testimonial[], Testimonial[]];
+            const colIndex = wsCounter.current % 3;
+            newCols[colIndex] = [newFeedback, ...newCols[colIndex]];
+            wsCounter.current += 1;
+            return newCols;
           });
         }
       } catch (e) {
