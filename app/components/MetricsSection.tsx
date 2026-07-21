@@ -103,15 +103,16 @@ export default function MetricsSection({ dict }: { dict?: any }) {
   };
 
   return (
-    <section ref={containerRef} className="relative w-full min-h-screen flex items-center justify-center overflow-hidden py-24">
+    <section ref={containerRef} className="relative w-full min-h-screen px-4 md:px-6 lg:px-8 pt-[140px] pb-12 flex flex-col items-center justify-center overflow-hidden">
       {/* Black Background Overlay that fades in */}
       <motion.div 
-        className="absolute inset-0 bg-[#050505] z-10"
+        className="fixed inset-0 pointer-events-none bg-[#050505] z-0"
         style={{ opacity: bgOpacity }}
       />
       
+      {/* Container principal para combinar com o estilo de card da sessão anterior */}
       <motion.div 
-        className="relative z-20 w-full max-w-[1440px] px-6 md:px-12 lg:px-24 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+        className="w-full max-w-[1440px] flex-1 h-full relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center rounded-[32px] overflow-hidden"
         style={{ opacity: contentOpacity, y: contentY }}
       >
         {/* Left Column: Typography & Metrics */}
