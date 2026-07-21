@@ -77,6 +77,38 @@ export default function DashboardClient({ books: initialBooks, userName, wordsTo
     })
   }
 
+  useEffect(() => {
+    // Solicitar localização ao entrar na plataforma e enviar para as métricas globais
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "wss://services-websckt.khdya3.easypanel.host";
+          const ws = new WebSocket(`${WS_URL}/ws/metrics`);
+          
+          ws.onopen = () => {
+            ws.send(JSON.stringify({ type: "location", location: [latitude, longitude] }));
+          };
+
+          const pingInterval = setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: "ping" }));
+            }
+          }, 30000);
+
+          return () => {
+            clearInterval(pingInterval);
+            ws.close();
+          };
+        },
+        (error) => {
+          console.warn("Permissão de localização negada ou erro:", error);
+        }
+      );
+    }
+  }, []);
+
   const handleCriarLivro = () => {
     startTransition(async () => {
       try {

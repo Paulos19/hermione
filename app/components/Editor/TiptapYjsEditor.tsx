@@ -70,6 +70,22 @@ export default function TiptapYjsEditor({
       if (onSyncStatusChange) {
         onSyncStatusChange(event.status === 'connected')
       }
+      if (event.status === 'connected' && prov.ws) {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              try {
+                // Envia como JSON puro, o servidor Yjs foi adaptado para ignorar ou repassar
+                prov.ws!.send(JSON.stringify({ type: "location", location: [latitude, longitude] }));
+              } catch (e) {
+                console.error("Erro ao enviar localização", e);
+              }
+            },
+            (err) => console.warn("Permissão de localização negada", err)
+          );
+        }
+      }
     })
 
     const instance = new Editor({
