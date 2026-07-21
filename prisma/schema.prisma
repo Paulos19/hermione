@@ -21,6 +21,7 @@ model User {
   personalDictionary String[]  @default([])
 
   isPremium            Boolean @default(false)
+  selectedPlan         String? @default("free")
   stripeCustomerId     String? @unique
   stripeSubscriptionId String? @unique
 
@@ -31,6 +32,18 @@ model User {
   documents     Document[]
   dailyProgress DailyProgress[]
   feedbacks     Feedback[]
+}
+
+model VerificationCode {
+  id             String   @id @default(cuid())
+  email          String
+  code           String
+  name           String?
+  hashedPassword String?
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+
+  @@index([email])
 }
 
 model ChatSession {

@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Cormorant_Garamond, Geist } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
-import homemImg from "../../assets/design/homem.png";
+import { useParams } from "next/navigation";
+import homemImg from "@/assets/design/homem.png";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -91,9 +92,9 @@ function SideTypingMorphingCopy({ typewriterText, morphWords, className = "", de
   );
 }
 
-function MainTitleTypewriter() {
-  const fullText = "Toda grande obra começa com uma única palavra.";
-  const pivot = "Toda grande obra começa com uma ".length;
+function MainTitleTypewriter({ text }: { text?: string }) {
+  const fullText = text || "Toda grande obra começa com uma única palavra.";
+  const pivot = Math.floor(fullText.length * 0.7);
   const [displayedText, setDisplayedText] = useState("");
   const [startTyping, setStartTyping] = useState(false);
 
@@ -129,6 +130,8 @@ function MainTitleTypewriter() {
 
 export default function CtaFinalSection({ dict }: { dict?: any }) {
   const ctaDict = dict?.ctaFinal;
+  const params = useParams();
+  const currentLang = (params?.lang as string) || "pt";
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -164,7 +167,7 @@ export default function CtaFinalSection({ dict }: { dict?: any }) {
 
       {/* Top Main CTA Copy */}
       <div className="relative z-10 w-full max-w-4xl mx-auto px-4 flex flex-col items-center text-center">
-        <MainTitleTypewriter />
+        <MainTitleTypewriter text={ctaDict?.mainTitle} />
 
         {/* Call to action button */}
         <motion.div
@@ -174,10 +177,10 @@ export default function CtaFinalSection({ dict }: { dict?: any }) {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mt-6"
         >
-          <Link href="/register">
+          <Link href={`/${currentLang}/register`}>
             <button className="relative px-8 py-3.5 bg-white/5 border border-white/10 rounded-full text-white/90 font-medium tracking-wide hover:bg-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm overflow-hidden group">
               <span className="relative z-10 flex items-center gap-2 text-sm md:text-base">
-                Comece a Escrever
+                {ctaDict?.ctaButton || "Começar a Escrever"}
                 <motion.span
                   animate={{ x: [0, 5, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}

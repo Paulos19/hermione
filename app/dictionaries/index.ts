@@ -15,6 +15,25 @@ export const dictionaries = {
       signIn: "Entrar",
       start: "Começar Grátis"
     },
+    auth: {
+      loginTitle: "Bem-vindo de volta",
+      loginSubtitle: "Insira suas credenciais para acessar sua conta",
+      emailLabel: "Endereço de E-mail",
+      emailPlaceholder: "seuemail@exemplo.com",
+      passwordLabel: "Sua Senha",
+      confirmPasswordLabel: "Confirme sua Senha",
+      passwordPlaceholder: "••••••••",
+      submitLogin: "Entrar na conta",
+      noAccount: "Não tem uma conta?",
+      signUpLink: "Cadastre-se grátis",
+      registerTitle: "Criar nova conta",
+      registerSubtitle: "Cadastre-se para começar a usar a plataforma",
+      nameLabel: "Nome Completo",
+      namePlaceholder: "Seu nome",
+      submitRegister: "Criar Conta Grátis",
+      hasAccount: "Já possui uma conta?",
+      loginLink: "Faça login"
+    },
     chat: {
       initialGreeting: "Olá! Eu sou a Hermione. Sobre o que você quer escrever hoje?",
       genericResponse: "Interessante... O que mais você gostaria de explorar sobre isso?",
@@ -161,6 +180,25 @@ export const dictionaries = {
       resources: "Resources",
       signIn: "Sign In",
       start: "Start Free"
+    },
+    auth: {
+      loginTitle: "Welcome back",
+      loginSubtitle: "Enter your credentials to access your account",
+      emailLabel: "Email Address",
+      emailPlaceholder: "youremail@example.com",
+      passwordLabel: "Your Password",
+      confirmPasswordLabel: "Confirm Password",
+      passwordPlaceholder: "••••••••",
+      submitLogin: "Sign In",
+      noAccount: "Don't have an account?",
+      signUpLink: "Sign up free",
+      registerTitle: "Create new account",
+      registerSubtitle: "Sign up to start using the platform",
+      nameLabel: "Full Name",
+      namePlaceholder: "Your name",
+      submitRegister: "Create Account",
+      hasAccount: "Already have an account?",
+      loginLink: "Sign in"
     },
     chat: {
       initialGreeting: "Hi! I'm Hermione. What do you want to write about today?",
@@ -309,6 +347,25 @@ export const dictionaries = {
       signIn: "Iniciar sesión",
       start: "Empezar Gratis"
     },
+    auth: {
+      loginTitle: "Bienvenido de nuevo",
+      loginSubtitle: "Ingresa tus credenciales para acceder a tu cuenta",
+      emailLabel: "Dirección de Correo Electrónico",
+      emailPlaceholder: "tucorreo@ejemplo.com",
+      passwordLabel: "Tu Contraseña",
+      confirmPasswordLabel: "Confirma tu Contraseña",
+      passwordPlaceholder: "••••••••",
+      submitLogin: "Iniciar sesión",
+      noAccount: "¿No tienes una cuenta?",
+      signUpLink: "Regístrate gratis",
+      registerTitle: "Crear nueva cuenta",
+      registerSubtitle: "Regístrate para empezar a usar la plataforma",
+      nameLabel: "Nombre Completo",
+      namePlaceholder: "Tu nombre",
+      submitRegister: "Crear Cuenta",
+      hasAccount: "¿Ya tienes una cuenta?",
+      loginLink: "Inicia sesión"
+    },
     chat: {
       initialGreeting: "¡Hola! Soy Hermione. ¿De qué quieres escribir hoy?",
       genericResponse: "Interesante... ¿Qué más te gustaría añadir a esta idea?",
@@ -426,7 +483,7 @@ export const dictionaries = {
         leftTop: { label: "DA VIDA A", words: ["Tu Historia.", "Tu Visión.", "Tu Legado.", "Tu Arte."] },
         leftBottom: { label: "ESCRIBE CON", words: ["Enfoque Total.", "Claridad Absoluta.", "Flujo Creativo.", "Libertad."] },
         rightTop: { label: "TU MENTE", words: ["Sin Límites.", "Sin Barreras.", "Sin Distracciones.", "En Armonía."] },
-        rightBottom: { label: "TRANSFORMA EN", words: ["Obra Maestra.", "Libro Inolvidable.", "Bestseller.", "Realidad."] }
+        rightBottom: { label: "TRANSFORMA EN", words: ["Obra Maestra.", "Libro Inolvidable.", "Bestseller.", "Realidade."] }
       }
     },
     footer: {

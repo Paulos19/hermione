@@ -150,14 +150,14 @@ export default function Navbar({ dict }: { dict: any }) {
 
           {/* Login Link */}
           <Link
-            href="/login"
+            href={`/${currentLang}/login`}
             className="px-3 py-2 text-xs lg:text-sm font-medium text-white/70 hover:text-white transition-colors whitespace-nowrap"
           >
             {dict?.nav?.signIn || "Entrar"}
           </Link>
 
           {/* IMPROVED CTA BUTTON (Single line, sleek hover glow, magnetic scale) */}
-          <Link href="/register" className="flex-shrink-0">
+          <Link href={`/${currentLang}/register`} className="flex-shrink-0">
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
@@ -208,10 +208,10 @@ export default function Navbar({ dict }: { dict: any }) {
               <span>•</span>
               <span onClick={() => changeLang("es")} className={currentLang === "es" ? "text-white font-bold" : ""}>ES</span>
             </div>
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="text-white/80 text-base py-1">
+            <Link href={`/${currentLang}/login`} onClick={() => setMobileMenuOpen(false)} className="text-white/80 text-base py-1">
               {dict?.nav?.signIn || "Entrar"}
             </Link>
-            <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+            <Link href={`/${currentLang}/register`} onClick={() => setMobileMenuOpen(false)}>
               <button className="w-full py-3 bg-white text-black font-semibold rounded-full text-base">
                 {dict?.nav?.start || "Começar Grátis"}
               </button>

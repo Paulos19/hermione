@@ -1,32 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Cpu, Terminal, Radio } from "lucide-react";
+import { useParams } from "next/navigation";
+import { ArrowRight, ShieldCheck, Cpu, Radio } from "lucide-react";
 
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
       <path d="M9 18c-4.51 2-5-2-7-2" />
-    </svg>
-  );
-}
-
-function TwitterIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-    </svg>
-  );
-}
-
-function DiscordIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M18 6h0a14.5 14.5 0 0 0-4-1.25.1.1 0 0 0-.1.05c-.17.31-.36.71-.49 1.02a13.3 13.3 0 0 0-3.82 0 8.7 8.7 0 0 0-.5-1.02.1.1 0 0 0-.1-.05A14.5 14.5 0 0 0 5 6a.1.1 0 0 0-.05.04C2.37 9.8 1.66 13.5 2 17.15a.1.1 0 0 0 .04.07 14.6 14.6 0 0 0 4.4 2.23.1.1 0 0 0 .11-.04c.34-.47.65-.96.92-1.48.02-.05 0-.1-.05-.12a9.6 9.6 0 0 1-1.37-.66.1.1 0 0 1 0-.17c.09-.07.18-.14.27-.21a.1.1 0 0 1 .1 0c2.89 1.33 6.01 1.33 8.87 0a.1.1 0 0 1 .1 0c.09.07.18.14.27.21a.1.1 0 0 1 0 .17c-.44.24-.9.46-1.37.66a.1.1 0 0 0-.05.12c.28.52.58 1.01.92 1.48a.1.1 0 0 0 .1.04 14.6 14.6 0 0 0 4.42-2.23.1.1 0 0 0 .04-.07c.41-4.22-.68-7.92-2.9-11.11a.1.1 0 0 0-.04-.04ZM8.5 14.5c-.83 0-1.5-.75-1.5-1.67 0-.92.66-1.67 1.5-1.67s1.5.75 1.5 1.67c0 .92-.67 1.67-1.5 1.67Zm7 0c-.83 0-1.5-.75-1.5-1.67 0-.92.66-1.67 1.5-1.67s1.5.75 1.5 1.67c0 .92-.67 1.67-1.5 1.67Z" />
     </svg>
   );
 }
@@ -40,7 +25,6 @@ function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -68,6 +52,8 @@ interface StreamLine {
 }
 
 export default function FooterSection({ dict }: { dict?: any }) {
+  const params = useParams();
+  const currentLang = (params?.lang as string) || "pt";
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -259,21 +245,21 @@ export default function FooterSection({ dict }: { dict?: any }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center my-6">
           <div className="lg:col-span-7 flex flex-col items-start gap-6">
             <h2 className={`${cormorant.className} text-4xl md:text-6xl font-light text-white leading-tight tracking-wide`}>
-              Pronto para dar vida à sua história?
+              {dict?.footer?.ctaTitle || "Pronto para dar vida à sua história?"}
             </h2>
             <p className={`${geist.className} text-base md:text-lg text-white/60 font-light max-w-xl leading-relaxed`}>
-              Junte-se a milhares de autores que utilizam a Hermione para organizar, escrever e colaborar em obras-primas com o poder da inteligência artificial.
+              {dict?.footer?.ctaSubtitle || "Junte-se a milhares de autores que utilizam a Hermione para organizar, escrever e colaborar em obras-primas com o poder da inteligência artificial."}
             </p>
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Link href="/register">
-                <button className="px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.2)] flex items-center gap-3 text-sm md:text-base group">
-                  Criar Conta Gratuita
+              <Link href={`/${currentLang}/register`}>
+                <button className="px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.2)] flex items-center gap-3 text-sm md:text-base group cursor-pointer">
+                  {dict?.footer?.freeAccountButton || "Criar Conta Gratuita"}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </Link>
-              <Link href="/login">
-                <button className="px-8 py-4 bg-white/5 border border-white/10 rounded-full text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300 backdrop-blur-md text-sm md:text-base">
-                  Fazer Login
+              <Link href={`/${currentLang}/login`}>
+                <button className="px-8 py-4 bg-white/5 border border-white/10 rounded-full text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300 backdrop-blur-md text-sm md:text-base cursor-pointer">
+                  {dict?.footer?.loginButton || "Fazer Login"}
                 </button>
               </Link>
             </div>
@@ -282,19 +268,19 @@ export default function FooterSection({ dict }: { dict?: any }) {
           {/* Newsletter Box */}
           <div className="lg:col-span-5 bg-white/[0.03] border border-white/10 rounded-3xl p-8 backdrop-blur-xl flex flex-col gap-4">
             <span className={`${geistMono.className} text-xs text-white/40 uppercase tracking-widest`}>
-              // Fique por dentro dos novos capítulos
+              // {dict?.footer?.badge || "WebSocket Sincronizado"}
             </span>
             <h3 className={`${geist.className} text-xl text-white font-medium`}>
-              Receba atualizações de produto & dicas de escrita
+              {dict?.footer?.newsletterTitle || "Receba atualizações de produto & dicas de escrita"}
             </h3>
             <div className="flex items-center gap-2 mt-2">
               <input
                 type="email"
-                placeholder="Seu melhor e-mail..."
+                placeholder={dict?.footer?.newsletterPlaceholder || "Seu melhor e-mail..."}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 transition-colors"
               />
-              <button className="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium px-5 py-3 rounded-xl transition-all text-sm whitespace-nowrap">
-                Assinar
+              <button className="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium px-5 py-3 rounded-xl transition-all text-sm whitespace-nowrap cursor-pointer">
+                {dict?.footer?.subscribeButton || "Assinar"}
               </button>
             </div>
           </div>
@@ -367,23 +353,30 @@ export default function FooterSection({ dict }: { dict?: any }) {
           </h1>
         </div>
 
-        {/* Bottom Bar: Copyright & Social Links */}
+        {/* Bottom Bar: Copyright & Exclusive GitHub & LinkedIn Links */}
         <div className="flex flex-wrap items-center justify-between gap-6 pt-6 border-t border-white/10 text-xs text-white/40 font-light">
           <div>
             © {new Date().getFullYear()} Hermione Inc. Todos os direitos reservados.
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link href="https://github.com" target="_blank" className="hover:text-white transition-colors">
+          {/* Only GitHub and LinkedIn social icons */}
+          <div className="flex items-center gap-5">
+            <Link
+              href="https://github.com/Paulos19"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 bg-white/5 hover:bg-white/15 border border-white/10 rounded-full text-white/70 hover:text-white transition-all hover:scale-110"
+              title="GitHub - Paulos19"
+            >
               <GithubIcon className="w-4 h-4" />
             </Link>
-            <Link href="https://twitter.com" target="_blank" className="hover:text-white transition-colors">
-              <TwitterIcon className="w-4 h-4" />
-            </Link>
-            <Link href="https://discord.com" target="_blank" className="hover:text-white transition-colors">
-              <DiscordIcon className="w-4 h-4" />
-            </Link>
-            <Link href="https://linkedin.com" target="_blank" className="hover:text-white transition-colors">
+            <Link
+              href="https://www.linkedin.com/in/paulo-henrique20/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 bg-white/5 hover:bg-white/15 border border-white/10 rounded-full text-white/70 hover:text-white transition-all hover:scale-110"
+              title="LinkedIn - Paulo Henrique"
+            >
               <LinkedinIcon className="w-4 h-4" />
             </Link>
           </div>
