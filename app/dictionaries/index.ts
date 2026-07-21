@@ -20,6 +20,16 @@ export const dictionaries = {
       signupCall: "It was amazing chatting with you! To continue our creation and access all advanced tools, please create your free account.",
       inputPlaceholder: "Type your message...",
       signUpButton: "Create Free Account"
+    },
+    mobileSection: {
+      title: "Your studio, always in your pocket.",
+      subtitle: "All the power of Hermione synced in real-time to your mobile device with the Chat Secret app. Create, review, and collaborate wherever you are.",
+      features: {
+        sync: "Real-time Sync",
+        offline: "Offline Access",
+        ai: "Native AI Chat"
+      },
+      cta: "Explore Chat Secret"
     }
   },
   pt: {
@@ -43,6 +53,16 @@ export const dictionaries = {
       signupCall: "Foi incrível conversar com você! Para continuarmos nossa criação e acessar todas as ferramentas, crie sua conta gratuita.",
       inputPlaceholder: "Digite sua mensagem...",
       signUpButton: "Criar Conta Grátis"
+    },
+    mobileSection: {
+      title: "Seu estúdio, sempre no seu bolso.",
+      subtitle: "Toda a potência da Hermione sincronizada em tempo real no seu dispositivo móvel com o aplicativo Chat Secret. Crie, revise e colabore de onde estiver.",
+      features: {
+        sync: "Sincronização Yjs",
+        offline: "Acesso Offline",
+        ai: "Chat AI Nativo"
+      },
+      cta: "Explorar Chat Secret"
     }
   },
   es: {
@@ -66,6 +86,16 @@ export const dictionaries = {
       signupCall: "¡Fue increíble hablar contigo! Para continuar nuestra creación y acceder a todas las herramientas, crea tu cuenta gratuita.",
       inputPlaceholder: "Escribe tu mensaje...",
       signUpButton: "Crear Cuenta Gratis"
+    },
+    mobileSection: {
+      title: "Tu estudio, siempre en tu bolsillo.",
+      subtitle: "Todo el poder de Hermione sincronizado en tiempo real en tu dispositivo móvil con la app Chat Secret. Crea, revisa y colabora desde cualquier lugar.",
+      features: {
+        sync: "Sincronización en tiempo real",
+        offline: "Acceso Offline",
+        ai: "Chat AI Nativo"
+      },
+      cta: "Explorar Chat Secret"
     }
   }
 };

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation"
 import { Geist } from "next/font/google"
 import Navbar from "../../components/Navbar"
 import HeroSection from "../../components/HeroSection"
+import MobileAppSection from "../../components/MobileAppSection"
+import MetricsSection from "../../components/MetricsSection"
 import { dictionaries, ValidLang } from "../../dictionaries"
 
 const geistSans = Geist({ subsets: ["latin"] })
@@ -22,6 +24,8 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
     <main className={`w-full bg-[#030303] text-white selection:bg-white/30 ${geistSans.className} flex flex-col relative`}>
       <Navbar dict={dict} />
       <HeroSection dict={dict} />
+      <MobileAppSection dict={dict} />
+      <MetricsSection dict={dict} />
       
       {/* Gradient fade out at the very bottom just in case the tablet overflows aggressively */}
       <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#030303] to-transparent pointer-events-none z-50" />

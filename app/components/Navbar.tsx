@@ -17,7 +17,7 @@ export default function Navbar({ dict }: { dict: any }) {
   };
 
   return (
-    <header className={`fixed top-0 left-0 w-full px-6 lg:px-12 py-6 flex justify-between items-center z-50 mix-blend-difference ${geistSans.className}`}>
+    <header className={`fixed top-0 left-0 w-full px-6 lg:px-12 py-4 flex justify-between items-center z-50 mix-blend-difference ${geistSans.className}`}>
       {/* Left Links */}
       <nav className="flex-1 hidden md:flex items-center gap-8">
         <Link href="#" className="text-white/70 hover:text-white transition-colors text-[13px] font-medium tracking-wide">
