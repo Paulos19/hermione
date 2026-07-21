@@ -39,12 +39,12 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       <MobileAppSection dict={dict} />
       <MetricsSection dict={dict} />
       <PhasePresentationSection dict={dict} />
-      <TestimonialSection initialFeedbacks={initialFeedbacks} />
-      <FeaturesSection />
-      <EcosystemSection />
-      <PricingSection />
-      <FaqSection />
-      <CtaFinalSection />
+      <TestimonialSection initialFeedbacks={initialFeedbacks} dict={dict} />
+      <FeaturesSection dict={dict} />
+      <EcosystemSection dict={dict} />
+      <PricingSection dict={dict} />
+      <FaqSection dict={dict} />
+      <CtaFinalSection dict={dict} />
       <FooterSection dict={dict} />
       
       {/* Gradient fade out at the very bottom just in case the tablet overflows aggressively */}

@@ -47,8 +47,8 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
   // PHASE 1: MORPHING TEXT
   // ----------------------------------------------------
   const p1Opacity = useTransform(scrollYProgress, [0.05, 0.15, 0.25, 0.3], [0, 1, 1, 0]);
-  const [morphWord, setMorphWord] = useState("Sua história.");
-  const morphWords = ["Sua história.", "Your story.", "Tu historia."];
+  const morphWords = dict?.phasePresentation?.morphWords || ["Sua história.", "Sua visão.", "Seu legado."];
+  const [morphWord, setMorphWord] = useState(morphWords[0]);
   
   useEffect(() => {
     let i = 0;
@@ -57,7 +57,7 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
       setMorphWord(morphWords[i]);
     }, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [morphWords]);
 
   // ----------------------------------------------------
   // PHASE 2: LINE DRAWING
@@ -76,7 +76,7 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
   // ----------------------------------------------------
   const p4Opacity = useTransform(scrollYProgress, [0.75, 0.8, 1, 1], [0, 1, 1, 1]);
   const [typedText, setTypedText] = useState("");
-  const fullText = "Comece a escrever sua obra prima";
+  const fullText = dict?.phasePresentation?.typingText || "Comece a escrever sua obra prima";
   const [isTypingPhase, setIsTypingPhase] = useState(false);
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
       }
     }, 80);
     return () => clearInterval(interval);
-  }, [isTypingPhase]);
+  }, [isTypingPhase, fullText]);
 
   return (
     <section ref={containerRef} className="relative w-full h-[400vh]">
@@ -148,7 +148,7 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
           style={{ opacity: p2Opacity }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
-          {/* Simple SVG text drawing for "Ganha vida." */}
+          {/* SVG text drawing */}
           <svg className="w-[80vw] h-[20vh] max-w-4xl" viewBox="0 0 800 200">
             <motion.text
               x="50%"
@@ -161,7 +161,7 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
               strokeWidth="2"
               style={{ pathLength }}
             >
-              Ganha vida.
+              {dict?.phasePresentation?.lineText || "Ganha vida."}
             </motion.text>
             <motion.text
               x="50%"
@@ -172,7 +172,7 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
               fill="#FFFFFF"
               style={{ opacity: useTransform(scrollYProgress, [0.4, 0.45], [0, 1]) }}
             >
-              Ganha vida.
+              {dict?.phasePresentation?.lineText || "Ganha vida."}
             </motion.text>
           </svg>
         </motion.div>
@@ -208,7 +208,7 @@ export default function PhasePresentationSection({ dict }: { dict?: any }) {
             >
               <div className="absolute inset-0 bg-black/5 blur-xl rounded-full" />
               <div className="relative flex items-center gap-2 text-black border border-black/10 px-8 py-4 rounded-full hover:bg-black hover:text-white transition-all duration-500 group">
-                <span className="font-medium tracking-wide">Acessar Dashboard</span>
+                <span className="font-medium tracking-wide">{dict?.phasePresentation?.ctaButton || "Acessar Dashboard"}</span>
                 <span className="w-2 h-5 bg-current animate-pulse ml-1" />
               </div>
             </Link>

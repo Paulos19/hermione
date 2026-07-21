@@ -161,20 +161,20 @@ export default function MetricsSection({ dict }: { dict?: any }) {
                 <span className={`relative inline-flex rounded-full h-3 w-3 ${isConnected ? 'bg-green-500' : 'bg-white/40'}`}></span>
               </span>
               <span className="text-white/60 font-light tracking-widest text-sm uppercase">
-                Rede Neural Global
+                {dict?.metricsSection?.tag || "Rede Neural Global"}
               </span>
             </div>
             
             <h2 className={`${cormorant.className} text-5xl md:text-6xl lg:text-7xl text-white font-light tracking-wide leading-tight`}>
-              Escrevendo a história <br/>
-              <span className="text-white/40 italic">juntos.</span>
+              {dict?.metricsSection?.title || "Escrevendo a história"} <br/>
+              <span className="text-white/40 italic">{dict?.metricsSection?.together || "juntos."}</span>
             </h2>
           </div>
 
           <div className="grid grid-cols-2 gap-8 md:gap-12 pt-8 border-t border-white/10">
             {/* Metric 1 */}
             <div className="flex flex-col gap-2">
-              <span className="text-white/50 font-light text-sm uppercase tracking-widest">Usuários Conectados</span>
+              <span className="text-white/50 font-light text-sm uppercase tracking-widest">{dict?.metricsSection?.activeUsersLabel || "Usuários Conectados"}</span>
               <span className="text-4xl md:text-5xl text-white font-light tabular-nums">
                 {formatNumber(metrics.activeUsers)}
               </span>
@@ -182,7 +182,7 @@ export default function MetricsSection({ dict }: { dict?: any }) {
 
             {/* Metric 2 */}
             <div className="flex flex-col gap-2">
-              <span className="text-white/50 font-light text-sm uppercase tracking-widest">Capítulos Escritos</span>
+              <span className="text-white/50 font-light text-sm uppercase tracking-widest">{dict?.metricsSection?.chaptersLabel || "Capítulos Escritos"}</span>
               <span className="text-4xl md:text-5xl text-white font-light tabular-nums">
                 {formatNumber(metrics.chapters)}
               </span>
@@ -190,7 +190,7 @@ export default function MetricsSection({ dict }: { dict?: any }) {
 
             {/* Metric 3 */}
             <div className="flex flex-col gap-2">
-              <span className="text-white/50 font-light text-sm uppercase tracking-widest">Palavras Geradas</span>
+              <span className="text-white/50 font-light text-sm uppercase tracking-widest">{dict?.metricsSection?.wordsLabel || "Palavras Geradas"}</span>
               <span className="text-4xl md:text-5xl text-white font-light tabular-nums">
                 {formatNumber(metrics.words)}
               </span>
@@ -198,7 +198,7 @@ export default function MetricsSection({ dict }: { dict?: any }) {
 
             {/* Metric 4 */}
             <div className="flex flex-col gap-2">
-              <span className="text-white/50 font-light text-sm uppercase tracking-widest">Autores Premium</span>
+              <span className="text-white/50 font-light text-sm uppercase tracking-widest">{dict?.metricsSection?.subscribersLabel || "Autores Premium"}</span>
               <span className="text-4xl md:text-5xl text-white font-light tabular-nums">
                 {formatNumber(metrics.subscribers)}
               </span>

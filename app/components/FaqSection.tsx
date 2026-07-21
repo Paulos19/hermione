@@ -34,7 +34,9 @@ const faqs = [
   }
 ];
 
-export default function FaqSection() {
+export default function FaqSection({ dict }: { dict?: any }) {
+  const faqDict = dict?.faqSection;
+  const items = faqDict?.items || faqs;
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
@@ -49,12 +51,12 @@ export default function FaqSection() {
             viewport={{ once: true }}
             className={`${cormorant.className} text-5xl md:text-6xl font-light tracking-wide text-white mb-6`}
           >
-            Dúvidas <span className="italic opacity-60">Frequentes</span>
+            {faqDict?.title || "Dúvidas"} <span className="italic opacity-60">{faqDict?.subtitle || "Frequentes"}</span>
           </motion.h2>
         </div>
 
         <div className="space-y-4">
-          {faqs.map((faq, index) => {
+          {items.map((faq: any, index: number) => {
             const isOpen = openIndex === index;
             
             return (

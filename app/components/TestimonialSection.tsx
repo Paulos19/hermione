@@ -110,7 +110,7 @@ const TestimonialsColumn = (props: {
   );
 };
 
-export default function TestimonialSection({ initialFeedbacks }: { initialFeedbacks?: any[] }) {
+export default function TestimonialSection({ initialFeedbacks, dict }: { initialFeedbacks?: any[]; dict?: any }) {
   // Convert real feedbacks or use empty array
   const mappedFeedbacks: Testimonial[] = (initialFeedbacks || []).map((fb: any) => ({
     id: fb.id,
@@ -219,14 +219,14 @@ export default function TestimonialSection({ initialFeedbacks }: { initialFeedba
             style={{ borderColor: useTransform(scrollYProgress, [0, 1], ["rgba(0,0,0,0.1)", "rgba(255,255,255,0.1)"]), backgroundColor: useTransform(scrollYProgress, [0, 1], ["rgba(0,0,0,0.05)", "rgba(255,255,255,0.05)"]) }}
             className="border py-1.5 px-5 rounded-full text-xs font-semibold tracking-widest uppercase mb-6"
           >
-            <motion.span style={{ color: useTransform(scrollYProgress, [0, 1], ["rgba(0,0,0,0.7)", "rgba(255,255,255,0.7)"]) }}>Ao Vivo</motion.span>
+            <motion.span style={{ color: useTransform(scrollYProgress, [0, 1], ["rgba(0,0,0,0.7)", "rgba(255,255,255,0.7)"]) }}>{dict?.testimonials?.badge || "Ao Vivo"}</motion.span>
           </motion.div>
           <motion.h2 
             style={{ color: textColor }}
             className={`${cormorant.className} text-5xl md:text-7xl font-light tracking-wide leading-tight`}
           >
-            O que estão <br />
-            <span className="italic opacity-70">dizendo agora</span>
+            {dict?.testimonials?.title || "O que estão"} <br />
+            <span className="italic opacity-70">{dict?.testimonials?.subtitle || "dizendo agora"}</span>
           </motion.h2>
         </div>
 

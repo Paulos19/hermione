@@ -38,7 +38,10 @@ const features = [
   }
 ];
 
-export default function FeaturesSection() {
+export default function FeaturesSection({ dict }: { dict?: any }) {
+  const featDict = dict?.featuresSection;
+  const list = featDict?.features || features;
+
   return (
     <section className="bg-[#030303] py-32 relative overflow-hidden flex flex-col">
       {/* Background Orbs */}
@@ -52,7 +55,7 @@ export default function FeaturesSection() {
             viewport={{ once: true }}
             className="border border-white/10 py-1.5 px-5 rounded-full text-xs font-semibold tracking-widest uppercase mb-6 bg-white/5"
           >
-            <span className="text-white/70">O Essencial, Elevado</span>
+            <span className="text-white/70">{featDict?.badge || "O Essencial, Elevado"}</span>
           </motion.div>
           
           <motion.h2 
@@ -62,36 +65,39 @@ export default function FeaturesSection() {
             transition={{ delay: 0.1 }}
             className={`${cormorant.className} text-5xl md:text-7xl font-light tracking-wide leading-tight text-white`}
           >
-            Tudo o que você precisa. <br />
-            <span className="italic opacity-60">Nada do que não precisa.</span>
+            {featDict?.title || "Tudo o que você precisa."} <br />
+            <span className="italic opacity-60">{featDict?.subtitle || "Nada do que não precisa."}</span>
           </motion.h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {features.map((feat, idx) => (
-            <motion.div
-              key={feat.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className={`relative overflow-hidden group rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md hover:bg-white/10 transition-colors duration-500 flex flex-col justify-end min-h-[300px] ${feat.className}`}
-            >
-              {/* Subtle hover gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 via-violet-500/0 to-violet-500/0 group-hover:to-violet-500/10 transition-colors duration-700 pointer-events-none" />
-              
-              <div className="mb-auto p-4 bg-white/5 rounded-2xl w-fit border border-white/10">
-                {feat.icon}
-              </div>
+          {features.map((feat, idx) => {
+            const item = list[idx] || feat;
+            return (
+              <motion.div
+                key={feat.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                className={`relative overflow-hidden group rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md hover:bg-white/10 transition-colors duration-500 flex flex-col justify-end min-h-[300px] ${feat.className}`}
+              >
+                {/* Subtle hover gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 via-violet-500/0 to-violet-500/0 group-hover:to-violet-500/10 transition-colors duration-700 pointer-events-none" />
+                
+                <div className="mb-auto p-4 bg-white/5 rounded-2xl w-fit border border-white/10">
+                  {feat.icon}
+                </div>
 
-              <div className="mt-8 z-10">
-                <h3 className="text-xl font-medium text-white mb-3 tracking-wide">{feat.title}</h3>
-                <p className="text-white/60 leading-relaxed font-light text-sm md:text-base">
-                  {feat.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+                <div className="mt-8 z-10">
+                  <h3 className="text-xl font-medium text-white mb-3 tracking-wide">{item.title}</h3>
+                  <p className="text-white/60 leading-relaxed font-light text-sm md:text-base">
+                    {item.description}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

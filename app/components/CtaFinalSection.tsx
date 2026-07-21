@@ -127,7 +127,8 @@ function MainTitleTypewriter() {
   );
 }
 
-export default function CtaFinalSection() {
+export default function CtaFinalSection({ dict }: { dict?: any }) {
+  const ctaDict = dict?.ctaFinal;
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -232,28 +233,28 @@ export default function CtaFinalSection() {
 
         {/* LEFT SIDE: 2 Copies with Typing & Morphing */}
         <SideTypingMorphingCopy
-          typewriterText="DÊ VIDA À"
-          morphWords={["Sua História.", "Sua Visão.", "Seu Legado.", "Sua Arte."]}
+          typewriterText={ctaDict?.sideCopies?.leftTop?.label || "DÊ VIDA À"}
+          morphWords={ctaDict?.sideCopies?.leftTop?.words || ["Sua História.", "Sua Visão.", "Seu Legado.", "Sua Arte."]}
           className="absolute top-[12%] left-[4%] md:left-[8%]"
           delay={0.3}
         />
         <SideTypingMorphingCopy
-          typewriterText="ESCREVA COM"
-          morphWords={["Foco Total.", "Clareza Absoluta.", "Fluxo Criativo.", "Liberdade."]}
+          typewriterText={ctaDict?.sideCopies?.leftBottom?.label || "ESCREVA COM"}
+          morphWords={ctaDict?.sideCopies?.leftBottom?.words || ["Foco Total.", "Clareza Absoluta.", "Fluxo Criativo.", "Liberdade."]}
           className="absolute top-[52%] left-[4%] md:left-[8%]"
           delay={0.6}
         />
 
         {/* RIGHT SIDE: 2 Copies with Typing & Morphing */}
         <SideTypingMorphingCopy
-          typewriterText="SUA MENTE"
-          morphWords={["Sem Limites.", "Sem Barreiras.", "Sem Distrações.", "Em Harmonia."]}
+          typewriterText={ctaDict?.sideCopies?.rightTop?.label || "SUA MENTE"}
+          morphWords={ctaDict?.sideCopies?.rightTop?.words || ["Sem Limites.", "Sem Barreiras.", "Sem Distrações.", "Em Harmonia."]}
           className="absolute top-[12%] right-[4%] md:right-[8%]"
           delay={0.3}
         />
         <SideTypingMorphingCopy
-          typewriterText="TRANSFORME EM"
-          morphWords={["Obra Prima.", "Livro Inesquecível.", "Bestseller.", "Realidade."]}
+          typewriterText={ctaDict?.sideCopies?.rightBottom?.label || "TRANSFORME EM"}
+          morphWords={ctaDict?.sideCopies?.rightBottom?.words || ["Obra Prima.", "Livro Inesquecível.", "Bestseller.", "Realidade."]}
           className="absolute top-[52%] right-[4%] md:right-[8%]"
           delay={0.6}
         />

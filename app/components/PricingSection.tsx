@@ -57,7 +57,30 @@ const plans = [
   }
 ];
 
-export default function PricingSection() {
+export default function PricingSection({ dict }: { dict?: any }) {
+  const priceDict = dict?.pricingSection;
+
+  const dynamicPlans = [
+    {
+      ...plans[0],
+      name: priceDict?.freePlan?.name || plans[0].name,
+      description: priceDict?.freePlan?.description || plans[0].description,
+      buttonText: priceDict?.freePlan?.buttonText || plans[0].buttonText,
+    },
+    {
+      ...plans[1],
+      name: priceDict?.proPlan?.name || plans[1].name,
+      description: priceDict?.proPlan?.description || plans[1].description,
+      buttonText: priceDict?.proPlan?.buttonText || plans[1].buttonText,
+    },
+    {
+      ...plans[2],
+      name: priceDict?.premiumPlan?.name || plans[2].name,
+      description: priceDict?.premiumPlan?.description || plans[2].description,
+      buttonText: priceDict?.premiumPlan?.buttonText || plans[2].buttonText,
+    },
+  ];
+
   return (
     <section className="bg-[#030303] py-32 relative overflow-hidden flex flex-col items-center">
       <div className="container px-4 z-10 mx-auto max-w-6xl">
@@ -68,7 +91,7 @@ export default function PricingSection() {
             viewport={{ once: true }}
             className={`${cormorant.className} text-5xl md:text-7xl font-light tracking-wide leading-tight text-white`}
           >
-            Invista na sua <br />
+            {priceDict?.title || "Invista na sua"} <br />
             <span className="italic opacity-60">obra prima</span>
           </motion.h2>
           <motion.p 
@@ -83,7 +106,7 @@ export default function PricingSection() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 justify-center items-center lg:items-stretch">
-          {plans.map((plan, idx) => (
+          {dynamicPlans.map((plan, idx) => (
             <TiltCard 
               key={plan.name} 
               className={`w-full max-w-[340px] flex flex-col p-8 bg-[#0a0a0a] border ${plan.isPopular ? 'border-violet-500/50' : 'border-white/10'}`}

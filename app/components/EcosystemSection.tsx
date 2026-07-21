@@ -11,7 +11,8 @@ const cormorant = Cormorant_Garamond({
   display: "swap"
 });
 
-export default function EcosystemSection() {
+export default function EcosystemSection({ dict }: { dict?: any }) {
+  const ecoDict = dict?.ecosystemSection;
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -33,8 +34,8 @@ export default function EcosystemSection() {
             viewport={{ once: true }}
             className={`${cormorant.className} text-5xl md:text-7xl font-light tracking-wide leading-tight text-white`}
           >
-            Um ecossistema <br />
-            <span className="italic opacity-60">inquebrável</span>
+            {ecoDict?.title || "Um ecossistema"} <br />
+            <span className="italic opacity-60">{ecoDict?.subtitle || "inquebrável"}</span>
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -43,7 +44,7 @@ export default function EcosystemSection() {
             transition={{ delay: 0.1 }}
             className="mt-6 text-white/50 text-lg max-w-[500px] font-light leading-relaxed"
           >
-            Seu trabalho flui de forma invisível entre a palma da sua mão e a sua mesa de trabalho. Sincronização ponta a ponta sem atritos.
+            {ecoDict?.description || "Seu trabalho flui de forma invisível entre a palma da sua mão e a sua mesa de trabalho. Sincronização ponta a ponta sem atritos."}
           </motion.p>
         </div>
 
