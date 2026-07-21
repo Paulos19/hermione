@@ -132,7 +132,11 @@ export default function TiptapYjsEditor({
         }
         (window as any)._saveTimeout = setTimeout(() => {
           if (onSyncStatusChange) onSyncStatusChange(false) // syncing
-          salvarDocumentoAction(documentId, html, bookId)
+          
+          const text = editor.getText()
+          const words = text.trim().split(/\s+/).filter(word => word.length > 0).length
+          
+          salvarDocumentoAction(documentId, html, bookId, words)
             .then(() => {
               if (onSyncStatusChange) onSyncStatusChange(true) // synced
             })
