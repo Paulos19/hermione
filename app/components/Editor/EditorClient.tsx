@@ -120,48 +120,49 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
         
         <div className="flex flex-col flex-1 h-screen overflow-hidden">
           {/* Topbar: Fixed at Top */}
-        <Topbar 
-          bookTitle={book.title} 
-          isSynced={isSynced} 
-          isRibbonOpen={isRibbonOpen}
-          onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
-          lang={lang as Locale}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
+          <Topbar 
+            bookTitle={book.title} 
+            isSynced={isSynced} 
+            isRibbonOpen={isRibbonOpen}
+            onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
+            lang={lang as Locale}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+          />
 
-      {/* Ribbon: Conditionally rendered below Topbar */}
-      {isRibbonOpen && (
-        <Ribbon 
-          editor={editor} 
-          editorUpdateTick={editorUpdateTick} 
-          onToggleAssistant={toggleAssistant} 
-          isAssistantOpen={isAssistantOpen}
-          book={book}
-          documents={documents}
-          activeDocumentId={activeDocumentId}
-          onPrintPreview={setPrintScope}
-          lang={lang as Locale}
-        />
-      )}
+        {/* Ribbon: Conditionally rendered below Topbar */}
+        {isRibbonOpen && (
+          <Ribbon 
+            editor={editor} 
+            editorUpdateTick={editorUpdateTick} 
+            onToggleAssistant={toggleAssistant} 
+            isAssistantOpen={isAssistantOpen}
+            book={book}
+            documents={documents}
+            activeDocumentId={activeDocumentId}
+            onPrintPreview={setPrintScope}
+            lang={lang as Locale}
+          />
+        )}
 
-      {/* Workspace: Flex-1 remaining space */}
-      <div className="flex flex-1 overflow-hidden">
-        
-        {/* Sidebar */}
-        <Sidebar 
-          documents={documents}
-          activeDocumentId={activeDocumentId}
-          setActiveDocumentId={setActiveDocumentId}
-          wordCount={wordCount}
-          readingTime={readingTime}
-          isOpen={isLeftSidebarOpen}
-          setIsOpen={setIsLeftSidebarOpen}
-          lang={lang as Locale}
-        />
+        {/* Workspace: Flex-1 remaining space */}
+        <div className="flex flex-1 overflow-hidden">
+          
+          {/* Sidebar */}
+          <Sidebar 
+            documents={documents}
+            activeDocumentId={activeDocumentId}
+            setActiveDocumentId={setActiveDocumentId}
+            wordCount={wordCount}
+            readingTime={readingTime}
+            isOpen={isLeftSidebarOpen}
+            setIsOpen={setIsLeftSidebarOpen}
+            lang={lang as Locale}
+          />
 
-        {/* Main Editor Area */}
-        <main className="flex-1 h-full bg-gray-50 dark:bg-[#0A0D12] px-12 py-8 overflow-y-auto flex justify-center relative transition-colors duration-200">
+          {/* Main Editor Area */}
+          <main className="flex-1 h-full bg-gray-50 dark:bg-[#0A0D12] p-2 sm:p-6 md:px-12 md:py-8 overflow-y-auto flex justify-center relative transition-colors duration-200 custom-scrollbar">
           {activeDocumentId ? (() => {
             const activeDocument = documents.find(d => d.id === activeDocumentId)
             let initialContent = activeDocument?.content || ''

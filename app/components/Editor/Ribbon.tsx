@@ -317,7 +317,7 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
   );
 
   return (
-    <div className="h-[140px] w-full bg-white dark:bg-[#11161D] border-b border-gray-200 dark:border-white/5 flex items-center px-2 shrink-0 select-none relative z-20 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+    <div className="min-h-[84px] md:h-[140px] py-2 md:py-0 w-full bg-white dark:bg-[#11161D] border-b border-gray-200 dark:border-white/5 flex items-center px-2 shrink-0 select-none relative z-20 overflow-x-auto custom-scrollbar">
       
       {/* Clipboard */}
       <RibbonGroup title={t.clipboard}>

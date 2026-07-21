@@ -120,7 +120,7 @@ export default function TiptapYjsEditor({
       ],
       editorProps: {
         attributes: {
-          class: 'prose prose-invert prose-lg mx-auto max-w-[720px] px-24 pt-20 pb-24 focus:outline-none min-h-[60vh] text-zinc-100 text-[17px] leading-[1.85] font-normal',
+          class: 'prose prose-invert prose-lg mx-auto max-w-none px-2 sm:px-12 md:px-20 pt-4 sm:pt-10 md:pt-20 pb-24 focus:outline-none min-h-[60vh] text-zinc-100 text-[17px] leading-[1.85] font-normal',
           style: '',
           spellcheck: 'true',
           lang: 'pt-BR',
@@ -197,8 +197,8 @@ export default function TiptapYjsEditor({
   }
 
   return (
-    <div className="w-full flex justify-center h-fit">
-      <div className="w-full max-w-[920px] min-w-[760px] min-h-[1300px] rounded-[18px] border border-gray-200 dark:border-white/5 bg-white dark:bg-[#141A22] shadow-[0_12px_48px_rgba(0,0,0,.25)] shrink-0 overflow-hidden relative transition-colors duration-200">
+    <div className="w-full flex justify-center h-fit pb-6 md:pb-12">
+      <div className="w-full max-w-full md:max-w-[880px] min-h-[calc(100vh-160px)] md:min-h-[1150px] rounded-xl sm:rounded-2xl md:rounded-[24px] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141A22] shadow-lg md:shadow-[0_12px_48px_rgba(0,0,0,.35)] px-2 py-3 sm:px-3 sm:py-4 md:px-5 md:py-6 relative transition-all duration-200">
         <EditorContent editor={editor} />
         
         {/* Typography & Cursors CSS */}
@@ -330,16 +330,36 @@ export default function TiptapYjsEditor({
             background-color: #10151B;
           }
 
-          /* Hide scrollbar in EditorContent if any, let workspace scroll */
+          /* ProseMirror Canvas Specs */
           .ProseMirror {
              caret-color: #111827;
              color: #111827;
              outline: none;
+             min-height: calc(100vh - 220px);
+             width: 100%;
+             text-align: left;
           }
           
           .dark .ProseMirror {
              caret-color: #F5F5F5;
              color: #F5F5F5;
+          }
+
+          @media (max-width: 768px) {
+            .ProseMirror h1 {
+              font-size: 28px;
+              margin-bottom: 24px;
+            }
+            .ProseMirror h2 {
+              font-size: 22px;
+              margin-top: 32px;
+              margin-bottom: 16px;
+            }
+            .ProseMirror h3 {
+              font-size: 18px;
+              margin-top: 24px;
+              margin-bottom: 12px;
+            }
           }
         `}} />
       </div>

@@ -190,7 +190,14 @@ User Question: ${messageText}`;
   }
 
   return (
-    <aside className="w-[360px] bg-white dark:bg-[#0A0D12] border-l border-gray-200 dark:border-white/5 flex flex-col h-full shrink-0 text-gray-900 dark:text-[#F5F5F5] z-20 shadow-xl transition-colors duration-200">
+    <>
+      {/* Mobile Backdrop */}
+      <div 
+        onClick={onClose}
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden"
+      />
+
+      <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-[360px] md:relative md:w-[360px] bg-white dark:bg-[#0A0D12] border-l border-gray-200 dark:border-white/5 flex flex-col h-full shrink-0 text-gray-900 dark:text-[#F5F5F5] shadow-2xl transition-all duration-300">
       {/* Header */}
       <div className="h-[56px] border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4 bg-gray-50 dark:bg-[#11161D] shrink-0 transition-colors duration-200">
         <div className="flex items-center gap-2 font-medium text-violet-600 dark:text-[#B899FF]">
@@ -291,6 +298,7 @@ User Question: ${messageText}`;
         </form>
       </div>
     </aside>
+    </>
   )
 }
 

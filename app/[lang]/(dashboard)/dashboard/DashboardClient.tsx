@@ -137,24 +137,40 @@ export default function DashboardClient({ books: initialBooks, userName, wordsTo
     }
   }
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+
   const recentBook = books[0]
 
   return (
     <div className={`${theme === 'dark' ? 'dark' : ''} antialiased`}>
       <div className="flex h-screen w-full font-sans bg-gray-50 dark:bg-[#0A0D12] text-gray-900 dark:text-[#F5F5F5] overflow-hidden transition-colors duration-200">
 
-        {/* Fixed Sidebar */}
-        <DashboardSidebar wordsToday={wordsToday} lang={lang} isPremium={isPremium} />
+        {/* Responsive Retractable Sidebar */}
+        <DashboardSidebar
+          wordsToday={wordsToday}
+          lang={lang}
+          isPremium={isPremium}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        />
 
         {/* Main Column */}
         <div className="flex-1 flex flex-col h-screen min-w-0">
 
-          {/* Fixed Topbar */}
-          <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} lang={lang} />
+          {/* Fixed Topbar with Mobile Drawer Toggle */}
+          <DashboardTopbar
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            lang={lang}
+            onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+          />
 
           {/* Scrollable Content */}
           <main className="flex-1 overflow-y-auto">
-            <div className="max-w-[1600px] mx-auto px-12 py-10 space-y-10 pb-32">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-8 md:px-12 py-6 md:py-10 space-y-6 md:space-y-10 pb-32">
 
               {/* HERO SECTION */}
               <section className="flex items-end justify-between">
