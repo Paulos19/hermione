@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Star, Loader2 } from "lucide-react";
-import { submitFeedbackAction } from "../../../../../actions/feedback";
+import { submitFeedbackAction } from "@/app/actions/feedback";
 
 export default function FeedbackClient({ user }: { user: any }) {
   const [rating, setRating] = useState(5);
