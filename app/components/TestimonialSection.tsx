@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { User as UserIcon } from "lucide-react";
 import { Cormorant_Garamond } from "next/font/google";
 
@@ -21,57 +21,7 @@ interface Testimonial {
   isNew?: boolean;
 }
 
-// --- Data (Default) ---
-const defaultTestimonials: Testimonial[] = [
-  {
-    id: "1",
-    text: "Esta ferramenta revolucionou minha forma de escrever. A fluidez e a ausência de distrações são perfeitas.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150",
-    name: "Briana Patton",
-    role: "Escritora de Ficção",
-    rating: 5
-  },
-  {
-    id: "2",
-    text: "A implementação foi suave e rápida. A interface limpa ajudou muito no meu bloqueio criativo.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150&h=150",
-    name: "Bilal Ahmed",
-    role: "Jornalista",
-    rating: 5
-  },
-  {
-    id: "3",
-    text: "O modo como a formatação funciona perfeitamente sem me tirar do fluxo é excepcional.",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150&h=150",
-    name: "Saman Malik",
-    role: "Roteirista",
-    rating: 4
-  },
-  {
-    id: "4",
-    text: "Sincronização em tempo real impecável. Escrevo no celular e termino no PC sem dor de cabeça.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150&h=150",
-    name: "Omar Raza",
-    role: "Autor Independente",
-    rating: 5
-  },
-  {
-    id: "5",
-    text: "Os recursos de métricas de palavras diárias me mantêm produtivo.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150&h=150",
-    name: "Zainab Hussain",
-    role: "Produtora de Conteúdo",
-    rating: 5
-  },
-  {
-    id: "6",
-    text: "Simplesmente a melhor experiência de escrita minimalista que já utilizei.",
-    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=150&h=150",
-    name: "Aliza Khan",
-    role: "Analista de Conteúdo",
-    rating: 5
-  }
-];
+
 
 // Typing Effect Component para novos feedbacks
 const TypingText = ({ text }: { text: string }) => {
@@ -160,22 +110,37 @@ const TestimonialsColumn = (props: {
   );
 };
 
-export default function TestimonialSection() {
+export default function TestimonialSection({ initialFeedbacks }: { initialFeedbacks?: any[] }) {
+  // Convert real feedbacks or use empty array
+  const mappedFeedbacks: Testimonial[] = (initialFeedbacks || []).map((fb: any) => ({
+    id: fb.id,
+    text: fb.text,
+    rating: fb.rating,
+    name: fb.user?.name || "Autor",
+    role: "Escritor",
+    image: fb.user?.image || undefined,
+  }));
+
+  const allFeedbacks = mappedFeedbacks;
+
+  // Split logic
   const [cols, setCols] = useState<[Testimonial[], Testimonial[], Testimonial[]]>([
-    defaultTestimonials.slice(0, 2),
-    defaultTestimonials.slice(2, 4),
-    defaultTestimonials.slice(4, 6)
+    allFeedbacks.slice(0, Math.ceil(allFeedbacks.length / 3)),
+    allFeedbacks.slice(Math.ceil(allFeedbacks.length / 3), Math.ceil(allFeedbacks.length / 3) * 2),
+    allFeedbacks.slice(Math.ceil(allFeedbacks.length / 3) * 2)
   ]);
 
-  useEffect(() => {
-    // Busca iniciais caso tenha no DB
-    fetch('/api/feedbacks')
-      .then(res => res.json())
-      .then(data => {
-        // Logica para mesclar se necessario, ou apenas ignorar se não houver rota
-      })
-      .catch(() => {});
+  const containerRef = useRef<HTMLElement>(null);
+  
+  // Transition background from white to black
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "start center"]
+  });
+  const bgColor = useTransform(scrollYProgress, [0, 1], ["#ffffff", "#030303"]);
+  const textColor = useTransform(scrollYProgress, [0, 1], ["#000000", "#ffffff"]);
 
+  useEffect(() => {
     // WebSocket Conexão
     const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080";
     const ws = new WebSocket(`${WS_URL}/ws/feedback`);
@@ -209,7 +174,11 @@ export default function TestimonialSection() {
   }, []);
 
   return (
-    <section className="bg-white py-24 relative overflow-hidden flex flex-col">
+    <motion.section 
+      ref={containerRef} 
+      style={{ backgroundColor: bgColor }} 
+      className="py-24 relative overflow-hidden flex flex-col"
+    >
       
       {/* Styles for marquee */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -233,13 +202,19 @@ export default function TestimonialSection() {
         className="container px-4 z-10 mx-auto max-w-7xl"
       >
         <div className="flex flex-col items-center justify-center max-w-[600px] mx-auto mb-16 text-center">
-          <div className="border border-black/10 py-1.5 px-5 rounded-full text-xs font-semibold tracking-widest uppercase text-black/70 mb-6 bg-black/5">
-            Ao Vivo
-          </div>
-          <h2 className={`${cormorant.className} text-5xl md:text-7xl text-black font-light tracking-wide leading-tight`}>
+          <motion.div 
+            style={{ borderColor: useTransform(scrollYProgress, [0, 1], ["rgba(0,0,0,0.1)", "rgba(255,255,255,0.1)"]), backgroundColor: useTransform(scrollYProgress, [0, 1], ["rgba(0,0,0,0.05)", "rgba(255,255,255,0.05)"]) }}
+            className="border py-1.5 px-5 rounded-full text-xs font-semibold tracking-widest uppercase mb-6"
+          >
+            <motion.span style={{ color: useTransform(scrollYProgress, [0, 1], ["rgba(0,0,0,0.7)", "rgba(255,255,255,0.7)"]) }}>Ao Vivo</motion.span>
+          </motion.div>
+          <motion.h2 
+            style={{ color: textColor }}
+            className={`${cormorant.className} text-5xl md:text-7xl font-light tracking-wide leading-tight`}
+          >
             O que estão <br />
             <span className="italic opacity-70">dizendo agora</span>
-          </h2>
+          </motion.h2>
         </div>
 
         {/* The pause-marquee class handles pausing on hover for all columns inside */}
@@ -251,6 +226,6 @@ export default function TestimonialSection() {
           <TestimonialsColumn testimonials={cols[2]} duration={22} className="hidden lg:block w-1/3" />
         </div>
       </motion.div>
-    </section>
+    </motion.section>
   );
 }

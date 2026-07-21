@@ -8,6 +8,7 @@ import MetricsSection from "../../components/MetricsSection"
 import PhasePresentationSection from "../../components/PhasePresentationSection"
 import TestimonialSection from "../../components/TestimonialSection"
 import { dictionaries, ValidLang } from "../../dictionaries"
+import { getFeedbacksAction } from "@/app/actions/feedback"
 
 const geistSans = Geist({ subsets: ["latin"] })
 
@@ -22,6 +23,9 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   const currentLang = (resolvedParams?.lang as ValidLang) || "pt";
   const dict = dictionaries[currentLang] || dictionaries.pt;
 
+  const feedbacksRes = await getFeedbacksAction(12);
+  const initialFeedbacks = feedbacksRes.success ? feedbacksRes.feedbacks : [];
+
   return (
     <main className={`w-full bg-[#030303] text-white selection:bg-white/30 ${geistSans.className} flex flex-col relative`}>
       <Navbar dict={dict} />
@@ -29,7 +33,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       <MobileAppSection dict={dict} />
       <MetricsSection dict={dict} />
       <PhasePresentationSection dict={dict} />
-      <TestimonialSection />
+      <TestimonialSection initialFeedbacks={initialFeedbacks} />
       
       {/* Gradient fade out at the very bottom just in case the tablet overflows aggressively */}
       <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#030303] to-transparent pointer-events-none z-50" />
