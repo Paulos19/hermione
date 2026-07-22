@@ -81,22 +81,7 @@ export default function EditorClient({
   const [isAssistantOpen, setIsAssistantOpen] = useState(false)
   const [isRibbonOpen, setIsRibbonOpen] = useState(true)
   const [printScope, setPrintScope] = useState<'chapter' | 'book' | null>(null)
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('hermione-theme') as 'light' | 'dark'
-    if (savedTheme) {
-      setTheme(savedTheme)
-    }
-  }, [])
-
-  const toggleTheme = () => {
-    setTheme(prev => {
-      const next = prev === 'dark' ? 'light' : 'dark'
-      localStorage.setItem('hermione-theme', next)
-      return next
-    })
-  }
+  
 
   const toggleAssistant = () => {
 
@@ -146,8 +131,8 @@ export default function EditorClient({
   }
 
   return (
-    <div className={`${theme === 'dark' ? 'dark' : ''} antialiased`}>
-      <div className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-[#0A0D12] text-gray-900 dark:text-[#F5F5F5] font-sans transition-colors duration-200">
+    <div className="antialiased">
+      <div className="flex h-screen w-screen overflow-hidden bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] font-sans transition-colors duration-200">
         
         <div className="flex flex-col flex-1 h-screen overflow-hidden">
           {/* Topbar: Fixed at Top */}
@@ -159,8 +144,6 @@ export default function EditorClient({
             isRibbonOpen={isRibbonOpen}
             onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
             lang={lang as Locale}
-            theme={theme}
-            onToggleTheme={toggleTheme}
             onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
           />
 
@@ -203,7 +186,7 @@ export default function EditorClient({
           />
 
           {/* Main Editor Area */}
-          <main className="flex-1 h-full bg-gray-50 dark:bg-[#0A0D12] p-2 sm:p-6 md:px-12 md:py-8 overflow-y-auto flex justify-center relative transition-colors duration-200 custom-scrollbar">
+          <main className="flex-1 h-full bg-[var(--theme-bg-main)] p-2 sm:p-6 md:px-12 md:py-8 overflow-y-auto flex justify-center relative transition-colors duration-200 custom-scrollbar">
           {activeDocumentId ? (() => {
             const activeDocument = documents.find(d => d.id === activeDocumentId)
             let initialContent = activeDocument?.content || ''
@@ -337,10 +320,10 @@ function QuickEditModal({ bookId, type, item, onClose }: { bookId: string, type:
 
   return (
     <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#10151B] border border-gray-200 dark:border-white/10 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
-          <h2 className="font-semibold text-lg text-gray-900 dark:text-white">{modalTitles[type]}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors">
+      <div className="bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-4 border-b border-[var(--theme-border-subtle)] flex items-center justify-between">
+          <h2 className="font-semibold text-lg text-[var(--theme-text-main)]">{modalTitles[type]}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-[var(--theme-bg-surface-elevated)] rounded-xl transition-colors">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
@@ -353,7 +336,7 @@ function QuickEditModal({ bookId, type, item, onClose }: { bookId: string, type:
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-gray-50 dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-violet-500 transition-colors"
+              className="w-full bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--theme-text-main)] focus:outline-none focus:border-violet-500 transition-colors"
               placeholder="Digite o nome..."
             />
           </div>
@@ -362,7 +345,7 @@ function QuickEditModal({ bookId, type, item, onClose }: { bookId: string, type:
             <textarea 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-gray-50 dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-violet-500 transition-colors h-32 resize-none"
+              className="w-full bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--theme-text-main)] focus:outline-none focus:border-violet-500 transition-colors h-32 resize-none"
               placeholder="Adicione detalhes e informações..."
             />
           </div>

@@ -53,8 +53,8 @@ export function WeatherWidget({ lang }: { lang: string }) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center w-24 h-full animate-pulse">
-        <div className="w-10 h-10 bg-gray-200 dark:bg-white/5 rounded-full mb-3" />
-        <div className="w-14 h-4 bg-gray-200 dark:bg-white/5 rounded-full" />
+        <div className="w-10 h-10 bg-[var(--theme-bg-surface-elevated)] rounded-full mb-3" />
+        <div className="w-14 h-4 bg-[var(--theme-bg-surface-elevated)] rounded-full" />
       </div>
     )
   }
@@ -80,13 +80,13 @@ export function WeatherWidget({ lang }: { lang: string }) {
   return (
     <div className="flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 group cursor-default">
       <div className="mb-2 relative">
-        <div className="absolute inset-0 bg-white/10 dark:bg-white/5 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-[var(--theme-bg-surface-elevated)] blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
         {getWeatherIcon(weather.code)}
       </div>
-      <div className="text-[22px] font-bold text-gray-900 dark:text-[#F5F5F5] leading-none mb-1.5 tracking-tight">
+      <div className="text-[22px] font-bold text-[var(--theme-text-main)] leading-none mb-1.5 tracking-tight">
         {Math.round(weather.temp)}°C
       </div>
-      <div className="text-[12px] font-medium text-gray-500 dark:text-[#8A94A0] flex items-center gap-1.5 bg-gray-100 dark:bg-white/5 px-2.5 py-0.5 rounded-full">
+      <div className="text-[12px] font-medium text-[var(--theme-text-muted)] flex items-center gap-1.5 bg-[var(--theme-bg-surface-elevated)] px-2.5 py-0.5 rounded-full">
         <Wind className="w-3.5 h-3.5" />
         {weather.humidity}%
       </div>

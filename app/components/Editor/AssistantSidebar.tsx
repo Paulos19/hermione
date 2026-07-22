@@ -37,34 +37,34 @@ const CorrectionUI = ({ content, onApply, isFinished }: { content: string, onApp
     const data = JSON.parse(cleanStr);
     if (!data.before || !data.after) throw new Error();
     return (
-      <div className="my-4 border border-violet-200 dark:border-white/10 rounded-lg overflow-hidden bg-white dark:bg-[#11161D] shadow-sm">
-        <div className="bg-violet-50 dark:bg-white/5 px-3 py-2 text-xs font-semibold text-violet-700 dark:text-[#B899FF] border-b border-violet-200 dark:border-white/10 flex justify-between items-center">
+      <div className="my-4 border border-violet-200 dark:border-white/10 rounded-lg overflow-hidden bg-[var(--theme-bg-surface)] shadow-sm">
+        <div className="bg-[var(--theme-bg-surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--theme-accent)] border-b border-[var(--theme-border-subtle)] flex justify-between items-center">
           <span>Sugestão de Hermione</span>
           <button 
             onClick={() => onApply(data.before, data.after)}
-            className="px-3 py-1 bg-violet-600 hover:bg-violet-700 dark:bg-[#B899FF] dark:hover:bg-[#a682ff] dark:text-[#0A0D12] text-white rounded-md text-[10px] transition-colors font-bold"
+            className="px-3 py-1 bg-[var(--theme-accent)] hover:opacity-90 text-[var(--theme-bg-main)] rounded-md text-[10px] transition-colors font-bold"
           >
             Aplicar
           </button>
         </div>
         <div className="p-3 text-xs font-mono space-y-2 leading-relaxed">
-          <div className="text-red-600 dark:text-red-400 line-through bg-red-50 dark:bg-red-900/10 p-2 rounded border border-red-100 dark:border-red-900/20">{data.before}</div>
-          <div className="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 p-2 rounded border border-emerald-100 dark:border-emerald-900/20">{data.after}</div>
-          {data.explanation && <div className="text-gray-500 dark:text-[#8A94A0] font-sans text-[11px] pt-1 whitespace-pre-wrap break-words">{data.explanation}</div>}
+          <div className="text-red-500 line-through bg-[var(--theme-bg-surface-elevated)] p-2 rounded border border-[var(--theme-border-subtle)]">{data.before}</div>
+          <div className="text-emerald-500 bg-[var(--theme-bg-surface-elevated)] p-2 rounded border border-[var(--theme-border-subtle)]">{data.after}</div>
+          {data.explanation && <div className="text-[var(--theme-text-muted)] font-sans text-[11px] pt-1 whitespace-pre-wrap break-words">{data.explanation}</div>}
         </div>
       </div>
     );
   } catch (e) {
     if (!isFinished) {
       return (
-        <div className="my-4 animate-pulse bg-gray-100 dark:bg-white/5 border border-transparent dark:border-white/10 p-4 rounded-lg text-xs text-gray-500 dark:text-[#8A94A0] flex items-center gap-2">
+        <div className="my-4 animate-pulse bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] p-4 rounded-lg text-xs text-[var(--theme-text-muted)] flex items-center gap-2">
           <Sparkles className="w-3 h-3 text-violet-400 animate-spin" />
           Gerando sugestão...
         </div>
       );
     } else {
       return (
-        <div className="my-4 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-lg text-xs text-red-600 dark:text-red-400 font-mono whitespace-pre-wrap">
+        <div className="my-4 p-3 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] rounded-lg text-xs text-red-500 font-mono whitespace-pre-wrap">
           <p className="font-semibold mb-2">Erro ao ler sugestão da IA:</p>
           {content}
         </div>
@@ -193,14 +193,14 @@ User Question: ${messageText}`;
         className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden"
       />
 
-      <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-[360px] md:relative md:w-[360px] bg-white dark:bg-[#0A0D12] border-l border-gray-200 dark:border-white/5 flex flex-col h-full shrink-0 text-gray-900 dark:text-[#F5F5F5] shadow-2xl transition-all duration-300">
+      <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-[360px] md:relative md:w-[360px] bg-[var(--theme-bg-surface)] border-l border-[var(--theme-border-subtle)] flex flex-col h-full shrink-0 text-[var(--theme-text-main)] shadow-2xl transition-all duration-300">
       {/* Header */}
-      <div className="h-[56px] border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4 bg-gray-50 dark:bg-[#11161D] shrink-0 transition-colors duration-200">
-        <div className="flex items-center gap-2 font-medium text-violet-600 dark:text-[#B899FF]">
+      <div className="h-[56px] border-b border-[var(--theme-border-subtle)] flex items-center justify-between px-4 bg-[var(--theme-bg-surface-elevated)] shrink-0 transition-colors duration-200">
+        <div className="flex items-center gap-2 font-medium text-[var(--theme-accent)]">
           <Sparkles className="w-4 h-4" />
           {t.title}
         </div>
-        <button onClick={onClose} className="p-1.5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-md transition-colors text-gray-500 dark:text-[#8A94A0]">
+        <button onClick={onClose} className="p-1.5 hover:bg-[var(--theme-border-subtle)] rounded-md transition-colors text-[var(--theme-text-muted)]">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -209,25 +209,25 @@ User Question: ${messageText}`;
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
-            <Sparkles className="w-8 h-8 text-violet-400 dark:text-[#B899FF]/50 mb-3" />
-            <h3 className="text-gray-900 dark:text-[#F5F5F5] font-medium text-sm mb-1">{t.emptyState.title}</h3>
-            <p className="text-xs text-gray-500 dark:text-[#8A94A0]">{t.emptyState.description}</p>
+            <Sparkles className="w-8 h-8 text-[var(--theme-accent)] mb-3" />
+            <h3 className="text-[var(--theme-text-main)] font-medium text-sm mb-1">{t.emptyState.title}</h3>
+            <p className="text-xs text-[var(--theme-text-muted)]">{t.emptyState.description}</p>
           </div>
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start w-full"}`}>
               {msg.role === "user" ? (
-                <div className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm bg-violet-600 text-white dark:bg-[#B899FF] dark:text-[#0A0D12] rounded-tr-sm">
+                <div className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm bg-[var(--theme-accent)] text-[var(--theme-bg-main)] rounded-tr-sm">
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
               ) : (
                 <div className="w-full text-sm py-2">
-                  <div className="flex items-center gap-2 mb-3 text-violet-600 dark:text-[#B899FF]">
+                  <div className="flex items-center gap-2 mb-3 text-[var(--theme-accent)]">
                     <Sparkles className="w-4 h-4" />
                     <span className="font-medium text-xs tracking-wide uppercase">Hermione</span>
                   </div>
                   {msg.role === "assistant" ? (
-                    <div className="prose dark:prose-invert prose-sm max-w-none text-gray-900 dark:text-[#F5F5F5]">
+                    <div className="prose prose-sm max-w-none text-[var(--theme-text-main)]">
                       <ReactMarkdown
                         components={{
                           p: ({ children }) => <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>,
@@ -236,7 +236,7 @@ User Question: ${messageText}`;
                             if (match && match[1] === 'correction') {
                               return <CorrectionUI content={String(children)} onApply={onApplyEdit || (() => {})} isFinished={true} />
                             }
-                            return <code className="bg-gray-200 dark:bg-black/30 px-1 py-0.5 rounded text-violet-700 dark:text-[#B899FF]">{children}</code>
+                            return <code className="bg-[var(--theme-bg-surface-elevated)] px-1 py-0.5 rounded text-[var(--theme-accent)]">{children}</code>
                           }
                         }}
                       >
@@ -254,14 +254,14 @@ User Question: ${messageText}`;
 
         {(isSending || systemMessage) && (
            <div className="flex justify-start">
-             <div className="bg-gray-100 dark:bg-white/5 border border-transparent dark:border-white/10 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
+             <div className="bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
                {systemMessage ? (
-                 <span className="text-xs text-gray-500 dark:text-[#8A94A0]">{systemMessage}</span>
+                 <span className="text-xs text-[var(--theme-text-muted)]">{systemMessage}</span>
                ) : (
                  <>
-                   <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-[#8A94A0] rounded-full animate-bounce [animation-delay:-0.3s]" />
-                   <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-[#8A94A0] rounded-full animate-bounce [animation-delay:-0.15s]" />
-                   <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-[#8A94A0] rounded-full animate-bounce" />
+                   <span className="w-1.5 h-1.5 bg-[var(--theme-text-muted)] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                   <span className="w-1.5 h-1.5 bg-[var(--theme-text-muted)] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                   <span className="w-1.5 h-1.5 bg-[var(--theme-text-muted)] rounded-full animate-bounce" />
                  </>
                )}
              </div>
@@ -271,7 +271,7 @@ User Question: ${messageText}`;
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#11161D] shrink-0 transition-colors duration-200">
+      <div className="p-3 border-t border-[var(--theme-border-subtle)] bg-[var(--theme-bg-surface-elevated)] shrink-0 transition-colors duration-200">
         <form onSubmit={handleSendMessage}>
           <div className="relative">
             <input
@@ -279,13 +279,13 @@ User Question: ${messageText}`;
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={t.placeholder}
-              className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg pl-3 pr-10 py-2.5 text-sm text-gray-900 dark:text-[#F5F5F5] placeholder-gray-400 dark:placeholder-[#8A94A0] focus:outline-none focus:border-violet-500 dark:focus:border-[#B899FF] focus:ring-1 focus:ring-violet-500 dark:focus:ring-transparent transition-all"
+              className="w-full bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] rounded-lg pl-3 pr-10 py-2.5 text-sm text-[var(--theme-text-main)] placeholder-[var(--theme-text-muted)] focus:outline-none focus:border-[var(--theme-accent)] transition-all"
               disabled={isSending || !isConnected}
             />
             <button
               type="submit"
               disabled={!input.trim() || isSending || !isConnected}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-violet-600 dark:text-[#B899FF] hover:bg-violet-50 dark:hover:bg-[#B899FF]/10 rounded-md transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[var(--theme-accent)] hover:bg-[var(--theme-bg-surface)] rounded-md transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
               title={t.generate}
             >
               <Send className="w-4 h-4" />
@@ -297,24 +297,24 @@ User Question: ${messageText}`;
 
     {showLimitModal && (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div className="bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center flex flex-col items-center">
-          <div className="w-16 h-16 bg-violet-100 dark:bg-violet-500/10 text-violet-600 dark:text-[#B899FF] rounded-full flex items-center justify-center mb-4">
+        <div className="bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center flex flex-col items-center">
+          <div className="w-16 h-16 bg-[var(--theme-accent-light)] text-[var(--theme-accent)] rounded-full flex items-center justify-center mb-4">
             <Sparkles className="w-8 h-8" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Limite Alcançado</h3>
-          <p className="text-sm text-gray-500 dark:text-[#8A94A0] mb-6">
+          <h3 className="text-xl font-bold text-[var(--theme-text-main)] mb-2">Limite Alcançado</h3>
+          <p className="text-sm text-[var(--theme-text-muted)] mb-6">
             Você atingiu o limite de 7 chamadas grátis da IA Hermione. Assine o plano Premium para continuar recebendo sugestões ilimitadas.
           </p>
           <div className="flex w-full gap-3">
             <button 
               onClick={() => setShowLimitModal(false)}
-              className="flex-1 px-4 py-2.5 rounded-xl text-gray-600 dark:text-[#8A94A0] hover:bg-gray-100 dark:hover:bg-white/5 font-medium transition-colors"
+              className="flex-1 px-4 py-2.5 rounded-xl text-[var(--theme-text-muted)] hover:bg-[var(--theme-bg-surface-elevated)] font-medium transition-colors"
             >
               Cancelar
             </button>
             <a 
               href={`/${lang}/subscribe`}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium transition-colors"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-[var(--theme-accent)] hover:opacity-90 text-[var(--theme-bg-main)] font-medium transition-colors"
             >
               Fazer Upgrade
             </a>

@@ -79,22 +79,7 @@ export default function CharactersClient({
   })
 
   const [isPending, startTransition] = useTransition()
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('hermione-theme') as 'light' | 'dark'
-    if (savedTheme) {
-      setTheme(savedTheme)
-    }
-  }, [])
-
-  const toggleTheme = () => {
-    setTheme(prev => {
-      const next = prev === 'dark' ? 'light' : 'dark'
-      localStorage.setItem('hermione-theme', next)
-      return next
-    })
-  }
+  
 
   const openModalNew = () => {
     setEditingId(null)
@@ -173,8 +158,8 @@ export default function CharactersClient({
   }, [characters, searchQuery, filterBookId])
 
   return (
-    <div className={`${theme === 'dark' ? 'dark' : ''} antialiased`}>
-      <div className="flex h-screen w-full font-sans bg-gray-50 dark:bg-[#0A0D12] text-gray-900 dark:text-[#F5F5F5] overflow-hidden transition-colors duration-200">
+    <div className="antialiased">
+      <div className="flex h-screen w-full font-sans bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] overflow-hidden transition-colors duration-200">
 
         <DashboardSidebar
           wordsToday={wordsToday}
@@ -192,8 +177,7 @@ export default function CharactersClient({
         <div className="flex-1 flex flex-col h-screen min-w-0">
 
           <DashboardTopbar
-            theme={theme}
-            onToggleTheme={toggleTheme}
+            
             lang={lang}
             userImage={userImage}
             onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
@@ -203,7 +187,7 @@ export default function CharactersClient({
             <div className="max-w-[1600px] mx-auto px-4 sm:px-8 md:px-12 py-6 md:py-10 space-y-6 md:space-y-10 pb-32">
 
               {/* HERO SECTION */}
-              <section className="relative overflow-hidden rounded-[24px] bg-white dark:bg-[#10151B] border border-gray-200 dark:border-white/10 shadow-sm">
+              <section className="relative overflow-hidden rounded-[24px] bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] shadow-sm">
                 <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 bg-emerald-500/10 dark:bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
                 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between p-8 md:p-10 gap-8">
@@ -212,11 +196,11 @@ export default function CharactersClient({
                       <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                         <Users className="w-5 h-5" />
                       </div>
-                      <h1 className="text-[32px] md:text-[40px] font-serif text-gray-900 dark:text-white font-semibold leading-tight tracking-tight">
+                      <h1 className="text-[32px] md:text-[40px] font-serif text-[var(--theme-text-main)] font-semibold leading-tight tracking-tight">
                         Personagens
                       </h1>
                     </div>
-                    <p className="text-[16px] text-gray-500 dark:text-[#8A94A0] max-w-lg">
+                    <p className="text-[16px] text-[var(--theme-text-muted)] max-w-lg">
                       Gerencie as fichas do seu elenco. Hermione utilizará estes dados para não esquecer detalhes cruciais na hora de escrever.
                     </p>
                   </div>
@@ -235,13 +219,13 @@ export default function CharactersClient({
               {/* CONTROLS (SEARCH & FILTER) */}
               <section className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="relative w-full sm:max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-[#8A94A0]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--theme-text-muted)]" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar personagem..."
-                    className="w-full bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-[14px] text-gray-900 dark:text-[#F5F5F5] placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 transition-colors shadow-sm"
+                    className="w-full bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] rounded-xl pl-10 pr-4 py-2.5 text-[14px] text-[var(--theme-text-main)] placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 transition-colors shadow-sm"
                   />
                 </div>
                 
@@ -249,7 +233,7 @@ export default function CharactersClient({
                   <select 
                     value={filterBookId}
                     onChange={(e) => setFilterBookId(e.target.value)}
-                    className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/5 rounded-xl text-[14px] font-medium text-gray-700 dark:text-[#F5F5F5] focus:outline-none focus:border-emerald-500 shadow-sm"
+                    className="w-full sm:w-auto px-4 py-2.5 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] rounded-xl text-[14px] font-medium text-[var(--theme-text-main)] focus:outline-none focus:border-emerald-500 shadow-sm"
                   >
                     <option value="all">Todos os Livros</option>
                     {books.map(b => (
@@ -267,18 +251,18 @@ export default function CharactersClient({
                       <div 
                         key={char.id} 
                         onClick={() => openModalEdit(char)}
-                        className="group bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/5 hover:border-emerald-500/30 dark:hover:border-emerald-400/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+                        className="group bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] hover:border-emerald-500/30 dark:hover:border-emerald-400/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
                       >
                         <div className="flex justify-between items-start">
                           <div>
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md text-[10px] font-bold uppercase tracking-wider mb-3">
                               <BookOpen className="w-3 h-3" /> {char.bookTitle}
                             </span>
-                            <h3 className="text-[22px] font-serif font-semibold text-gray-900 dark:text-white leading-tight">
+                            <h3 className="text-[22px] font-serif font-semibold text-[var(--theme-text-main)] leading-tight">
                               {char.name}
                             </h3>
                             {char.role && (
-                              <p className="text-[13px] text-gray-500 dark:text-[#8A94A0] font-medium mt-1">
+                              <p className="text-[13px] text-[var(--theme-text-muted)] font-medium mt-1">
                                 {char.role}
                               </p>
                             )}
@@ -295,8 +279,8 @@ export default function CharactersClient({
                           </div>
                         </div>
 
-                        <div className="flex-1 bg-gray-50 dark:bg-[#10151B] border border-gray-100 dark:border-white/5 rounded-xl p-4">
-                          <p className="text-[13px] text-gray-600 dark:text-[#8A94A0] line-clamp-4 leading-relaxed">
+                        <div className="flex-1 bg-[var(--theme-bg-surface)] border border-gray-100 dark:border-white/5 rounded-xl p-4">
+                          <p className="text-[13px] text-[var(--theme-text-muted)] line-clamp-4 leading-relaxed">
                             {char.description || "Nenhuma descrição fornecida para este personagem."}
                           </p>
                         </div>
@@ -304,12 +288,12 @@ export default function CharactersClient({
                     ))}
                   </div>
                 ) : (
-                  <div className="py-24 border border-gray-200 dark:border-white/5 border-dashed rounded-[24px] bg-white dark:bg-[#141A22]/50 flex flex-col items-center justify-center text-center shadow-sm">
-                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#10151B] rounded-2xl flex items-center justify-center mb-6 border border-gray-200 dark:border-white/5">
-                      <Users className="w-8 h-8 text-gray-400 dark:text-[#8A94A0]" />
+                  <div className="py-24 border border-[var(--theme-border-subtle)] border-dashed rounded-[24px] bg-[var(--theme-bg-surface-elevated)]/50 flex flex-col items-center justify-center text-center shadow-sm">
+                    <div className="w-16 h-16 bg-[var(--theme-bg-surface)] rounded-2xl flex items-center justify-center mb-6 border border-[var(--theme-border-subtle)]">
+                      <Users className="w-8 h-8 text-[var(--theme-text-muted)]" />
                     </div>
-                    <h3 className="text-[20px] font-medium text-gray-900 dark:text-white mb-2">Nenhum personagem aqui</h3>
-                    <p className="text-[14px] text-gray-500 dark:text-[#8A94A0] mb-6 max-w-sm">
+                    <h3 className="text-[20px] font-medium text-[var(--theme-text-main)] mb-2">Nenhum personagem aqui</h3>
+                    <p className="text-[14px] text-[var(--theme-text-muted)] mb-6 max-w-sm">
                       {books.length === 0 
                         ? "Você precisa criar um livro primeiro antes de adicionar personagens." 
                         : "Construa seu elenco. Suas fichas ajudarão a IA a entender sua história."}
@@ -332,11 +316,11 @@ export default function CharactersClient({
             {isModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                 <div 
-                  className="bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col"
+                  className="bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="px-6 py-4 border-b border-gray-200 dark:border-white/5 flex items-center justify-between">
-                    <h3 className="text-[18px] font-semibold text-gray-900 dark:text-white">
+                  <div className="px-6 py-4 border-b border-[var(--theme-border-subtle)] flex items-center justify-between">
+                    <h3 className="text-[18px] font-semibold text-[var(--theme-text-main)]">
                       {editingId ? "Editar Personagem" : "Novo Personagem"}
                     </h3>
                     <button 
@@ -360,7 +344,7 @@ export default function CharactersClient({
                           value={formData.name}
                           onChange={e => setFormData({...formData, name: e.target.value})}
                           placeholder="Ex: Harry Potter"
-                          className="w-full bg-gray-50 dark:bg-[#10151B] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-[14px] text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border-subtle)] rounded-xl px-4 py-2.5 text-[14px] text-[var(--theme-text-main)] focus:outline-none focus:border-emerald-500"
                         />
                       </div>
                       
@@ -372,7 +356,7 @@ export default function CharactersClient({
                           required
                           value={formData.bookId}
                           onChange={e => setFormData({...formData, bookId: e.target.value})}
-                          className="w-full bg-gray-50 dark:bg-[#10151B] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-[14px] text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border-subtle)] rounded-xl px-4 py-2.5 text-[14px] text-[var(--theme-text-main)] focus:outline-none focus:border-emerald-500"
                         >
                           {books.map(b => (
                             <option key={b.id} value={b.id}>{b.title}</option>
@@ -389,7 +373,7 @@ export default function CharactersClient({
                         value={formData.role}
                         onChange={e => setFormData({...formData, role: e.target.value})}
                         placeholder="Ex: Protagonista, Mentor, Vilão principal..."
-                        className="w-full bg-gray-50 dark:bg-[#10151B] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-[14px] text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border-subtle)] rounded-xl px-4 py-2.5 text-[14px] text-[var(--theme-text-main)] focus:outline-none focus:border-emerald-500"
                       />
                     </div>
 
@@ -401,7 +385,7 @@ export default function CharactersClient({
                         value={formData.description}
                         onChange={e => setFormData({...formData, description: e.target.value})}
                         placeholder="Descreva personalidade, aparência, arcos narrativos e segredos..."
-                        className="w-full flex-1 min-h-[160px] bg-gray-50 dark:bg-[#10151B] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-[14px] text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-emerald-500 resize-none leading-relaxed"
+                        className="w-full flex-1 min-h-[160px] bg-[var(--theme-bg-surface)] border border-[var(--theme-border-subtle)] rounded-xl px-4 py-3 text-[14px] text-[var(--theme-text-main)] focus:outline-none focus:border-emerald-500 resize-none leading-relaxed"
                       />
                     </div>
 
@@ -409,7 +393,7 @@ export default function CharactersClient({
                       <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="px-5 py-2.5 rounded-xl text-[14px] font-medium text-gray-600 dark:text-[#8A94A0] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                        className="px-5 py-2.5 rounded-xl text-[14px] font-medium text-[var(--theme-text-muted)] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                       >
                         Cancelar
                       </button>

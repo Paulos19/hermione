@@ -138,7 +138,7 @@ export function DashboardSidebar({
 
       {/* Sidebar Container */}
       <aside
-        className={`bg-white dark:bg-[#0E1318] border-r border-gray-200 dark:border-white/5 h-screen flex flex-col shrink-0 transition-all duration-300 z-50 ${
+        className={`bg-[var(--theme-bg-surface)] border-r border-[var(--theme-border-subtle)] h-screen flex flex-col shrink-0 transition-all duration-300 z-50 ${
           // Mobile state: slide-in drawer
           isMobileOpen
             ? "fixed inset-y-0 left-0 w-[280px] shadow-2xl translate-x-0"
@@ -152,7 +152,7 @@ export function DashboardSidebar({
         <div className="p-4 md:p-6 flex items-center justify-between border-b border-gray-100 dark:border-white/5">
           <div className="flex items-center gap-3 overflow-hidden">
             {/* White glass logo container badge with original H logo */}
-            <div className="relative w-9 h-9 rounded-xl bg-white border border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.15)] flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
+            <div className="relative w-9 h-9 rounded-xl bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] shadow-[0_0_15px_var(--theme-accent-light)] flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
               <Image 
                 src={logoImg} 
                 alt="Hermione Logo" 
@@ -163,7 +163,7 @@ export function DashboardSidebar({
               />
             </div>
             {!isCollapsed && (
-              <span className="text-gray-900 dark:text-[#F5F5F5] font-serif text-xl tracking-wide font-semibold whitespace-nowrap">
+              <span className="text-[var(--theme-text-main)] font-serif text-xl tracking-wide font-semibold whitespace-nowrap">
                 Hermione
               </span>
             )}
@@ -202,8 +202,8 @@ export function DashboardSidebar({
                 title={isCollapsed ? item.name : undefined}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all duration-150 ${
                   isActive
-                    ? "bg-violet-50 dark:bg-[#141A22] text-violet-600 dark:text-[#B899FF] font-semibold shadow-sm"
-                    : "text-gray-500 dark:text-[#8A94A0] hover:text-gray-900 dark:hover:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-[#141A22]/50"
+                    ? "bg-violet-50 dark:bg-[#141A22] text-[var(--theme-accent)] font-semibold shadow-sm"
+                    : "text-[var(--theme-text-muted)] hover:text-gray-900 dark:hover:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-[#141A22]/50"
                 } ${isCollapsed ? "justify-center px-0" : ""}`}
               >
                 <Icon className="w-[18px] h-[18px] shrink-0" />
@@ -217,7 +217,7 @@ export function DashboardSidebar({
           <button
             onClick={() => logoutAction()}
             title={isCollapsed ? "Sair" : undefined}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] text-gray-500 dark:text-[#8A94A0] hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-150 text-left ${
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] text-[var(--theme-text-muted)] hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-150 text-left ${
               isCollapsed ? "justify-center px-0" : ""
             }`}
           >
@@ -228,7 +228,7 @@ export function DashboardSidebar({
 
         {/* Bottom Section (Usage & Dynamic Illuminated Plan Card) */}
         {!isCollapsed ? (
-          <div className="p-4 border-t border-gray-200 dark:border-white/5 bg-white dark:bg-[#0A0C10] flex flex-col gap-3">
+          <div className="p-4 border-t border-[var(--theme-border-subtle)] bg-[var(--theme-bg-surface)] flex flex-col gap-3">
             
             {/* Dynamic Illuminated Plan Info Card */}
             <div className={`relative p-4 rounded-2xl ${currentConfig.cardStyle} transition-all duration-300 overflow-hidden group`}>
@@ -331,15 +331,15 @@ export function DashboardSidebar({
                   router.push(`/${lang}/chat`)
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-gray-100 text-black rounded-xl text-[13px] font-bold transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[var(--theme-text-main)] hover:opacity-90 text-[var(--theme-bg-main)] rounded-xl text-[13px] font-bold transition-all shadow-lg hover:scale-[1.01] active:scale-[0.99]"
             >
-              <Sparkles className="w-4 h-4 fill-current text-black" />
+              <Sparkles className="w-4 h-4 fill-current text-[var(--theme-bg-main)]" />
               {t.hermione}
             </button>
           </div>
         ) : (
           /* Collapsed Desktop Plan Badge */
-          <div className="p-3 border-t border-gray-200 dark:border-white/5 flex flex-col items-center gap-2">
+          <div className="p-3 border-t border-[var(--theme-border-subtle)] flex flex-col items-center gap-2">
             <Link
               href={`/${lang}/configuracoes?tab=billings`}
               title={`Plano ${currentConfig.title} - Clique para gerenciar assinatura`}

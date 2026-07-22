@@ -14,7 +14,7 @@ interface StatusBarProps {
 export default function StatusBar({ wordCount, readingTime, isSynced, lang }: StatusBarProps) {
   const t = dict[lang].statusBar;
   return (
-    <footer className="h-[36px] bg-white dark:bg-[#0E1318] border-t border-gray-200 dark:border-white/5 flex items-center justify-between px-3 md:px-4 shrink-0 text-[11px] md:text-xs text-gray-500 dark:text-[#8A94A0] whitespace-nowrap overflow-x-auto custom-scrollbar select-none z-30">
+    <footer className="h-[36px] bg-[var(--theme-bg-surface)] border-t border-[var(--theme-border-subtle)] flex items-center justify-between px-3 md:px-4 shrink-0 text-[11px] md:text-xs text-[var(--theme-text-muted)] whitespace-nowrap overflow-x-auto custom-scrollbar select-none z-30">
       {/* Left: Word count & reading time */}
       <div className="flex items-center gap-3 md:gap-4 shrink-0">
         <div className="flex items-center gap-1.5 hover:text-gray-900 dark:hover:text-[#F5F5F5] cursor-pointer transition-colors">
@@ -30,14 +30,14 @@ export default function StatusBar({ wordCount, readingTime, isSynced, lang }: St
       {/* Center: Save Status */}
       <div className="flex items-center gap-1.5 shrink-0 mx-2">
         <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${isSynced ? "text-[#22C55E]" : "text-[#FF6B6B]"}`} />
-        <span className="text-gray-900 dark:text-[#F5F5F5] font-medium hidden sm:inline">{isSynced ? t.saved : t.unsaved}</span>
+        <span className="text-[var(--theme-text-main)] font-medium hidden sm:inline">{isSynced ? t.saved : t.unsaved}</span>
       </div>
 
       {/* Right: Language switcher & Zoom */}
       <div className="flex items-center gap-2 md:gap-4 shrink-0">
         <LanguageSwitcher currentLang={lang} />
         
-        <div className="hidden sm:block w-px h-3 bg-gray-200 dark:bg-white/10" />
+        <div className="hidden sm:block w-px h-3 bg-[var(--theme-bg-surface-elevated)]" />
         
         {/* Zoom Control (Hidden on tiny screens) */}
         <div className="hidden sm:flex items-center gap-1.5">

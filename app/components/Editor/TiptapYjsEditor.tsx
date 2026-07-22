@@ -21,9 +21,16 @@ import Underline from '@tiptap/extension-underline'
 import FontFamily from '@tiptap/extension-font-family'
 
 // Custom Extensions
+import Subscript from '@tiptap/extension-subscript'
+import Superscript from '@tiptap/extension-superscript'
 import { LineHeight } from './extensions/LineHeight'
 import { TextIndent } from './extensions/TextIndent'
 import { FontSize } from './extensions/FontSize'
+import { TableBubbleMenu } from './TableBubbleMenu'
+import { Table } from '@tiptap/extension-table'
+import { TableRow } from '@tiptap/extension-table-row'
+import { TableHeader } from '@tiptap/extension-table-header'
+import { TableCell } from '@tiptap/extension-table-cell'
 import { UppercaseExtension } from './extensions/Uppercase'
 import { EmDashExtension } from './extensions/EmDash'
 import { SearchHighlight } from './extensions/SearchHighlight'
@@ -112,7 +119,15 @@ export default function TiptapYjsEditor({
         TextStyle,
         Color,
         Highlight.configure({ multicolor: true }),
+        Subscript,
+        Superscript,
         Image,
+        Table.configure({
+          resizable: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
         Link.configure({ openOnClick: false }),
         TextAlign.configure({ types: ['heading', 'paragraph'], alignments: ['left', 'center', 'right', 'justify'] }),
         Placeholder.configure({ placeholder: 'Start writing your story...' }),
@@ -126,7 +141,7 @@ export default function TiptapYjsEditor({
       ],
       editorProps: {
         attributes: {
-          class: 'prose prose-invert prose-lg mx-auto max-w-none px-2 sm:px-12 md:px-20 pt-4 sm:pt-10 md:pt-20 pb-24 focus:outline-none min-h-[60vh] text-zinc-100 text-[17px] leading-[1.85] font-normal',
+          class: 'prose prose-lg mx-auto max-w-none px-2 sm:px-12 md:px-20 pt-4 sm:pt-10 md:pt-20 pb-24 focus:outline-none min-h-[60vh] text-[var(--theme-text-main)] text-[17px] leading-[1.85] font-normal',
           style: '',
           spellcheck: 'true',
           lang: 'pt-BR',
@@ -233,12 +248,12 @@ export default function TiptapYjsEditor({
   }, [documentId, wsToken, currentUser.id, bookId, initialContent, cursorColor])
 
   if (!editor) {
-    return <div className="p-8 text-gray-500 dark:text-[#8A94A0] flex justify-center w-full">Loading writing environment...</div>
+    return <div className="p-8 text-[var(--theme-text-muted)] flex justify-center w-full">Loading writing environment...</div>
   }
 
   return (
     <div className="w-full flex justify-center h-fit pb-6 md:pb-12">
-      <div className="w-full max-w-full md:max-w-[880px] min-h-[calc(100vh-160px)] md:min-h-[1150px] rounded-xl sm:rounded-2xl md:rounded-[24px] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141A22] shadow-lg md:shadow-[0_12px_48px_rgba(0,0,0,.35)] px-2 py-3 sm:px-3 sm:py-4 md:px-5 md:py-6 relative transition-all duration-200">
+      <div className="w-full max-w-full md:max-w-[880px] min-h-[calc(100vh-160px)] md:min-h-[1150px] rounded-xl sm:rounded-2xl md:rounded-[24px] border border-[var(--theme-border)] bg-[var(--theme-bg-surface-elevated)] shadow-lg md:shadow-[0_12px_48px_rgba(0,0,0,.35)] px-2 py-3 sm:px-3 sm:py-4 md:px-5 md:py-6 relative transition-all duration-200">
         <EditorContent editor={editor} />
         
         {/* Typography & Cursors CSS */}
@@ -284,11 +299,7 @@ export default function TiptapYjsEditor({
             letter-spacing: -0.02em;
             margin-top: 0;
             margin-bottom: 56px;
-            color: #111827;
-          }
-          
-          .dark .ProseMirror h1 {
-            color: white;
+            color: var(--theme-text-main);
           }
 
           .ProseMirror h2 {
@@ -327,14 +338,10 @@ export default function TiptapYjsEditor({
 
           .ProseMirror blockquote {
             padding-left: 24px;
-            border-left: 3px solid #B899FF;
+            border-left: 3px solid var(--theme-accent);
             margin: 32px 0;
-            color: #4B5563;
+            color: var(--theme-text-muted);
             font-style: italic;
-          }
-          
-          .dark .ProseMirror blockquote {
-            color: #C8CBD2;
           }
 
           .ProseMirror img {
@@ -347,42 +354,52 @@ export default function TiptapYjsEditor({
           .ProseMirror table {
             margin: 32px 0;
             border-collapse: collapse;
-          }
-
-          .ProseMirror th, .ProseMirror td {
-            padding: 14px;
-            border: 1px solid rgba(0,0,0,0.1);
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px var(--theme-border);
           }
           
-          .dark .ProseMirror th, .dark .ProseMirror td {
-            border: 1px solid rgba(255,255,255,0.08);
+          .ProseMirror table td,
+          .ProseMirror table th {
+            padding: 12px 16px;
+            border: 1px solid var(--theme-border-subtle);
+            position: relative;
+            vertical-align: top;
+          }
+
+          .ProseMirror table th {
+            background-color: var(--theme-bg-surface-elevated);
+            font-weight: 600;
+            text-align: left;
+            color: var(--theme-text-main);
+          }
+
+          .ProseMirror table .selectedCell:after {
+            z-index: 2;
+            position: absolute;
+            content: "";
+            left: 0; right: 0; top: 0; bottom: 0;
+            background: rgba(200, 200, 255, 0.2);
+            pointer-events: none;
           }
 
           .ProseMirror pre {
-            background-color: #F3F4F6;
+            background-color: var(--theme-bg-surface);
             padding: 24px;
             border-radius: 12px;
             margin: 32px 0;
-            font-family: var(--font-geist-mono), monospace;
-          }
-          
-          .dark .ProseMirror pre {
-            background-color: #10151B;
+            font-family: var(--font-mono), monospace;
           }
 
           /* ProseMirror Canvas Specs */
           .ProseMirror {
-             caret-color: #111827;
-             color: #111827;
+             caret-color: var(--theme-text-main);
+             color: var(--theme-text-main);
              outline: none;
              min-height: calc(100vh - 220px);
              width: 100%;
              text-align: left;
-          }
-          
-          .dark .ProseMirror {
-             caret-color: #F5F5F5;
-             color: #F5F5F5;
           }
 
           @media (max-width: 768px) {

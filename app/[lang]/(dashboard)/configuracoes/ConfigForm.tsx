@@ -51,8 +51,6 @@ export default function ConfigForm({ user }: ConfigFormProps) {
   
   const initialTab = searchParams.get("tab") || "billings"
   const [activeTab, setActiveTab] = useState<string>(initialTab)
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true)
-
   // Profile Form state
   const [name, setName] = useState(user.name || "")
   const [image, setImage] = useState(user.image || "")
@@ -68,10 +66,6 @@ export default function ConfigForm({ user }: ConfigFormProps) {
   const [ragContext, setRagContext] = useState(user.ragContext || "")
   const [ragMsg, setRagMsg] = useState<{ success?: string; error?: string }>({})
   const [isUpdatingRag, setIsUpdatingRag] = useState(false)
-
-  const toggleTheme = () => {
-    setIsDarkMode(prev => !prev)
-  }
 
   // Profile update handler
   const handleUpdateProfile = (e: React.FormEvent) => {
@@ -223,42 +217,36 @@ export default function ConfigForm({ user }: ConfigFormProps) {
   const aiCallsMetric = getUsageMetric(user.aiCallsCount, planInfo.maxAiCalls)
 
   return (
-    <div className={`min-h-screen w-full transition-colors duration-200 ${isDarkMode ? "bg-[#0A0D12] text-[#F5F5F5]" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`min-h-screen w-full transition-colors duration-200 ${"bg-[var(--theme-bg-main)] text-[var(--theme-text-main)]"}`}>
       
       {/* Header Navigation Bar */}
-      <header className={`sticky top-0 z-30 w-full border-b ${isDarkMode ? "bg-[#0A0D12]/90 border-white/10" : "bg-white/90 border-gray-200"} backdrop-blur-md px-6 py-4`}>
+      <header className={`sticky top-0 z-30 w-full border-b ${"bg-[var(--theme-bg-surface)]/90 border-[var(--theme-border-subtle)]"} backdrop-blur-md px-6 py-4`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
           {/* Breadcrumb Navigation */}
           <div className="flex items-center gap-3 text-xs font-medium">
             <Link 
               href="/pt/dashboard"
-              className={`flex items-center gap-2 ${isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-black"} transition-colors`}
+              className={`flex items-center gap-2 ${"text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)]"} transition-colors`}
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Hermione</span>
             </Link>
-            <span className={isDarkMode ? "text-gray-600" : "text-gray-400"}>/</span>
-            <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Configurações</span>
-            <span className={isDarkMode ? "text-gray-600" : "text-gray-400"}>/</span>
-            <span className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+            <span className={"text-[var(--theme-border)]"}>/</span>
+            <span className={"text-[var(--theme-text-muted)]"}>Configurações</span>
+            <span className={"text-[var(--theme-border)]"}>/</span>
+            <span className={`font-semibold ${"text-[var(--theme-text-main)]"}`}>
               Billings & Usage Limits
             </span>
           </div>
 
           {/* Controls: Theme & Dashboard */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-xl border ${isDarkMode ? "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10" : "bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200"} transition-all`}
-              title={isDarkMode ? "Alternar para Modo Claro" : "Alternar para Modo Escuro"}
-            >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
+            
 
             <Link
               href="/pt/dashboard"
-              className={`px-4 py-2 rounded-xl text-xs font-bold ${isDarkMode ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"} transition-all`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold ${"bg-[var(--theme-text-main)] text-[var(--theme-bg-main)] hover:opacity-90 shadow-lg"} transition-all`}
             >
               Ir para o Dashboard
             </Link>
@@ -275,13 +263,13 @@ export default function ConfigForm({ user }: ConfigFormProps) {
           <h1 className="text-3xl font-serif font-light tracking-tight mb-2">
             Billings & Consumo do Plano
           </h1>
-          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"} font-light`}>
+          <p className={`text-sm ${"text-[var(--theme-text-muted)]"} font-light`}>
             Acompanhe o consumo dos seus limites contratados, estatísticas de uso em tempo real e dados da conta.
           </p>
         </div>
 
         {/* Tab Navigation Pill Bar */}
-        <div className={`flex items-center gap-2 mb-8 border-b ${isDarkMode ? "border-white/10" : "border-gray-200"} pb-3 overflow-x-auto custom-scrollbar`}>
+        <div className={`flex items-center gap-2 mb-8 border-b ${"border-[var(--theme-border)]"} pb-3 overflow-x-auto custom-scrollbar`}>
           {[
             { id: "billings", label: "Consumo & Limites do Plano", icon: Activity },
             { id: "account", label: "Perfil & Conta", icon: User },
@@ -295,12 +283,8 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                   isActive
-                    ? isDarkMode 
-                      ? "bg-white text-black shadow-md" 
-                      : "bg-black text-white shadow-md"
-                    : isDarkMode
-                      ? "text-gray-400 hover:text-white hover:bg-white/5"
-                      : "text-gray-600 hover:text-black hover:bg-gray-100"
+                    ? "bg-[var(--theme-text-main)] text-[var(--theme-bg-main)] shadow-md"
+                    : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-surface-elevated)]"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -315,13 +299,13 @@ export default function ConfigForm({ user }: ConfigFormProps) {
           <div className="space-y-10">
             
             {/* Active Plan Overview Header Banner */}
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#11141C]/90 border-white/10 shadow-2xl" : "bg-white border-gray-200 shadow-md"} transition-all`}>
+            <div className={`p-6 rounded-2xl border ${"bg-[var(--theme-bg-surface)] border-[var(--theme-border-subtle)] shadow-xl"} transition-all`}>
               <div className="mb-6 flex justify-between items-start">
                 <div>
                   <h3 className="text-xs uppercase tracking-wider font-bold text-gray-400">
                     Plano Ativo no Momento
                   </h3>
-                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <p className={`text-xs ${"text-[var(--theme-text-muted)]"}`}>
                     Informações sobre o ciclo de assinatura do autor.
                   </p>
                 </div>
@@ -363,7 +347,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                 <div className="col-span-2 sm:col-span-1 flex items-center justify-start sm:justify-end">
                   <Link
                     href="/pt/subscribe"
-                    className={`px-5 py-2.5 rounded-xl text-xs font-bold ${isDarkMode ? "bg-white text-black hover:bg-gray-200 shadow-[0_0_15px_rgba(255,255,255,0.15)]" : "bg-black text-white hover:bg-gray-800"} transition-all flex items-center gap-1.5`}
+                    className={`px-5 py-2.5 rounded-xl text-xs font-bold ${"bg-[var(--theme-text-main)] text-[var(--theme-bg-main)] hover:opacity-90 shadow-lg"} transition-all flex items-center gap-1.5`}
                   >
                     <span>Mudar de Plano</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -376,7 +360,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
             <div>
               <div className="mb-6">
                 <h3 className="text-xl font-serif font-bold mb-1">Consumo de Recursos & Limites</h3>
-                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-xs ${"text-[var(--theme-text-muted)]"}`}>
                   Medição em tempo real dos recursos consumidos na sua conta. As barras mudam de cor conforme a porcentagem de uso.
                 </p>
               </div>
@@ -385,11 +369,11 @@ export default function ConfigForm({ user }: ConfigFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 {/* METRIC 1: Projetos de Livros */}
-                <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#0D1017] border-white/10" : "bg-white border-gray-200 shadow-sm"} flex flex-col justify-between`}>
+                <div className={`p-6 rounded-2xl border ${"bg-[var(--theme-bg-surface)] border-[var(--theme-border-subtle)] shadow-md"} flex flex-col justify-between`}>
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10 text-white" : "bg-gray-100 text-gray-900"}`}>
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${"bg-[var(--theme-bg-surface-elevated)] text-[var(--theme-text-main)]"}`}>
                           <BookOpen className="w-4 h-4" />
                         </div>
                         <div>
@@ -414,7 +398,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                       </div>
 
                       {/* Dynamic Progress Bar */}
-                      <div className={`w-full h-3 rounded-full overflow-hidden ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}>
+                      <div className={`w-full h-3 rounded-full overflow-hidden ${"bg-[var(--theme-bg-surface-elevated)]"}`}>
                         <div 
                           className={`h-full rounded-full transition-all duration-700 ${projectsMetric.barColor}`} 
                           style={{ width: `${projectsMetric.percent}%` }}
@@ -423,17 +407,17 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                     </div>
                   </div>
 
-                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} leading-relaxed pt-3 border-t ${isDarkMode ? "border-white/5" : "border-gray-100"}`}>
+                  <p className={`text-xs ${"text-[var(--theme-text-muted)]"} leading-relaxed pt-3 border-t ${"border-[var(--theme-border-subtle)]"}`}>
                     Cada projeto armazena capítulos, bíblia de personagens e lore sincronizados.
                   </p>
                 </div>
 
                 {/* METRIC 2: Interações com Hermione IA */}
-                <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#0D1017] border-white/10" : "bg-white border-gray-200 shadow-sm"} flex flex-col justify-between`}>
+                <div className={`p-6 rounded-2xl border ${"bg-[var(--theme-bg-surface)] border-[var(--theme-border-subtle)] shadow-md"} flex flex-col justify-between`}>
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10 text-white" : "bg-gray-100 text-gray-900"}`}>
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${"bg-[var(--theme-bg-surface-elevated)] text-[var(--theme-text-main)]"}`}>
                           <Sparkles className="w-4 h-4" />
                         </div>
                         <div>
@@ -458,7 +442,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                       </div>
 
                       {/* Dynamic Progress Bar */}
-                      <div className={`w-full h-3 rounded-full overflow-hidden ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}>
+                      <div className={`w-full h-3 rounded-full overflow-hidden ${"bg-[var(--theme-bg-surface-elevated)]"}`}>
                         <div 
                           className={`h-full rounded-full transition-all duration-700 ${aiCallsMetric.barColor}`} 
                           style={{ width: `${aiCallsMetric.percent}%` }}
@@ -467,17 +451,17 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                     </div>
                   </div>
 
-                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} leading-relaxed pt-3 border-t ${isDarkMode ? "border-white/5" : "border-gray-100"}`}>
+                  <p className={`text-xs ${"text-[var(--theme-text-muted)]"} leading-relaxed pt-3 border-t ${"border-[var(--theme-border-subtle)]"}`}>
                     Gerações de texto, revisões ortográficas e consultas à Bíblia RAG.
                   </p>
                 </div>
 
                 {/* METRIC 3: Volume de Palavras Escritas */}
-                <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#0D1017] border-white/10" : "bg-white border-gray-200 shadow-sm"} flex flex-col justify-between`}>
+                <div className={`p-6 rounded-2xl border ${"bg-[var(--theme-bg-surface)] border-[var(--theme-border-subtle)] shadow-md"} flex flex-col justify-between`}>
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10 text-white" : "bg-gray-100 text-gray-900"}`}>
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${"bg-[var(--theme-bg-surface-elevated)] text-[var(--theme-text-main)]"}`}>
                           <TrendingUp className="w-4 h-4" />
                         </div>
                         <div>
@@ -502,23 +486,23 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                       </div>
 
                       {/* Infinite Progress Bar */}
-                      <div className={`w-full h-3 rounded-full overflow-hidden ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}>
+                      <div className={`w-full h-3 rounded-full overflow-hidden ${"bg-[var(--theme-bg-surface-elevated)]"}`}>
                         <div className="h-full rounded-full w-full bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
                       </div>
                     </div>
                   </div>
 
-                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} leading-relaxed pt-3 border-t ${isDarkMode ? "border-white/5" : "border-gray-100"}`}>
+                  <p className={`text-xs ${"text-[var(--theme-text-muted)]"} leading-relaxed pt-3 border-t ${"border-[var(--theme-border-subtle)]"}`}>
                     Todas as palavras geradas e sincronizadas entre computador e aplicativo.
                   </p>
                 </div>
 
                 {/* METRIC 4: Manuscritos & Segurança */}
-                <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#0D1017] border-white/10" : "bg-white border-gray-200 shadow-sm"} flex flex-col justify-between`}>
+                <div className={`p-6 rounded-2xl border ${"bg-[var(--theme-bg-surface)] border-[var(--theme-border-subtle)] shadow-md"} flex flex-col justify-between`}>
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10 text-white" : "bg-gray-100 text-gray-900"}`}>
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${"bg-[var(--theme-bg-surface-elevated)] text-[var(--theme-text-main)]"}`}>
                           <ShieldCheck className="w-4 h-4" />
                         </div>
                         <div>
@@ -543,13 +527,13 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                       </div>
 
                       {/* Infinite Progress Bar */}
-                      <div className={`w-full h-3 rounded-full overflow-hidden ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}>
+                      <div className={`w-full h-3 rounded-full overflow-hidden ${"bg-[var(--theme-bg-surface-elevated)]"}`}>
                         <div className="h-full rounded-full w-full bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
                       </div>
                     </div>
                   </div>
 
-                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} leading-relaxed pt-3 border-t ${isDarkMode ? "border-white/5" : "border-gray-100"}`}>
+                  <p className={`text-xs ${"text-[var(--theme-text-muted)]"} leading-relaxed pt-3 border-t ${"border-[var(--theme-border-subtle)]"}`}>
                     Backup contínuo na nuvem com chave PIN Mestre.
                   </p>
                 </div>
@@ -589,7 +573,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             {/* Left Card: User Avatar Info */}
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#11141C]/80 border-white/10" : "bg-white border-gray-200 shadow-md"} flex flex-col items-center text-center`}>
+            <div className={`p-6 rounded-2xl border ${"bg-[var(--theme-bg-surface)] border-[var(--theme-border-subtle)] shadow-md"} flex flex-col items-center text-center`}>
               <div className="relative w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-white/20 shadow-xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center">
                 {image ? (
                   <img src={image} alt="Avatar" className="w-full h-full object-cover" />
@@ -601,7 +585,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
               </div>
 
               <h2 className="text-lg font-bold font-serif">{name || "Autor Hermione"}</h2>
-              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} font-mono mb-4`}>{user.email}</p>
+              <p className={`text-xs ${"text-[var(--theme-text-muted)]"} font-mono mb-4`}>{user.email}</p>
 
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${planInfo.badgeStyle}`}>
                 {user.selectedPlan === "premium" ? <Crown className="w-3 h-3" /> : user.selectedPlan === "pro" ? <Zap className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
@@ -610,9 +594,9 @@ export default function ConfigForm({ user }: ConfigFormProps) {
             </div>
 
             {/* Right Card: Profile Edit Form */}
-            <div className={`lg:col-span-2 p-6 rounded-2xl border ${isDarkMode ? "bg-[#11141C]/80 border-white/10" : "bg-white border-gray-200 shadow-md"}`}>
+            <div className={`lg:col-span-2 p-6 rounded-2xl border ${"bg-[var(--theme-bg-surface)] border-[var(--theme-border-subtle)] shadow-md"}`}>
               <h3 className="text-base font-bold mb-1">Dados de Perfil</h3>
-              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-6`}>
+              <p className={`text-xs ${"text-[var(--theme-text-muted)]"} mb-6`}>
                 Atualize seu nome de exibição e foto de avatar.
               </p>
 
@@ -637,7 +621,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Seu Nome de Autor"
-                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-gray-50 border-gray-200 text-gray-900"} focus:outline-none focus:border-white/40`}
+                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${"bg-[var(--theme-bg-surface-elevated)] border-[var(--theme-border)] text-[var(--theme-text-main)]"} focus:outline-none focus:border-white/40`}
                   />
                 </div>
 
@@ -650,7 +634,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
                     placeholder="https://exemplo.com/sua-foto.jpg"
-                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-gray-50 border-gray-200 text-gray-900"} focus:outline-none focus:border-white/40`}
+                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${"bg-[var(--theme-bg-surface-elevated)] border-[var(--theme-border)] text-[var(--theme-text-main)]"} focus:outline-none focus:border-white/40`}
                   />
                 </div>
 
@@ -662,7 +646,7 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                     type="text"
                     disabled
                     value={user.email}
-                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${isDarkMode ? "bg-black/20 border-white/5 text-gray-500" : "bg-gray-100 border-gray-200 text-gray-500"} cursor-not-allowed`}
+                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${"bg-transparent border-[var(--theme-border-subtle)] text-[var(--theme-text-muted)]"} cursor-not-allowed`}
                   />
                 </div>
 
@@ -670,21 +654,21 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                   <button
                     type="submit"
                     disabled={isUpdatingProfile}
-                    className={`px-5 py-2.5 rounded-xl text-xs font-bold ${isDarkMode ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"} transition-all`}
+                    className={`px-5 py-2.5 rounded-xl text-xs font-bold ${"bg-[var(--theme-text-main)] text-[var(--theme-bg-main)] hover:opacity-90 shadow-lg"} transition-all`}
                   >
                     {isUpdatingProfile ? "Salvando..." : "Salvar Perfil"}
                   </button>
                 </div>
               </form>
 
-              <hr className={`my-8 border-t ${isDarkMode ? "border-white/10" : "border-gray-200"}`} />
+              <hr className={`my-8 border-t ${"border-[var(--theme-border)]"}`} />
 
               {/* Master PIN Section */}
               <div>
                 <h3 className="text-base font-bold mb-1 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-400" /> Security PIN (Criptografia E2EE)
                 </h3>
-                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-4`}>
+                <p className={`text-xs ${"text-[var(--theme-text-muted)]"} mb-4`}>
                   PIN de 4 dígitos para desbloquear rascunhos com criptografia no navegador e app mobile.
                 </p>
 
@@ -706,12 +690,12 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                     value={masterPin}
                     onChange={(e) => setMasterPin(e.target.value.replace(/[^0-9]/g, ''))}
                     placeholder="••••"
-                    className={`w-32 px-4 py-2.5 rounded-xl text-xs font-mono text-center tracking-[0.5em] border ${isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-gray-50 border-gray-200 text-gray-900"}`}
+                    className={`w-32 px-4 py-2.5 rounded-xl text-xs font-mono text-center tracking-[0.5em] border ${"bg-[var(--theme-bg-surface-elevated)] border-[var(--theme-border)] text-[var(--theme-text-main)]"}`}
                   />
                   <button
                     type="submit"
                     disabled={masterPin.length !== 4 || isUpdatingPin}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold border ${isDarkMode ? "border-white/20 hover:bg-white/10 text-white" : "border-gray-300 hover:bg-gray-100 text-gray-900"} disabled:opacity-50`}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-bold border ${"border-[var(--theme-border)] hover:bg-[var(--theme-bg-surface-elevated)] text-[var(--theme-text-main)]"} disabled:opacity-50`}
                   >
                     {isUpdatingPin ? "Salvando..." : "Salvar PIN"}
                   </button>
@@ -725,10 +709,10 @@ export default function ConfigForm({ user }: ConfigFormProps) {
 
         {/* TAB 3: RAG & PREFERÊNCIAS DE IA */}
         {activeTab === "rag" && (
-          <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#11141C]/80 border-white/10" : "bg-white border-gray-200 shadow-md"}`}>
+          <div className={`p-6 rounded-2xl border ${"bg-[var(--theme-bg-surface)] border-[var(--theme-border-subtle)] shadow-md"}`}>
             <div className="mb-6">
               <h3 className="text-lg font-bold font-serif mb-1">Contexto Customizado do Usuário (RAG)</h3>
-              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-xs ${"text-[var(--theme-text-muted)]"}`}>
                 Instrua a IA Hermione sobre seu estilo de escrita, vocabulário preferido e detalhes pessoais. Este contexto é utilizado em cada sugestão de texto e chat.
               </p>
             </div>
@@ -750,14 +734,14 @@ export default function ConfigForm({ user }: ConfigFormProps) {
                 onChange={(e) => setRagContext(e.target.value)}
                 placeholder="Ex: O usuário se chama Paulo, é desenvolvedor e prefere respostas rápidas e sem rodeios. Hermione deve tratar o autor por 'Mestre' e adicionar toques de inteligência editorial..."
                 rows={8}
-                className={`w-full p-4 rounded-xl text-xs font-mono border leading-relaxed ${isDarkMode ? "bg-black/50 border-white/10 text-white" : "bg-gray-50 border-gray-200 text-gray-900"} focus:outline-none focus:border-white/40`}
+                className={`w-full p-4 rounded-xl text-xs font-mono border leading-relaxed ${"bg-[var(--theme-bg-surface-elevated)] border-[var(--theme-border)] text-[var(--theme-text-main)]"} focus:outline-none focus:border-white/40`}
               />
 
               <div className="flex justify-end">
                 <button
                   type="submit"
                   disabled={isUpdatingRag}
-                  className={`px-6 py-2.5 rounded-xl text-xs font-bold ${isDarkMode ? "bg-white text-black hover:bg-gray-200 shadow-lg" : "bg-black text-white hover:bg-gray-800"}`}
+                  className={`px-6 py-2.5 rounded-xl text-xs font-bold ${"bg-[var(--theme-text-main)] text-[var(--theme-bg-main)] hover:opacity-90 shadow-lg"}`}
                 >
                   {isUpdatingRag ? "Salvando..." : "Salvar Contexto RAG"}
                 </button>

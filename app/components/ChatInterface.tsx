@@ -268,18 +268,18 @@ export default function ChatInterface({ initialSessions, currentUser, wsToken }:
 
       {showLimitModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center flex flex-col items-center">
-            <div className="w-16 h-16 bg-violet-100 dark:bg-violet-500/10 text-violet-600 dark:text-[#B899FF] rounded-full flex items-center justify-center mb-4">
+          <div className="bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center flex flex-col items-center">
+            <div className="w-16 h-16 bg-[var(--theme-accent-light)] text-[var(--theme-accent)] rounded-full flex items-center justify-center mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Limite Alcançado</h3>
-            <p className="text-sm text-gray-500 dark:text-[#8A94A0] mb-6">
+            <h3 className="text-xl font-bold text-[var(--theme-text-main)] mb-2">Limite Alcançado</h3>
+            <p className="text-sm text-[var(--theme-text-muted)] mb-6">
               Você atingiu o limite de 7 chamadas grátis da IA Hermione. Assine o plano Premium para continuar conversando.
             </p>
             <div className="flex w-full gap-3">
               <button 
                 onClick={() => setShowLimitModal(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl text-gray-600 dark:text-[#8A94A0] hover:bg-gray-100 dark:hover:bg-white/5 font-medium transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl text-[var(--theme-text-muted)] hover:bg-gray-100 dark:hover:bg-white/5 font-medium transition-colors"
               >
                 Cancelar
               </button>

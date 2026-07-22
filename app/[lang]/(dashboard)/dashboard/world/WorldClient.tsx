@@ -77,22 +77,7 @@ export default function WorldClient({
   })
 
   const [isPending, startTransition] = useTransition()
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('hermione-theme') as 'light' | 'dark'
-    if (savedTheme) {
-      setTheme(savedTheme)
-    }
-  }, [])
-
-  const toggleTheme = () => {
-    setTheme(prev => {
-      const next = prev === 'dark' ? 'light' : 'dark'
-      localStorage.setItem('hermione-theme', next)
-      return next
-    })
-  }
+  
 
   const openModalNew = () => {
     setEditingId(null)
@@ -167,8 +152,8 @@ export default function WorldClient({
   }, [notes, searchQuery, filterBookId])
 
   return (
-    <div className={`${theme === 'dark' ? 'dark' : ''} antialiased`}>
-      <div className="flex h-screen w-full font-sans bg-gray-50 dark:bg-[#0A0D12] text-gray-900 dark:text-[#F5F5F5] overflow-hidden transition-colors duration-200">
+    <div className="antialiased">
+      <div className="flex h-screen w-full font-sans bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] overflow-hidden transition-colors duration-200">
 
         <DashboardSidebar
           wordsToday={wordsToday}
@@ -186,8 +171,7 @@ export default function WorldClient({
         <div className="flex-1 flex flex-col h-screen min-w-0">
 
           <DashboardTopbar
-            theme={theme}
-            onToggleTheme={toggleTheme}
+            
             lang={lang}
             userImage={userImage}
             onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
@@ -197,20 +181,20 @@ export default function WorldClient({
             <div className="max-w-[1600px] mx-auto px-4 sm:px-8 md:px-12 py-6 md:py-10 space-y-6 md:space-y-10 pb-32">
 
               {/* HERO SECTION */}
-              <section className="relative overflow-hidden rounded-[24px] bg-white dark:bg-[#10151B] border border-gray-200 dark:border-white/10 shadow-sm">
-                <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 bg-blue-500/10 dark:bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
+              <section className="relative overflow-hidden rounded-[24px] bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] shadow-sm">
+                <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 bg-[var(--theme-accent-light)] rounded-full blur-3xl pointer-events-none" />
                 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between p-8 md:p-10 gap-8">
                   <div>
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--theme-accent-light)] flex items-center justify-center text-[var(--theme-accent)]">
                         <Globe className="w-5 h-5" />
                       </div>
-                      <h1 className="text-[32px] md:text-[40px] font-serif text-gray-900 dark:text-white font-semibold leading-tight tracking-tight">
+                      <h1 className="text-[32px] md:text-[40px] font-serif text-[var(--theme-text-main)] font-semibold leading-tight tracking-tight">
                         World Builder
                       </h1>
                     </div>
-                    <p className="text-[16px] text-gray-500 dark:text-[#8A94A0] max-w-lg">
+                    <p className="text-[16px] text-[var(--theme-text-muted)] max-w-lg">
                       Sua base de conhecimento. Anote leis mágicas, reinos, profecias e relíquias para Hermione consultar.
                     </p>
                   </div>
@@ -229,13 +213,13 @@ export default function WorldClient({
               {/* CONTROLS (SEARCH & FILTER) */}
               <section className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="relative w-full sm:max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-[#8A94A0]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--theme-text-muted)]" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar lore..."
-                    className="w-full bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-[14px] text-gray-900 dark:text-[#F5F5F5] placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors shadow-sm"
+                    className="w-full bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] rounded-xl pl-10 pr-4 py-2.5 text-[14px] text-[var(--theme-text-main)] placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors shadow-sm"
                   />
                 </div>
                 
@@ -243,7 +227,7 @@ export default function WorldClient({
                   <select 
                     value={filterBookId}
                     onChange={(e) => setFilterBookId(e.target.value)}
-                    className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/5 rounded-xl text-[14px] font-medium text-gray-700 dark:text-[#F5F5F5] focus:outline-none focus:border-blue-500 shadow-sm"
+                    className="w-full sm:w-auto px-4 py-2.5 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border-subtle)] rounded-xl text-[14px] font-medium text-[var(--theme-text-main)] focus:outline-none focus:border-blue-500 shadow-sm"
                   >
                     <option value="all">Todos os Livros</option>
                     {books.map(b => (
@@ -261,13 +245,13 @@ export default function WorldClient({
                       <div 
                         key={note.id} 
                         onClick={() => openModalEdit(note)}
-                        className="group bg-[#FAFAFA] dark:bg-[#10151B] border border-gray-200 dark:border-white/5 hover:border-blue-500/30 dark:hover:border-blue-400/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] cursor-pointer relative overflow-hidden"
+                        className="group bg-[#FAFAFA] dark:bg-[#10151B] border border-[var(--theme-border-subtle)] hover:border-[var(--theme-accent)]/50 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] cursor-pointer relative overflow-hidden"
                       >
                         {/* Folded corner effect (aesthetic) */}
                         <div className="absolute top-0 right-0 w-8 h-8 bg-gradient-to-bl from-white dark:from-[#141A22] to-transparent shadow-sm rounded-bl-xl opacity-70 group-hover:w-10 group-hover:h-10 transition-all" />
 
                         <div className="flex justify-between items-start pr-4">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-md text-[10px] font-bold uppercase tracking-wider mb-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-[var(--theme-accent)] rounded-md text-[10px] font-bold uppercase tracking-wider mb-2">
                             <BookOpen className="w-3 h-3" /> {note.bookTitle}
                           </span>
                           
@@ -283,13 +267,13 @@ export default function WorldClient({
                         </div>
 
                         <div>
-                          <h3 className="text-[20px] font-serif font-semibold text-gray-900 dark:text-white leading-tight mb-2">
+                          <h3 className="text-[20px] font-serif font-semibold text-[var(--theme-text-main)] leading-tight mb-2">
                             {note.title}
                           </h3>
                         </div>
 
                         <div className="flex-1">
-                          <p className="text-[14px] text-gray-600 dark:text-[#8A94A0] line-clamp-5 leading-relaxed">
+                          <p className="text-[14px] text-[var(--theme-text-muted)] line-clamp-5 leading-relaxed">
                             {note.content || "Vazio..."}
                           </p>
                         </div>
@@ -297,12 +281,12 @@ export default function WorldClient({
                     ))}
                   </div>
                 ) : (
-                  <div className="py-24 border border-gray-200 dark:border-white/5 border-dashed rounded-[24px] bg-white dark:bg-[#141A22]/50 flex flex-col items-center justify-center text-center shadow-sm">
-                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#10151B] rounded-2xl flex items-center justify-center mb-6 border border-gray-200 dark:border-white/5">
-                      <Globe className="w-8 h-8 text-gray-400 dark:text-[#8A94A0]" />
+                  <div className="py-24 border border-[var(--theme-border-subtle)] border-dashed rounded-[24px] bg-[var(--theme-bg-surface-elevated)]/50 flex flex-col items-center justify-center text-center shadow-sm">
+                    <div className="w-16 h-16 bg-[var(--theme-bg-surface)] rounded-2xl flex items-center justify-center mb-6 border border-[var(--theme-border-subtle)]">
+                      <Globe className="w-8 h-8 text-[var(--theme-text-muted)]" />
                     </div>
-                    <h3 className="text-[20px] font-medium text-gray-900 dark:text-white mb-2">Seu mundo está vazio</h3>
-                    <p className="text-[14px] text-gray-500 dark:text-[#8A94A0] mb-6 max-w-sm">
+                    <h3 className="text-[20px] font-medium text-[var(--theme-text-main)] mb-2">Seu mundo está vazio</h3>
+                    <p className="text-[14px] text-[var(--theme-text-muted)] mb-6 max-w-sm">
                       {books.length === 0 
                         ? "Crie um livro na página de Projetos para começar o World Building." 
                         : "Adicione mapas, reinos, regras mágicas ou detalhes da lore para orientar a Hermione."}
@@ -325,11 +309,11 @@ export default function WorldClient({
             {isModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                 <div 
-                  className="bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col"
+                  className="bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="px-6 py-4 border-b border-gray-200 dark:border-white/5 flex items-center justify-between">
-                    <h3 className="text-[18px] font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <div className="px-6 py-4 border-b border-[var(--theme-border-subtle)] flex items-center justify-between">
+                    <h3 className="text-[18px] font-semibold text-[var(--theme-text-main)] flex items-center gap-2">
                       <FileText className="w-5 h-5 text-blue-500" />
                       {editingId ? "Editar Anotação" : "Nova Anotação de Lore"}
                     </h3>
@@ -354,7 +338,7 @@ export default function WorldClient({
                           value={formData.title}
                           onChange={e => setFormData({...formData, title: e.target.value})}
                           placeholder="Ex: Sistema de Magia, Reino de Ooo..."
-                          className="w-full bg-gray-50 dark:bg-[#10151B] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-[14px] text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-blue-500"
+                          className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border-subtle)] rounded-xl px-4 py-2.5 text-[14px] text-[var(--theme-text-main)] focus:outline-none focus:border-blue-500"
                         />
                       </div>
                       
@@ -366,7 +350,7 @@ export default function WorldClient({
                           required
                           value={formData.bookId}
                           onChange={e => setFormData({...formData, bookId: e.target.value})}
-                          className="w-full bg-gray-50 dark:bg-[#10151B] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-[14px] text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-blue-500"
+                          className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border-subtle)] rounded-xl px-4 py-2.5 text-[14px] text-[var(--theme-text-main)] focus:outline-none focus:border-blue-500"
                         >
                           {books.map(b => (
                             <option key={b.id} value={b.id}>{b.title}</option>
@@ -383,7 +367,7 @@ export default function WorldClient({
                         value={formData.content}
                         onChange={e => setFormData({...formData, content: e.target.value})}
                         placeholder="Escreva livremente sobre as regras, leis, geografia, história, fauna, flora..."
-                        className="w-full flex-1 min-h-[220px] bg-gray-50 dark:bg-[#10151B] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-[14px] text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
+                        className="w-full flex-1 min-h-[220px] bg-[var(--theme-bg-surface)] border border-[var(--theme-border-subtle)] rounded-xl px-4 py-3 text-[14px] text-[var(--theme-text-main)] focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
                       />
                     </div>
 
@@ -391,7 +375,7 @@ export default function WorldClient({
                       <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="px-5 py-2.5 rounded-xl text-[14px] font-medium text-gray-600 dark:text-[#8A94A0] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                        className="px-5 py-2.5 rounded-xl text-[14px] font-medium text-[var(--theme-text-muted)] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                       >
                         Cancelar
                       </button>
