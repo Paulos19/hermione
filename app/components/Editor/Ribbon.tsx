@@ -322,7 +322,7 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
   );
 
   return (
-    <div className="min-h-[84px] md:h-[140px] py-2 md:py-0 w-full bg-white dark:bg-[#11161D] border-b border-gray-200 dark:border-white/5 flex items-center px-2 shrink-0 select-none relative z-20 overflow-x-auto custom-scrollbar">
+    <div className="min-h-[84px] md:h-[140px] py-2 md:py-0 w-full bg-white dark:bg-[#11161D] border-b border-gray-200 dark:border-white/5 flex items-center px-2 shrink-0 select-none relative z-30 overflow-visible">
       
       {/* Clipboard */}
       <RibbonGroup title={t.clipboard}>
@@ -350,7 +350,7 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
                 <ChevronDown className="w-3.5 h-3.5 text-gray-500 dark:text-[#8A94A0]" />
               </button>
               {fontMenuOpen && (
-                <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-[#11161D] border border-gray-200 dark:border-white/10 rounded-md shadow-xl py-1 z-50">
+                <div className="absolute top-full left-0 mt-1 min-w-[150px] bg-white dark:bg-[#11161D] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl py-1 z-50 max-h-60 overflow-y-auto custom-scrollbar">
                   <button onClick={() => setFontFamily("Inter, sans-serif")} className="w-full text-left px-3 py-1.5 text-sm text-gray-900 dark:text-[#F5F5F5] hover:bg-violet-600 hover:text-white dark:hover:bg-[#B899FF] dark:hover:text-[#0A0D12] font-sans">Inter</button>
                   <button onClick={() => setFontFamily("var(--font-geist-sans), sans-serif")} className="w-full text-left px-3 py-1.5 text-sm text-gray-900 dark:text-[#F5F5F5] hover:bg-violet-600 hover:text-white dark:hover:bg-[#B899FF] dark:hover:text-[#0A0D12] font-sans">Geist</button>
                   <button onClick={() => setFontFamily("var(--font-cormorant-garamond), serif")} className="w-full text-left px-3 py-1.5 text-sm text-gray-900 dark:text-[#F5F5F5] hover:bg-violet-600 hover:text-white dark:hover:bg-[#B899FF] dark:hover:text-[#0A0D12] font-serif">Cormorant</button>
@@ -368,7 +368,7 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
                 <ChevronDown className="w-3.5 h-3.5 text-gray-500 dark:text-[#8A94A0]" />
               </button>
               {sizeMenuOpen && (
-                <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-[#11161D] border border-gray-200 dark:border-white/10 rounded-md shadow-xl py-1 z-50">
+                <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-[#11161D] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl py-1 z-50 max-h-60 overflow-y-auto custom-scrollbar">
                   {['12px', '14px', '17px', '20px', '24px', '34px'].map(size => (
                     <button key={size} onClick={() => setFontSize(size)} className="w-full text-left px-3 py-1.5 text-sm text-gray-900 dark:text-[#F5F5F5] hover:bg-violet-600 hover:text-white dark:hover:bg-[#B899FF] dark:hover:text-[#0A0D12]">{size.replace('px', '')}</button>
                   ))}

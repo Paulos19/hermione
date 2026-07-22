@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useRef, useEffect, useTransition } from "react"
-import { Search, Bell, Cloud, Moon, Sun, User, LogOut, Menu, BookOpen, FileText } from "lucide-react"
+import Link from "next/link"
+import { Search, Bell, Cloud, Moon, Sun, User, LogOut, Menu, BookOpen, FileText, CreditCard, Sparkles } from "lucide-react"
 import { logoutAction } from "@/app/actions/auth"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { Locale } from "@/lib/i18n-config"
@@ -146,7 +147,7 @@ export function DashboardTopbar({ theme = 'dark', onToggleTheme, lang, userImage
 
       {/* Right Actions */}
       <div className="flex items-center gap-2 md:gap-3">
-        {/* Sync Status Badge (Hidden on very small screens) */}
+        {/* Sync Status Badge */}
         <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 dark:bg-[#141A22] border border-gray-200 dark:border-white/5">
           <Cloud className="w-3.5 h-3.5 text-[#22C55E]" />
           <span className="text-[12px] font-medium text-gray-500 dark:text-[#8A94A0]">{t.synced}</span>
@@ -164,6 +165,7 @@ export function DashboardTopbar({ theme = 'dark', onToggleTheme, lang, userImage
 
         <div className="w-px h-6 bg-gray-200 dark:bg-white/5 mx-0.5" />
 
+        {/* User Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -177,16 +179,46 @@ export function DashboardTopbar({ theme = 'dark', onToggleTheme, lang, userImage
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#10151B] border border-gray-200 dark:border-white/10 rounded-xl shadow-lg shadow-black/10 py-1 z-50">
+            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#10151B] border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl shadow-black/20 p-1.5 z-50">
+              
+              <Link
+                href={`/${lang}/configuracoes?tab=account`}
+                onClick={() => setIsDropdownOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+              >
+                <User className="w-4 h-4 text-violet-500 dark:text-[#B899FF]" />
+                <span>Meu Perfil</span>
+              </Link>
+
+              <Link
+                href={`/${lang}/configuracoes?tab=billings`}
+                onClick={() => setIsDropdownOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+              >
+                <CreditCard className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                <span>Billings & Assinatura</span>
+              </Link>
+
+              <Link
+                href={`/${lang}/configuracoes?tab=rag`}
+                onClick={() => setIsDropdownOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+              >
+                <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                <span>Contexto RAG</span>
+              </Link>
+
+              <div className="my-1.5 h-px bg-gray-100 dark:bg-white/5" />
+
               <button 
                 onClick={async () => {
                   setIsDropdownOpen(false)
                   await logoutAction()
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-gray-700 dark:text-[#F5F5F5] hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-colors text-left"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left"
               >
                 <LogOut className="w-4 h-4" />
-                Sair
+                <span>Sair</span>
               </button>
             </div>
           )}
