@@ -18,7 +18,8 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Target
 } from "lucide-react"
 import { dict } from "@/lib/dictionaries"
 import { Locale } from "@/lib/i18n-config"
@@ -28,6 +29,9 @@ interface DashboardSidebarProps {
   wordsToday?: number
   lang?: string
   isPremium?: boolean
+  selectedPlan?: string
+  projectsCount?: number
+  aiCallsCount?: number
   isCollapsed?: boolean
   onToggleCollapse?: () => void
   isMobileOpen?: boolean
@@ -38,6 +42,9 @@ export function DashboardSidebar({
   wordsToday = 0,
   lang = "pt",
   isPremium = false,
+  selectedPlan = "free",
+  projectsCount = 0,
+  aiCallsCount = 0,
   isCollapsed = false,
   onToggleCollapse,
   isMobileOpen = false,
@@ -53,10 +60,12 @@ export function DashboardSidebar({
     { name: t.characters, href: `/${lang}/dashboard/characters`, icon: Users },
     { name: t.worldBuilding, href: `/${lang}/dashboard/world`, icon: Globe },
     { name: t.notes, href: `/${lang}/dashboard/notes`, icon: PenTool },
-    { name: t.research, href: `/${lang}/dashboard/research`, icon: Search },
-    { name: t.comments, href: `/${lang}/dashboard/comments`, icon: MessageSquare },
+    { name: "Metas & Métricas", href: `/${lang}/dashboard/metrics`, icon: Target },
     { name: "Feedback", href: `/${lang}/dashboard/feedback`, icon: Star },
   ]
+
+  const maxProjects = selectedPlan === "free" ? 1 : "∞"
+  const maxAiCalls = selectedPlan === "free" ? 7 : "∞"
 
   return (
     <>
@@ -138,18 +147,6 @@ export function DashboardSidebar({
 
           <div className="my-3 mx-2 h-px bg-gray-200 dark:bg-white/5" />
 
-          <Link
-            href={`/${lang}/dashboard/trash`}
-            onClick={onCloseMobile}
-            title={isCollapsed ? t.trash : undefined}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] text-gray-500 dark:text-[#8A94A0] hover:text-gray-900 dark:hover:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-[#141A22]/50 transition-all duration-150 ${
-              isCollapsed ? "justify-center px-0" : ""
-            }`}
-          >
-            <Trash2 className="w-[18px] h-[18px] shrink-0" />
-            {!isCollapsed && <span>{t.trash}</span>}
-          </Link>
-
           <button
             onClick={() => logoutAction()}
             title={isCollapsed ? "Sair" : undefined}
@@ -162,35 +159,46 @@ export function DashboardSidebar({
           </button>
         </nav>
 
-        {/* Bottom Section (Daily Words Progress & AI Prompt) */}
+        {/* Bottom Section (Usage & Plan) */}
         {!isCollapsed && (
-          <div className="p-5 border-t border-gray-200 dark:border-white/5 bg-white dark:bg-[#10151B]/50">
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[12px] font-medium text-gray-500 dark:text-[#8A94A0]">
-                  {t.todaysProgress}
+          <div className="p-4 border-t border-gray-200 dark:border-white/5 bg-white dark:bg-[#10151B]/50 flex flex-col gap-3">
+            
+            {/* Plan Info Card */}
+            <div className="bg-gray-50 dark:bg-[#141A22] p-3 rounded-xl border border-gray-200 dark:border-white/5">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-gray-500 dark:text-[#8A94A0]">
+                  Plano {selectedPlan}
                 </span>
-                <span className="text-[12px] font-semibold text-violet-600 dark:text-[#B899FF]">
-                  {wordsToday} / 1000 w
-                </span>
+                {selectedPlan === "free" && (
+                  <Link href={`/${lang}/subscribe`} className="text-[11px] font-medium text-violet-600 dark:text-[#B899FF] hover:underline">
+                    Fazer Upgrade
+                  </Link>
+                )}
               </div>
-              <div className="h-1.5 w-full bg-gray-100 dark:bg-[#141A22] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-violet-600 dark:bg-[#B899FF] rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(100, (wordsToday / 1000) * 100)}%` }}
-                />
+              
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center text-[12px]">
+                  <span className="text-gray-600 dark:text-[#A0AAB5]">Projetos</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{projectsCount} / {maxProjects}</span>
+                </div>
+                <div className="flex justify-between items-center text-[12px]">
+                  <span className="text-gray-600 dark:text-[#A0AAB5]">Magia da Hermione</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{aiCallsCount} / {maxAiCalls}</span>
+                </div>
               </div>
             </div>
 
             <button
               onClick={() => {
-                if (!isPremium) {
+                if (selectedPlan === "free" && aiCallsCount >= 7) {
                   router.push(`/${lang}/subscribe`)
+                } else {
+                  router.push(`/${lang}/chat`)
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-50 dark:bg-[#141A22] hover:bg-gray-100 dark:hover:bg-[#181F28] border border-gray-200 dark:border-white/5 rounded-xl text-[13px] font-medium text-gray-900 dark:text-[#F5F5F5] transition-all duration-150 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-[13px] font-medium transition-all shadow-md shadow-violet-900/20"
             >
-              <Sparkles className="w-4 h-4 text-violet-600 dark:text-[#B899FF]" />
+              <Sparkles className="w-4 h-4" />
               {t.hermione}
             </button>
           </div>

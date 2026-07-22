@@ -1,12 +1,12 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
-import DashboardClient from "./DashboardClient"
+import ProjectsClient from "./ProjectsClient";
 
-export default async function DashboardPage({ params }: { params: Promise<{ lang: string }> }) {
+export default async function ProjectsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   const session = await auth()
-  
+
   if (!session?.user?.id) {
     redirect("/login")
   }
@@ -14,7 +14,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
   // Obter data de hoje no formato YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0]
 
-  const [books, user, progressToday, recentDocuments, characterCount, worldNoteCount] = await Promise.all([
+  const [books, user, progressToday] = await Promise.all([
     prisma.book.findMany({
       where: { userId: session.user.id },
       orderBy: { updatedAt: "desc" },
@@ -29,7 +29,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     }),
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { name: true, masterPin: true, isPremium: true, image: true, selectedPlan: true, aiCallsCount: true, _count: { select: { books: true } } }
+      select: { name: true, isPremium: true, image: true, selectedPlan: true, aiCallsCount: true, _count: { select: { books: true } } }
     }),
     prisma.dailyProgress.findUnique({
       where: {
@@ -38,18 +38,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
           date: today
         }
       }
-    }),
-    prisma.document.findMany({
-      where: { userId: session.user.id },
-      orderBy: { updatedAt: "desc" },
-      take: 5,
-      include: { book: { select: { title: true } } }
-    }),
-    prisma.character.count({
-      where: { book: { userId: session.user.id } }
-    }),
-    prisma.bookNote.count({
-      where: { book: { userId: session.user.id } }
     })
   ])
 
@@ -63,29 +51,17 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
       coverImage: book.coverImage,
       updatedAt: book.updatedAt,
       documentCount: book._count.documents,
-      wordCount: totalWords,
-      targetWords: book.targetWords
+      wordCount: totalWords
     }
   })
 
-  // Serializa Atividade Recente
-  const activity = recentDocuments.map(doc => ({
-    id: doc.id,
-    title: doc.title,
-    bookTitle: doc.book?.title || "Sem Livro",
-    updatedAt: doc.updatedAt
-  }))
-
   return (
     <div className="h-screen w-full bg-[#0A0D12] text-[#F5F5F5] overflow-hidden">
-      <DashboardClient 
-        books={serializedBooks} 
-        userName={user?.name?.split(' ')[0] || "Usuário"} 
+      <ProjectsClient
+        books={serializedBooks}
+        userName={user?.name?.split(' ')[0] || "Usuário"}
         userImage={user?.image}
         wordsToday={progressToday?.words || 0}
-        recentActivity={activity}
-        characterCount={characterCount}
-        worldNoteCount={worldNoteCount}
         lang={lang}
         isPremium={user?.isPremium || false}
         selectedPlan={user?.selectedPlan || "free"}
@@ -95,4 +71,3 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     </div>
   )
 }
-

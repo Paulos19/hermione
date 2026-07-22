@@ -6,6 +6,7 @@ import {
   deletarSessaoAction,
   carregarMensagensAction
 } from "@/app/actions/chat"
+import { checkAndIncrementAiCallsAction } from "@/app/actions/limits"
 import { useChatWebSocket } from "@/app/hooks/useChatWebSocket"
 
 import ChatSidebar from "./Chat/ChatSidebar"
@@ -143,12 +144,30 @@ export default function ChatInterface({ initialSessions, currentUser, wsToken }:
     })
   }
 
+  const [showLimitModal, setShowLimitModal] = useState(false)
+
   // Handle message send
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     if (!input.trim() || !activeSessionId || isSending || !isConnected) return
 
     const messageText = input.trim()
+
+    setIsSending(true)
+
+    try {
+      // Limit Check
+      await checkAndIncrementAiCallsAction()
+    } catch (err: any) {
+      setIsSending(false)
+      if (err.message === "LIMIT_REACHED") {
+        setShowLimitModal(true)
+      } else {
+        console.error(err)
+      }
+      return
+    }
+
     setInput("")
 
     // Optimistic update
@@ -160,7 +179,6 @@ export default function ChatInterface({ initialSessions, currentUser, wsToken }:
       createdAt: new Date(),
     }
     setMessages((prev) => [...prev, tempUserMessage])
-    setIsSending(true)
 
     try {
       sendChatMessage(messageText);
@@ -247,6 +265,34 @@ export default function ChatInterface({ initialSessions, currentUser, wsToken }:
           />
         )}
       </main>
+
+      {showLimitModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center flex flex-col items-center">
+            <div className="w-16 h-16 bg-violet-100 dark:bg-violet-500/10 text-violet-600 dark:text-[#B899FF] rounded-full flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Limite Alcançado</h3>
+            <p className="text-sm text-gray-500 dark:text-[#8A94A0] mb-6">
+              Você atingiu o limite de 7 chamadas grátis da IA Hermione. Assine o plano Premium para continuar conversando.
+            </p>
+            <div className="flex w-full gap-3">
+              <button 
+                onClick={() => setShowLimitModal(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl text-gray-600 dark:text-[#8A94A0] hover:bg-gray-100 dark:hover:bg-white/5 font-medium transition-colors"
+              >
+                Cancelar
+              </button>
+              <a 
+                href={`/pt/subscribe`}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium transition-colors"
+              >
+                Fazer Upgrade
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { useChatWebSocket } from "@/app/hooks/useChatWebSocket"
 import ReactMarkdown from "react-markdown"
 import { X, Send, Sparkles } from "lucide-react"
 import { criarSessaoAction } from "@/app/actions/chat"
+import { checkAndIncrementAiCallsAction } from "@/app/actions/limits"
 import { dict } from "@/lib/dictionaries"
 import { Locale as Language } from "@/lib/i18n-config"
 
@@ -20,6 +21,7 @@ interface AssistantSidebarProps {
   lang: Language
   isPremium: boolean
   onApplyEdit?: (before: string, after: string) => void
+  bookId?: string
 }
 
 const CorrectionUI = ({ content, onApply, isFinished }: { content: string, onApply: (b: string, a: string) => void, isFinished?: boolean }) => {
@@ -73,7 +75,7 @@ const CorrectionUI = ({ content, onApply, isFinished }: { content: string, onApp
 
 
 
-export default function AssistantSidebar({ wsToken, documentContext, onClose, lang, isPremium, onApplyEdit }: AssistantSidebarProps) {
+export default function AssistantSidebar({ wsToken, documentContext, onClose, lang, isPremium, onApplyEdit, bookId }: AssistantSidebarProps) {
   const t = dict[lang].assistant;
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -122,37 +124,32 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, systemMessage])
 
-  if (!isPremium) {
-    return (
-      <aside className="w-[380px] h-full bg-white dark:bg-[#10151B] border-l border-gray-200 dark:border-white/5 flex flex-col shrink-0">
-        <div className="h-[56px] border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4">
-          <div className="flex items-center gap-2 text-violet-600 dark:text-[#B899FF]">
-            <Sparkles className="w-5 h-5" />
-            <h2 className="font-semibold">{t.title || "Hermione IA"}</h2>
-          </div>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors text-gray-500 dark:text-[#8A94A0]">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="flex flex-col items-center justify-center p-8 text-center h-full gap-4">
-          <Sparkles className="w-12 h-12 text-violet-600 dark:text-[#B899FF] opacity-50" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-[#F5F5F5]">Plano Premium Necessário</h3>
-          <p className="text-gray-500 dark:text-[#8A94A0]">Assine o plano Premium para desbloquear a inteligência artificial da Hermione e aprimorar sua escrita.</p>
-          <a href={`/${lang}/subscribe`} className="mt-4 px-6 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors">
-            Assinar Agora
-          </a>
-        </div>
-      </aside>
-    )
-  }
+  const [showLimitModal, setShowLimitModal] = useState(false)
+
+  // We no longer block the entire sidebar if !isPremium, instead we check the limit dynamically
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isSending || !isConnected) return
 
     const messageText = input.trim()
-    setInput("")
 
+    setIsSending(true)
+
+    try {
+      // Limit Check
+      await checkAndIncrementAiCallsAction()
+    } catch (err: any) {
+      setIsSending(false)
+      if (err.message === "LIMIT_REACHED") {
+        setShowLimitModal(true)
+      } else {
+        console.error(err)
+      }
+      return
+    }
+
+    setInput("")
     const tempId = Date.now().toString()
     setMessages((prev) => [...prev, {
       id: tempId,
@@ -160,7 +157,6 @@ export default function AssistantSidebar({ wsToken, documentContext, onClose, la
       content: messageText,
       createdAt: new Date(),
     }])
-    setIsSending(true)
 
     try {
       // Inject document context if it's the first message or occasionally.
@@ -182,7 +178,7 @@ Lembre-se: O campo 'before' deve ser IDENTICO ao texto que está no documento. N
 
 User Question: ${messageText}`;
       }
-      sendChatMessage(finalMessage);
+      sendChatMessage(finalMessage, bookId);
     } catch (err) {
       console.error(err)
       setIsSending(false)
@@ -298,6 +294,34 @@ User Question: ${messageText}`;
         </form>
       </div>
     </aside>
+
+    {showLimitModal && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center flex flex-col items-center">
+          <div className="w-16 h-16 bg-violet-100 dark:bg-violet-500/10 text-violet-600 dark:text-[#B899FF] rounded-full flex items-center justify-center mb-4">
+            <Sparkles className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Limite Alcançado</h3>
+          <p className="text-sm text-gray-500 dark:text-[#8A94A0] mb-6">
+            Você atingiu o limite de 7 chamadas grátis da IA Hermione. Assine o plano Premium para continuar recebendo sugestões ilimitadas.
+          </p>
+          <div className="flex w-full gap-3">
+            <button 
+              onClick={() => setShowLimitModal(false)}
+              className="flex-1 px-4 py-2.5 rounded-xl text-gray-600 dark:text-[#8A94A0] hover:bg-gray-100 dark:hover:bg-white/5 font-medium transition-colors"
+            >
+              Cancelar
+            </button>
+            <a 
+              href={`/${lang}/subscribe`}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium transition-colors"
+            >
+              Fazer Upgrade
+            </a>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   )
 }

@@ -16,10 +16,7 @@ export default async function ChatPage({ params }: { params: Promise<{ lang: str
     select: { isPremium: true }
   })
 
-  if (!user?.isPremium) {
-    // If not premium, redirect to subscribe page
-    redirect(`/${(await params).lang}/subscribe`)
-  }
+
 
   // Query user's previous sessions
   const sessionsData = await prisma.chatSession.findMany({

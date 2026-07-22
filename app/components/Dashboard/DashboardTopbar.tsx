@@ -1,36 +1,80 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Search, Bell, Cloud, Moon, Sun, User, LogOut, Menu } from "lucide-react"
+import { useState, useRef, useEffect, useTransition } from "react"
+import { Search, Bell, Cloud, Moon, Sun, User, LogOut, Menu, BookOpen, FileText } from "lucide-react"
 import { logoutAction } from "@/app/actions/auth"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { Locale } from "@/lib/i18n-config"
 import { dict } from "@/lib/dictionaries"
+import { searchGlobalAction, SearchResult } from "@/app/actions/search"
+import { useRouter } from "next/navigation"
 
 interface TopbarProps {
   theme?: 'light' | 'dark'
   onToggleTheme?: () => void
   lang: string
+  userImage?: string | null
   onOpenMobileMenu?: () => void
 }
 
-export function DashboardTopbar({ theme = 'dark', onToggleTheme, lang, onOpenMobileMenu }: TopbarProps) {
+export function DashboardTopbar({ theme = 'dark', onToggleTheme, lang, userImage, onOpenMobileMenu }: TopbarProps) {
   const t = dict[lang as Locale].dashboard
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const searchRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false)
+      }
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.trim()) {
+        startTransition(async () => {
+          try {
+            const results = await searchGlobalAction(searchQuery)
+            setSearchResults(results)
+            setIsSearchOpen(true)
+          } catch (e) {
+            console.error(e)
+          }
+        })
+      } else {
+        setSearchResults([])
+        setIsSearchOpen(false)
+      }
+    }, 300)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [searchQuery])
+
+  const handleResultClick = (result: SearchResult) => {
+    setIsSearchOpen(false)
+    setSearchQuery("")
+    if (result.type === 'book') {
+      router.push(`/${lang}/editor/${result.id}`)
+    } else if (result.type === 'document' && result.bookId) {
+      router.push(`/${lang}/editor/${result.bookId}?docId=${result.id}&search=${encodeURIComponent(searchQuery)}`)
+    }
+  }
+
   return (
-    <header className="h-[64px] bg-white dark:bg-[#10151B] border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4 md:px-8 shrink-0">
+    <header className="h-[64px] bg-white dark:bg-[#10151B] border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4 md:px-8 shrink-0 relative z-40">
       
       {/* Mobile Hamburger Menu Toggle */}
       <div className="flex items-center gap-3">
@@ -46,14 +90,57 @@ export function DashboardTopbar({ theme = 'dark', onToggleTheme, lang, onOpenMob
       </div>
 
       {/* Global Search Bar */}
-      <div className="flex-1 max-w-[420px] mx-2 md:mx-4">
+      <div className="flex-1 max-w-[420px] mx-2 md:mx-4" ref={searchRef}>
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#8A94A0]" />
           <input 
             type="text" 
-            placeholder={t.searchPlaceholder} 
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              if (e.target.value.trim() === "") setIsSearchOpen(false)
+            }}
+            onFocus={() => {
+              if (searchResults.length > 0) setIsSearchOpen(true)
+            }}
+            placeholder={t.searchPlaceholder || "Search..."} 
             className="w-full bg-gray-50 dark:bg-[#141A22] border border-gray-200 dark:border-white/5 rounded-xl pl-9 md:pl-10 pr-3 md:pr-4 py-2 text-[13px] md:text-[14px] text-gray-900 dark:text-[#F5F5F5] placeholder:text-gray-500 dark:placeholder:text-[#8A94A0] focus:outline-none focus:border-violet-600/50 dark:focus:border-[#B899FF]/50 focus:ring-1 focus:ring-violet-600/50 dark:focus:ring-[#B899FF]/50 transition-all"
           />
+          
+          {/* Search Dropdown */}
+          {isSearchOpen && (
+            <div className="absolute top-full mt-2 w-full max-h-[300px] overflow-y-auto bg-white dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl z-50">
+              {isPending ? (
+                <div className="p-4 text-center text-sm text-gray-500 dark:text-[#8A94A0]">Buscando...</div>
+              ) : searchResults.length > 0 ? (
+                <div className="py-2">
+                  {searchResults.map((res) => (
+                    <button
+                      key={`${res.type}-${res.id}`}
+                      onClick={() => handleResultClick(res)}
+                      className="w-full flex flex-col text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-[#181F28] transition-colors border-b border-gray-100 dark:border-white/5 last:border-0"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        {res.type === 'book' ? (
+                          <BookOpen className="w-4 h-4 text-violet-600 dark:text-[#B899FF]" />
+                        ) : (
+                          <FileText className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                        )}
+                        <span className="font-medium text-gray-900 dark:text-[#F5F5F5] text-[14px]">{res.title}</span>
+                      </div>
+                      {res.snippet && (
+                        <p className="text-[12px] text-gray-500 dark:text-[#8A94A0] line-clamp-2 pl-6">
+                          {res.snippet}
+                        </p>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 text-center text-sm text-gray-500 dark:text-[#8A94A0]">Nenhum resultado encontrado</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -80,9 +167,13 @@ export function DashboardTopbar({ theme = 'dark', onToggleTheme, lang, onOpenMob
         <div className="relative" ref={dropdownRef}>
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-8 h-8 rounded-full bg-gray-50 dark:bg-[#141A22] border border-gray-200 dark:border-white/5 flex items-center justify-center text-gray-900 dark:text-[#F5F5F5] hover:border-gray-300 dark:hover:border-white/20 transition-colors"
+            className="w-8 h-8 rounded-full bg-gray-50 dark:bg-[#141A22] border border-gray-200 dark:border-white/5 flex items-center justify-center text-gray-900 dark:text-[#F5F5F5] hover:border-gray-300 dark:hover:border-white/20 transition-colors overflow-hidden"
           >
-            <User className="w-4 h-4" />
+            {userImage ? (
+              <img src={userImage} alt="User" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-4 h-4" />
+            )}
           </button>
 
           {isDropdownOpen && (
@@ -104,3 +195,4 @@ export function DashboardTopbar({ theme = 'dark', onToggleTheme, lang, onOpenMob
     </header>
   )
 }
+

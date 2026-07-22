@@ -79,9 +79,10 @@ interface RibbonProps {
   activeDocumentId?: string;
   onPrintPreview?: (scope: 'chapter' | 'book') => void;
   lang: Language;
+  isPremium?: boolean;
 }
 
-export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, isAssistantOpen, book, documents, activeDocumentId, onPrintPreview, lang }: RibbonProps) {
+export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, isAssistantOpen, book, documents, activeDocumentId, onPrintPreview, lang, isPremium = false }: RibbonProps) {
   const t = dict[lang].ribbon;
   const [fontMenuOpen, setFontMenuOpen] = useState(false);
   const [sizeMenuOpen, setSizeMenuOpen] = useState(false);
@@ -229,6 +230,10 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
 
   const handleExportHRM = (scope: 'chapter' | 'book') => {
     setExportMenuOpen(null);
+    if (!isPremium) {
+      toast.error("A exportação .hrm é exclusiva para usuários Premium.");
+      return;
+    }
     try {
       const { html, docTitle } = getExportHTML(scope);
       

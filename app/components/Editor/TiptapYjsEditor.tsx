@@ -26,6 +26,7 @@ import { TextIndent } from './extensions/TextIndent'
 import { FontSize } from './extensions/FontSize'
 import { UppercaseExtension } from './extensions/Uppercase'
 import { EmDashExtension } from './extensions/EmDash'
+import { SearchHighlight } from './extensions/SearchHighlight'
 
 interface TiptapYjsEditorProps {
   documentId: string
@@ -37,6 +38,8 @@ interface TiptapYjsEditorProps {
   onWordCountChange?: (count: number) => void
   onSyncStatusChange?: (isSynced: boolean) => void
   onEditorStateChange?: () => void
+  searchQuery?: string
+  onClearSearch?: () => void
 }
 
 export default function TiptapYjsEditor({ 
@@ -48,7 +51,9 @@ export default function TiptapYjsEditor({
   onEditorReady,
   onWordCountChange,
   onSyncStatusChange,
-  onEditorStateChange
+  onEditorStateChange,
+  searchQuery,
+  onClearSearch
 }: TiptapYjsEditorProps) {
   const [editor, setEditor] = useState<Editor | null>(null)
 
@@ -116,7 +121,8 @@ export default function TiptapYjsEditor({
         FontSize,
         FontFamily,
         UppercaseExtension,
-        EmDashExtension
+        EmDashExtension,
+        SearchHighlight
       ],
       editorProps: {
         attributes: {
@@ -130,8 +136,17 @@ export default function TiptapYjsEditor({
       onTransaction: () => {
         if (onEditorStateChange) onEditorStateChange();
       },
-      onSelectionUpdate: () => {
+      onSelectionUpdate: ({ editor, transaction }) => {
         if (onEditorStateChange) onEditorStateChange();
+        
+        // Clear search when user clicks elsewhere
+        if (searchQuery && onClearSearch) {
+          // If transaction has meta 'pointer' it means user clicked
+          if (transaction.getMeta('pointer')) {
+            onClearSearch();
+            editor.commands.setSearchHighlight(null);
+          }
+        }
       },
       onUpdate: ({ editor }) => {
         const html = editor.getHTML();
@@ -180,6 +195,31 @@ export default function TiptapYjsEditor({
     
     if (prov.synced && instance.isEmpty && initialContent) {
       instance.commands.setContent(initialContent);
+    }
+
+    // Effect for handling search query highlighting
+    if (searchQuery && prov.synced) {
+      setTimeout(() => {
+        instance.commands.setSearchHighlight(searchQuery)
+        
+        // Find the position of the first occurrence to scroll to it
+        let firstMatchPos = -1;
+        instance.state.doc.descendants((node, pos) => {
+          if (firstMatchPos !== -1) return false;
+          if (node.isText && node.text) {
+            const index = node.text.toLowerCase().indexOf(searchQuery.toLowerCase());
+            if (index !== -1) {
+              firstMatchPos = pos + index;
+              return false;
+            }
+          }
+        });
+
+        if (firstMatchPos !== -1) {
+          instance.commands.setTextSelection(firstMatchPos);
+          instance.commands.scrollIntoView();
+        }
+      }, 100);
     }
 
     return () => {

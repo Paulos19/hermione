@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { Editor } from "@tiptap/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import Topbar from "./Topbar"
 import Ribbon from "./Ribbon"
@@ -23,6 +23,10 @@ const TiptapYjsEditor = dynamic(() => import("./TiptapYjsEditor"), {
 interface EditorClientProps {
   book: any
   documents: any[]
+  characters?: any[]
+  notes?: any[]
+  dailyGoal?: number
+  wordsToday?: number
   currentUser: any
   wsToken: string
   pin?: string | null
@@ -31,11 +35,41 @@ interface EditorClientProps {
   isPremium?: boolean
 }
 
-export default function EditorClient({ book, documents, currentUser, wsToken, pin, isEncrypted, lang, isPremium = false }: EditorClientProps) {
+export default function EditorClient({ 
+  book, 
+  documents: initialDocuments, 
+  characters = [], 
+  notes = [], 
+  dailyGoal = 1000, 
+  wordsToday = 0,
+  currentUser, 
+  wsToken, 
+  pin, 
+  isEncrypted, 
+  lang, 
+  isPremium = false 
+}: EditorClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const urlSearch = searchParams.get('search') || ""
+  const urlDocId = searchParams.get('docId')
+
+  const [documents, setDocuments] = useState<any[]>(initialDocuments)
+  const [bookTitle, setBookTitle] = useState(book.title)
+  
   const [activeDocumentId, setActiveDocumentId] = useState<string>(
-    documents.length > 0 ? documents[0].id : ""
+    urlDocId && documents.some(d => d.id === urlDocId) 
+      ? urlDocId 
+      : (documents.length > 0 ? documents[0].id : "")
   )
+  const [searchQuery, setSearchQuery] = useState(urlSearch)
+
+  // Quick Edit Modal State
+  const [quickEditModal, setQuickEditModal] = useState<{
+    isOpen: boolean;
+    type: 'character' | 'world' | 'note';
+    item: any | null;
+  }>({ isOpen: false, type: 'note', item: null })
   
   // Editor State Lifted
   const [editor, setEditor] = useState<Editor | null>(null)
@@ -65,10 +99,7 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
   }
 
   const toggleAssistant = () => {
-    if (!isPremium) {
-      router.push(`/${lang}/subscribe`)
-      return
-    }
+
     setIsAssistantOpen((prev) => {
       const next = !prev
       if (next) setIsLeftSidebarOpen(false) // Collapse left if opening right
@@ -121,7 +152,9 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
         <div className="flex flex-col flex-1 h-screen overflow-hidden">
           {/* Topbar: Fixed at Top */}
           <Topbar 
-            bookTitle={book.title} 
+            bookId={book.id}
+            bookTitle={bookTitle}
+            setBookTitle={setBookTitle}
             isSynced={isSynced} 
             isRibbonOpen={isRibbonOpen}
             onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
@@ -143,6 +176,7 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
             activeDocumentId={activeDocumentId}
             onPrintPreview={setPrintScope}
             lang={lang as Locale}
+            isPremium={isPremium}
           />
         )}
 
@@ -151,13 +185,20 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
           
           {/* Sidebar */}
           <Sidebar 
+            bookId={book.id}
             documents={documents}
+            setDocuments={setDocuments}
+            characters={characters}
+            notes={notes}
+            dailyGoal={dailyGoal}
+            wordsToday={wordsToday}
             activeDocumentId={activeDocumentId}
             setActiveDocumentId={setActiveDocumentId}
             wordCount={wordCount}
             readingTime={readingTime}
             isOpen={isLeftSidebarOpen}
             setIsOpen={setIsLeftSidebarOpen}
+            onOpenQuickEdit={(type, item) => setQuickEditModal({ isOpen: true, type, item })}
             lang={lang as Locale}
           />
 
@@ -174,6 +215,8 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
                 currentUser={currentUser} 
                 wsToken={wsToken} 
                 initialContent={initialContent}
+                searchQuery={searchQuery}
+                onClearSearch={() => setSearchQuery("")}
                 onEditorReady={setEditor}
                 onWordCountChange={setWordCount}
                 onSyncStatusChange={setIsSynced}
@@ -206,6 +249,7 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
           lang={lang as Locale}
           isPremium={isPremium}
           onApplyEdit={handleApplyEdit}
+          bookId={book.id}
         />
       )}
       
@@ -220,8 +264,128 @@ export default function EditorClient({ book, documents, currentUser, wsToken, pi
           lang={lang as Locale}
         />
       )}
+
+      {/* Quick Edit Modal */}
+      {quickEditModal.isOpen && (
+        <QuickEditModal 
+          bookId={book.id}
+          type={quickEditModal.type}
+          item={quickEditModal.item}
+          onClose={() => setQuickEditModal({ isOpen: false, type: 'note', item: null })}
+        />
+      )}
     </div>
     </div>
   )
+}
+
+function QuickEditModal({ bookId, type, item, onClose }: { bookId: string, type: 'character' | 'world' | 'note', item: any, onClose: () => void }) {
+  const [title, setTitle] = useState(item?.name || item?.title || "");
+  const [description, setDescription] = useState(item?.description || item?.content || "");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    setIsLoading(true);
+    
+    try {
+      if (type === 'character') {
+        const { createCharacterAction, updateCharacterAction } = await import("@/app/actions/character");
+        if (item) {
+          await updateCharacterAction(item.id, { name: title, description });
+        } else {
+          await createCharacterAction({ bookId, name: title, description });
+        }
+      } else if (type === 'note') {
+        const { createNoteAction, updateNoteAction } = await import("@/app/actions/note");
+        if (item) {
+          await updateNoteAction(item.id, { title, content: description });
+        } else {
+          await createNoteAction({ bookId, title, content: description });
+        }
+      } else if (type === 'world') {
+        const { createWorldNoteAction, updateWorldNoteAction } = await import("@/app/actions/world");
+        if (item) {
+          await updateWorldNoteAction(item.id, { title, content: description });
+        } else {
+          await createWorldNoteAction({ bookId, title, content: description });
+        }
+      }
+      toast.success("Salvo com sucesso!");
+      router.refresh();
+      onClose();
+    } catch (e: any) {
+      toast.error("Erro ao salvar.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const titleLabels = {
+    character: 'Nome do Personagem',
+    world: 'Título do Elemento',
+    note: 'Título da Anotação'
+  };
+
+  const modalTitles = {
+    character: item ? 'Editar Personagem' : 'Novo Personagem',
+    world: item ? 'Editar Mundo' : 'Novo Elemento do Mundo',
+    note: item ? 'Editar Anotação' : 'Nova Anotação'
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-[#10151B] border border-gray-200 dark:border-white/10 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+          <h2 className="font-semibold text-lg text-gray-900 dark:text-white">{modalTitles[type]}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        
+        <form onSubmit={handleSave} className="p-5 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{titleLabels[type]}</label>
+            <input 
+              type="text" 
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-violet-500 transition-colors"
+              placeholder="Digite o nome..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Descrição</label>
+            <textarea 
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-[#141A22] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-violet-500 transition-colors h-32 resize-none"
+              placeholder="Adicione detalhes e informações..."
+            />
+          </div>
+          
+          <div className="pt-2 flex justify-end gap-3">
+            <button 
+              type="button" 
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="px-6 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50"
+            >
+              {isLoading ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }
 

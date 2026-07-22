@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Search, Cloud, CloudOff, Sun, Moon, User, ChevronDown, LogOut, LayoutDashboard, PanelTopClose, PanelTopOpen, Menu } from "lucide-react";
+import { Search, Cloud, CloudOff, Sun, Moon, User, ChevronDown, LogOut, LayoutDashboard, PanelTopClose, PanelTopOpen, Menu, Edit2, Check, X } from "lucide-react";
 import Link from "next/link";
 import { logoutAction } from "@/app/actions/auth";
+import { renomearLivroAction } from "@/app/actions/book";
 import { dict } from "@/lib/dictionaries"
 import { Locale as Language } from "@/lib/i18n-config";
+import { toast } from "sonner";
 
 interface TopbarProps {
+  bookId: string;
   bookTitle: string;
+  setBookTitle: (title: string) => void;
   isSynced: boolean;
   isRibbonOpen: boolean;
   onToggleRibbon: () => void;
@@ -17,7 +21,9 @@ interface TopbarProps {
 }
 
 export default function Topbar({ 
+  bookId,
   bookTitle, 
+  setBookTitle,
   isSynced, 
   isRibbonOpen, 
   onToggleRibbon, 
@@ -29,6 +35,40 @@ export default function Topbar({
   const t = dict[lang].topbar;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editTitleValue, setEditTitleValue] = useState(bookTitle);
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
+
+  useEffect(() => {
+    setEditTitleValue(bookTitle);
+  }, [bookTitle]);
+
+  const handleSaveTitle = async () => {
+    if (!editTitleValue.trim()) {
+      setIsEditingTitle(false);
+      setEditTitleValue(bookTitle);
+      return;
+    }
+    
+    if (editTitleValue.trim() === bookTitle) {
+      setIsEditingTitle(false);
+      return;
+    }
+
+    setIsSavingTitle(true);
+    try {
+      await renomearLivroAction(bookId, editTitleValue.trim());
+      setBookTitle(editTitleValue.trim());
+      toast.success("Nome do livro salvo com sucesso!");
+      setIsEditingTitle(false);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao salvar nome do livro.");
+      setEditTitleValue(bookTitle);
+    } finally {
+      setIsSavingTitle(false);
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -58,12 +98,38 @@ export default function Topbar({
         <div className="w-8 h-8 bg-gray-100 dark:bg-white/10 rounded-xl flex items-center justify-center shrink-0">
           <span className="font-bold text-violet-600 dark:text-[#B899FF]">H</span>
         </div>
-        <h1 
-          className="font-semibold text-sm md:text-lg truncate max-w-[140px] sm:max-w-[240px] md:max-w-[300px]" 
-          style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
-        >
-          {bookTitle}
-        </h1>
+        {isEditingTitle ? (
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            <input
+              type="text"
+              value={editTitleValue}
+              onChange={(e) => setEditTitleValue(e.target.value)}
+              className="w-full max-w-[140px] sm:max-w-[240px] md:max-w-[300px] h-[28px] bg-gray-50 dark:bg-[#141A22] border border-gray-300 dark:border-white/10 rounded-md px-2 text-sm md:text-lg font-semibold text-gray-900 dark:text-white outline-none focus:border-violet-500 transition-colors"
+              style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
+              disabled={isSavingTitle}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveTitle();
+                if (e.key === 'Escape') {
+                  setIsEditingTitle(false);
+                  setEditTitleValue(bookTitle);
+                }
+              }}
+              onBlur={handleSaveTitle}
+            />
+          </div>
+        ) : (
+          <div className="group flex items-center gap-2 cursor-pointer flex-1 min-w-0" onClick={() => setIsEditingTitle(true)}>
+            <h1 
+              className="font-semibold text-sm md:text-lg truncate max-w-[140px] sm:max-w-[240px] md:max-w-[300px] group-hover:text-violet-600 dark:group-hover:text-[#B899FF] transition-colors" 
+              style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
+              title="Editar título"
+            >
+              {bookTitle}
+            </h1>
+            <Edit2 className="w-3 h-3 text-gray-400 dark:text-[#8A94A0] opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+        )}
       </div>
 
       {/* Center: Search (Hidden on small mobile screens to prevent overlap) */}

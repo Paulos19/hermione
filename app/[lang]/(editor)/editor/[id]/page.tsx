@@ -12,31 +12,47 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
     redirect("/login")
   }
 
-  // Busca o livro com seus capítulos (documents)
-  const book = await prisma.book.findUnique({
-    where: { id: id, userId: session.user.id },
-    include: {
-      documents: {
-        select: {
-          id: true,
-          title: true,
-          order: true,
-          content: true,
+  const today = new Date().toISOString().split('T')[0]
+
+  // Busca o livro com seus capítulos (documents), personagens e anotações
+  const [book, user, progressToday] = await Promise.all([
+    prisma.book.findUnique({
+      where: { id: id, userId: session.user.id },
+      include: {
+        documents: {
+          select: {
+            id: true,
+            title: true,
+            order: true,
+            content: true,
+          },
+          orderBy: { order: "asc" }
         },
-        orderBy: { order: "asc" }
+        characters: {
+          orderBy: { createdAt: "desc" }
+        },
+        notes: {
+          orderBy: { updatedAt: "desc" }
+        }
       }
-    }
-  })
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { masterPin: true, isPremium: true, dailyGoal: true }
+    }),
+    prisma.dailyProgress.findUnique({
+      where: {
+        userId_date: {
+          userId: session.user.id,
+          date: today
+        }
+      }
+    })
+  ])
 
   if (!book) {
     redirect("/dashboard")
   }
-
-  // Buscar o masterPin do usuário no banco de dados
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { masterPin: true, isPremium: true }
-  })
 
   const currentUser = {
     id: session.user.id,
@@ -57,6 +73,10 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
     <EditorClient 
       book={book}
       documents={book.documents}
+      characters={book.characters}
+      notes={book.notes}
+      dailyGoal={user?.dailyGoal || 1000}
+      wordsToday={progressToday?.words || 0}
       currentUser={currentUser}
       wsToken={wsToken}
       pin={masterPin}

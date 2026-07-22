@@ -19,6 +19,7 @@ model User {
   emailVerified      DateTime?
   masterPin          String?
   personalDictionary String[]  @default([])
+  aiCallsCount       Int       @default(0)
 
   isPremium            Boolean @default(false)
   selectedPlan         String? @default("free")
@@ -145,6 +146,7 @@ model BookNote {
   bookId    String
   title     String
   content   String?  @db.Text
+  category  String   @default("world")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)

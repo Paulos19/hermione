@@ -50,6 +50,16 @@ export async function enviarMensagemAction(sessionId: string, content: string) {
     throw new Error("Não autorizado.")
   }
 
+  // AI LIMIT CHECK
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { selectedPlan: true, aiCallsCount: true }
+  })
+
+  if (user?.selectedPlan === "free" && user.aiCallsCount >= 7) {
+    throw new Error("LIMIT_REACHED")
+  }
+
   // Create user message in DB
   const userMessage = await prisma.chatMessage.create({
     data: {
@@ -57,6 +67,12 @@ export async function enviarMensagemAction(sessionId: string, content: string) {
       role: "user",
       content,
     },
+  })
+
+  // Increment AI Calls
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { aiCallsCount: { increment: 1 } }
   })
 
   let assistantReply = "Desculpe, ocorreu um erro de conexão com o cérebro da Hermione. Tente novamente."
