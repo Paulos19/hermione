@@ -219,33 +219,33 @@ export default function DashboardClient({ books: initialBooks, userName, userIma
                     </p>
                   </div>
 
-                  <div className="flex items-center flex-wrap gap-6 md:gap-10 bg-gray-50/50 dark:bg-[#141A22]/50 backdrop-blur-md border border-gray-200/50 dark:border-white/5 px-8 md:px-10 py-6 rounded-2xl shadow-inner">
-                    <div className="flex flex-col">
-                      <p className="text-[13px] text-gray-500 dark:text-[#8A94A0] mb-1.5 font-medium uppercase tracking-wider">{t.wordsToday}</p>
-                      <p className="text-[32px] md:text-[36px] font-bold text-gray-900 dark:text-[#F5F5F5] leading-none">{wordsToday}</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 p-3 bg-gray-50/50 dark:bg-[#141A22]/60 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-2xl shadow-inner">
+                    
+                    {/* Stat 1: Palavras Hoje */}
+                    <div className="flex flex-col justify-center p-4 rounded-xl bg-white/40 dark:bg-white/5 border border-gray-200/40 dark:border-white/5">
+                      <p className="text-[11px] font-bold text-gray-500 dark:text-[#8A94A0] mb-1 uppercase tracking-wider">{t.wordsToday}</p>
+                      <p className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 dark:text-[#F5F5F5]">{wordsToday}</p>
                     </div>
-                    
-                    <div className="w-px h-12 bg-gray-200 dark:bg-white/10" />
-                    
-                    <div className="flex flex-col">
-                      <p className="text-[13px] text-gray-500 dark:text-[#8A94A0] mb-1.5 font-medium uppercase tracking-wider">{t.currentStreak}</p>
-                      <p className="text-[32px] md:text-[36px] font-bold text-gray-900 dark:text-[#F5F5F5] leading-none flex items-baseline gap-1">
-                        1 <span className="text-[16px] font-normal text-gray-500 dark:text-[#8A94A0]">{t.day}</span>
+
+                    {/* Stat 2: Sequência Atual */}
+                    <div className="flex flex-col justify-center p-4 rounded-xl bg-white/40 dark:bg-white/5 border border-gray-200/40 dark:border-white/5">
+                      <p className="text-[11px] font-bold text-gray-500 dark:text-[#8A94A0] mb-1 uppercase tracking-wider">{t.currentStreak}</p>
+                      <p className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 dark:text-[#F5F5F5] flex items-baseline gap-1">
+                        1 <span className="text-xs font-normal text-gray-500 dark:text-[#8A94A0]">{t.day}</span>
                       </p>
                     </div>
-                    
-                    <div className="w-px h-12 bg-gray-200 dark:bg-white/10" />
-                    
-                    <div className="flex flex-col">
-                      <p className="text-[13px] text-gray-500 dark:text-[#8A94A0] mb-1.5 font-medium uppercase tracking-wider">{t.projects}</p>
-                      <p className="text-[32px] md:text-[36px] font-bold text-gray-900 dark:text-[#F5F5F5] leading-none">{books.length}</p>
+
+                    {/* Stat 3: Projetos Ativos */}
+                    <div className="flex flex-col justify-center p-4 rounded-xl bg-white/40 dark:bg-white/5 border border-gray-200/40 dark:border-white/5">
+                      <p className="text-[11px] font-bold text-gray-500 dark:text-[#8A94A0] mb-1 uppercase tracking-wider">{t.projects}</p>
+                      <p className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 dark:text-[#F5F5F5]">{books.length}</p>
                     </div>
-                    
-                    <div className="w-px h-12 bg-gray-200 dark:bg-white/10" />
-                    
-                    <div className="pl-2">
+
+                    {/* Stat 4: Clima & Ambiente */}
+                    <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-gray-200/40 dark:border-white/5 min-w-[110px]">
                       <WeatherWidget lang={lang} />
                     </div>
+
                   </div>
                 </div>
               </section>

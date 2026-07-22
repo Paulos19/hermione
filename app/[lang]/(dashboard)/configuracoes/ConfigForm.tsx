@@ -1,179 +1,773 @@
 "use client"
 
-import React, { useActionState } from "react"
-import { salvarRagAction, salvarMasterPinAction } from "@/app/actions/user"
+import React, { useState, useTransition } from "react"
 import Link from "next/link"
+import { useSearchParams, useRouter } from "next/navigation"
+import { salvarRagAction, salvarMasterPinAction, updateUserProfileServerAction } from "@/app/actions/user"
+import { 
+  User, 
+  CreditCard, 
+  Sparkles, 
+  CheckCircle2, 
+  ArrowLeft, 
+  ShieldCheck, 
+  Crown, 
+  Zap, 
+  Sun, 
+  Moon,
+  BookOpen,
+  FileText,
+  Activity,
+  Infinity,
+  AlertTriangle,
+  ArrowUpRight,
+  TrendingUp,
+  HardDrive
+} from "lucide-react"
+
+interface UserData {
+  id: string
+  name: string | null
+  email: string
+  image: string | null
+  selectedPlan: string
+  isPremium: boolean
+  aiCallsCount: number
+  projectsCount: number
+  documentsCount: number
+  totalWords: number
+  ragContext: string | null
+  masterPin: string | null
+  createdAt: string
+}
 
 interface ConfigFormProps {
-  initialRag: string | null
-  initialMasterPin: string | null
+  user: UserData
 }
 
-const initialState: { success?: string; error?: string } = {
-  success: undefined,
-  error: undefined,
-}
+export default function ConfigForm({ user }: ConfigFormProps) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  
+  const initialTab = searchParams.get("tab") || "billings"
+  const [activeTab, setActiveTab] = useState<string>(initialTab)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true)
 
-export default function ConfigForm({ initialRag, initialMasterPin }: ConfigFormProps) {
-  const [state, formAction, isPending] = useActionState(salvarRagAction, initialState)
-  const [masterPin, setMasterPin] = React.useState(initialMasterPin || "")
-  const [pinStatus, setPinStatus] = React.useState<{ success?: string; error?: string }>({})
-  const [savingPin, setSavingPin] = React.useState(false)
+  // Profile Form state
+  const [name, setName] = useState(user.name || "")
+  const [image, setImage] = useState(user.image || "")
+  const [profileMsg, setProfileMsg] = useState<{ success?: string; error?: string }>({})
+  const [isUpdatingProfile, startProfileTransition] = useTransition()
 
-  const handleSavePin = async () => {
+  // PIN Form state
+  const [masterPin, setMasterPin] = useState(user.masterPin || "")
+  const [pinMsg, setPinMsg] = useState<{ success?: string; error?: string }>({})
+  const [isUpdatingPin, setIsUpdatingPin] = useState(false)
+
+  // RAG Form state
+  const [ragContext, setRagContext] = useState(user.ragContext || "")
+  const [ragMsg, setRagMsg] = useState<{ success?: string; error?: string }>({})
+  const [isUpdatingRag, setIsUpdatingRag] = useState(false)
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => !prev)
+  }
+
+  // Profile update handler
+  const handleUpdateProfile = (e: React.FormEvent) => {
+    e.preventDefault()
+    setProfileMsg({})
+    startProfileTransition(async () => {
+      const res = await updateUserProfileServerAction(name, image)
+      setProfileMsg(res)
+    })
+  }
+
+  // PIN update handler
+  const handleUpdatePin = async (e: React.FormEvent) => {
+    e.preventDefault()
     if (masterPin.length !== 4) return
-    setSavingPin(true)
-    setPinStatus({})
+    setIsUpdatingPin(true)
+    setPinMsg({})
     try {
-      const result = await salvarMasterPinAction(masterPin)
-      if (result.success) {
-        // Também salvar no localStorage como cache local
+      const res = await salvarMasterPinAction(masterPin)
+      if (res.success) {
         localStorage.setItem("master_pin", masterPin)
-        setPinStatus({ success: "PIN Mestre salvo com sucesso! Agora seus livros serão desbloqueados automaticamente neste e em outros dispositivos." })
+        setPinMsg({ success: "PIN Mestre atualizado e sincronizado com E2EE!" })
       } else {
-        setPinStatus({ error: result.error })
+        setPinMsg({ error: res.error })
       }
     } catch {
-      setPinStatus({ error: "Erro ao salvar o PIN." })
+      setPinMsg({ error: "Erro ao salvar o PIN Mestre." })
     } finally {
-      setSavingPin(false)
+      setIsUpdatingPin(false)
     }
   }
 
+  // RAG update handler
+  const handleUpdateRag = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsUpdatingRag(true)
+    setRagMsg({})
+    try {
+      const formData = new FormData()
+      formData.append("ragContext", ragContext)
+      const res = await salvarRagAction(null, formData)
+      setRagMsg(res)
+    } catch {
+      setRagMsg({ error: "Erro ao salvar o contexto RAG." })
+    } finally {
+      setIsUpdatingRag(false)
+    }
+  }
+
+  // Plan Details Map
+  const planInfo = {
+    premium: {
+      name: "Premiere Unlimited",
+      amount: "R$ 49,99 / mês",
+      cycle: "Mensal",
+      nextDate: "16 Ago, 2026",
+      maxProjects: "∞",
+      maxAiCalls: "∞",
+      badge: "Premiere",
+      badgeStyle: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+      icon: Crown,
+    },
+    pro: {
+      name: "Pro Co-Author",
+      amount: "R$ 19,99 / mês",
+      cycle: "Mensal",
+      nextDate: "16 Ago, 2026",
+      maxProjects: 8,
+      maxAiCalls: 500,
+      badge: "Pro",
+      badgeStyle: "bg-white/10 text-white border-white/30",
+      icon: Zap,
+    },
+    free: {
+      name: "Essencial",
+      amount: "R$ 0,00 / mês",
+      cycle: "Gratuito",
+      nextDate: "Sem expiração",
+      maxProjects: 3,
+      maxAiCalls: 7,
+      badge: "Grátis",
+      badgeStyle: "bg-gray-500/10 text-gray-400 border-gray-500/20",
+      icon: Sparkles,
+    }
+  }[user.selectedPlan || "free"] || {
+    name: "Essencial",
+    amount: "R$ 0,00 / mês",
+    cycle: "Gratuito",
+    nextDate: "Sem expiração",
+    maxProjects: 3,
+    maxAiCalls: 7,
+    badge: "Grátis",
+    badgeStyle: "bg-gray-500/10 text-gray-400 border-gray-500/20",
+    icon: Sparkles,
+  }
+
+  // Helper para cálculo dinâmico da porcentagem de uso e cor da barra
+  function getUsageMetric(used: number, max: number | string) {
+    if (typeof max === "string") {
+      return {
+        percent: 100,
+        label: "Ilimitado",
+        displayText: `${used} (Sem limite)`,
+        barColor: "bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_12px_rgba(16,185,129,0.5)]",
+        textColor: "text-emerald-400 font-bold",
+        badgeStyle: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+        isUnlimited: true,
+      }
+    }
+
+    const percent = Math.min(100, Math.round((used / max) * 100))
+
+    if (percent >= 85) {
+      return {
+        percent: percent,
+        label: "Limite Próximo",
+        displayText: `${used} de ${max} (${percent}%)`,
+        barColor: "bg-gradient-to-r from-rose-600 to-red-500 shadow-[0_0_12px_rgba(244,63,94,0.7)] animate-pulse",
+        textColor: "text-rose-400 font-bold",
+        badgeStyle: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+        isUnlimited: false,
+      }
+    }
+
+    if (percent >= 50) {
+      return {
+        percent: percent,
+        label: "Uso Moderado",
+        displayText: `${used} de ${max} (${percent}%)`,
+        barColor: "bg-gradient-to-r from-amber-500 to-yellow-400 shadow-[0_0_10px_rgba(245,158,11,0.5)]",
+        textColor: "text-amber-400 font-semibold",
+        badgeStyle: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+        isUnlimited: false,
+      }
+    }
+
+    return {
+      percent: percent,
+      label: "Saudável",
+      displayText: `${used} de ${max} (${percent}%)`,
+      barColor: "bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]",
+      textColor: "text-emerald-400 font-medium",
+      badgeStyle: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+      isUnlimited: false,
+    }
+  }
+
+  const projectsMetric = getUsageMetric(user.projectsCount, planInfo.maxProjects)
+  const aiCallsMetric = getUsageMetric(user.aiCallsCount, planInfo.maxAiCalls)
+
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center bg-zinc-950 text-zinc-50 overflow-hidden px-4 py-12">
-      {/* Background ambient glows */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className={`min-h-screen w-full transition-colors duration-200 ${isDarkMode ? "bg-[#0A0D12] text-[#F5F5F5]" : "bg-gray-50 text-gray-900"}`}>
+      
+      {/* Header Navigation Bar */}
+      <header className={`sticky top-0 z-30 w-full border-b ${isDarkMode ? "bg-[#0A0D12]/90 border-white/10" : "bg-white/90 border-gray-200"} backdrop-blur-md px-6 py-4`}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          
+          {/* Breadcrumb Navigation */}
+          <div className="flex items-center gap-3 text-xs font-medium">
+            <Link 
+              href="/pt/dashboard"
+              className={`flex items-center gap-2 ${isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-black"} transition-colors`}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Hermione</span>
+            </Link>
+            <span className={isDarkMode ? "text-gray-600" : "text-gray-400"}>/</span>
+            <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Configurações</span>
+            <span className={isDarkMode ? "text-gray-600" : "text-gray-400"}>/</span>
+            <span className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              Billings & Usage Limits
+            </span>
+          </div>
 
-      {/* Back Button */}
-      <div className="absolute top-8 left-8 z-20">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-zinc-400 hover:text-zinc-200 transition-colors duration-200 text-sm font-medium"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Voltar ao Chat
-        </Link>
-      </div>
+          {/* Controls: Theme & Dashboard */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-xl border ${isDarkMode ? "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10" : "bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200"} transition-all`}
+              title={isDarkMode ? "Alternar para Modo Claro" : "Alternar para Modo Escuro"}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
 
-      {/* Main card */}
-      <div className="relative z-10 w-full max-w-2xl bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-2xl p-8 shadow-2xl shadow-black/40">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-200 to-purple-200 bg-clip-text text-transparent">
-            Configurações
+            <Link
+              href="/pt/dashboard"
+              className={`px-4 py-2 rounded-xl text-xs font-bold ${isDarkMode ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"} transition-all`}
+            >
+              Ir para o Dashboard
+            </Link>
+          </div>
+
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-6 py-10">
+        
+        {/* Page Title */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-serif font-light tracking-tight mb-2">
+            Billings & Consumo do Plano
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Personalize a sua experiência e opções de segurança.
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"} font-light`}>
+            Acompanhe o consumo dos seus limites contratados, estatísticas de uso em tempo real e dados da conta.
           </p>
         </div>
 
-        {/* State Banners */}
-        {state?.success && (
-          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm flex items-center gap-3">
-            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {state.success}
-          </div>
-        )}
-
-        {state?.error && (
-          <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-sm flex items-center gap-3">
-            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {state.error}
-          </div>
-        )}
-
-        {/* PIN Section */}
-        <div className="space-y-4 mb-8">
-          <div className="space-y-2">
-            <label htmlFor="masterPin" className="text-sm font-semibold text-zinc-300 block">
-              PIN Mestre (E2EE)
-            </label>
-            <p className="text-xs text-zinc-500 pb-1">
-              Este PIN de 4 dígitos é salvo na sua conta e sincronizado entre a versão Web e Mobile. Ele é a chave de criptografia dos seus livros protegidos.
-            </p>
-            <input
-              type="password"
-              id="masterPin"
-              value={masterPin}
-              onChange={(e) => setMasterPin(e.target.value.replace(/[^0-9]/g, ''))}
-              maxLength={4}
-              placeholder="••••"
-              className="w-full px-4 py-3 bg-zinc-950/60 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-200 text-sm font-mono tracking-[0.5em]"
-            />
-          </div>
-
-          {pinStatus?.success && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs flex items-center gap-2">
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {pinStatus.success}
-            </div>
-          )}
-
-          {pinStatus?.error && (
-            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs flex items-center gap-2">
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {pinStatus.error}
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={handleSavePin}
-            disabled={masterPin.length !== 4 || savingPin}
-            className="px-5 py-2.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-medium rounded-xl border border-indigo-500/30 transition-colors duration-200 text-sm disabled:opacity-50 cursor-pointer"
-          >
-            {savingPin ? "Salvando..." : "Salvar PIN Mestre"}
-          </button>
+        {/* Tab Navigation Pill Bar */}
+        <div className={`flex items-center gap-2 mb-8 border-b ${isDarkMode ? "border-white/10" : "border-gray-200"} pb-3 overflow-x-auto custom-scrollbar`}>
+          {[
+            { id: "billings", label: "Consumo & Limites do Plano", icon: Activity },
+            { id: "account", label: "Perfil & Conta", icon: User },
+            { id: "rag", label: "Contexto RAG & IA", icon: Sparkles },
+          ].map((tab) => {
+            const Icon = tab.icon
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  isActive
+                    ? isDarkMode 
+                      ? "bg-white text-black shadow-md" 
+                      : "bg-black text-white shadow-md"
+                    : isDarkMode
+                      ? "text-gray-400 hover:text-white hover:bg-white/5"
+                      : "text-gray-600 hover:text-black hover:bg-gray-100"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </button>
+            )
+          })}
         </div>
 
-        <div className="w-full h-px bg-zinc-800/50 my-6"></div>
+        {/* TAB 1: CONSUMO & LIMITES DO PLANO (REAL CONSUMPTION METRICS WITH DYNAMIC PROGRESS BARS) */}
+        {activeTab === "billings" && (
+          <div className="space-y-10">
+            
+            {/* Active Plan Overview Header Banner */}
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#11141C]/90 border-white/10 shadow-2xl" : "bg-white border-gray-200 shadow-md"} transition-all`}>
+              <div className="mb-6 flex justify-between items-start">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider font-bold text-gray-400">
+                    Plano Ativo no Momento
+                  </h3>
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    Informações sobre o ciclo de assinatura do autor.
+                  </p>
+                </div>
 
-        <form 
-          action={formAction} 
-          className="space-y-6"
-        >
-          <div className="space-y-2">
-            <label htmlFor="ragContext" className="text-sm font-semibold text-zinc-300 block">
-              Contexto do Usuário (RAG)
-            </label>
-            <textarea
-              id="ragContext"
-              name="ragContext"
-              defaultValue={initialRag || ""}
-              placeholder="Ex: O usuário se chama Paulo, é desenvolvedor e prefere respostas rápidas e sem rodeios. Hermione deve tratá-lo por 'Mestre' e adicionar um toque de humor nerd..."
-              rows={8}
-              className="w-full px-4 py-3 bg-zinc-950/60 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-200 text-sm font-mono leading-relaxed"
-            />
-          </div>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${planInfo.badgeStyle}`}>
+                  {user.selectedPlan === "premium" ? <Crown className="w-3.5 h-3.5" /> : user.selectedPlan === "pro" ? <Zap className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
+                  {planInfo.name}
+                </span>
+              </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Link
-              href="/"
-              className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium rounded-xl border border-zinc-700 transition-colors duration-200 text-sm active:scale-[0.98]"
-            >
-              Cancelar
-            </Link>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200 active:scale-[0.98] text-sm disabled:opacity-50 cursor-pointer"
-            >
-              {isPending ? "Salvando..." : "Salvar Contexto RAG"}
-            </button>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 items-center">
+                <div>
+                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold block mb-1">
+                    Valor do Plano
+                  </span>
+                  <span className="text-xl font-serif font-bold tracking-tight">
+                    {planInfo.amount}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold block mb-1">
+                    Ciclo de Cobrança
+                  </span>
+                  <span className="text-sm font-medium">
+                    {planInfo.cycle}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold block mb-1">
+                    Renovação
+                  </span>
+                  <span className="text-sm font-medium">
+                    {planInfo.nextDate}
+                  </span>
+                </div>
+
+                <div className="col-span-2 sm:col-span-1 flex items-center justify-start sm:justify-end">
+                  <Link
+                    href="/pt/subscribe"
+                    className={`px-5 py-2.5 rounded-xl text-xs font-bold ${isDarkMode ? "bg-white text-black hover:bg-gray-200 shadow-[0_0_15px_rgba(255,255,255,0.15)]" : "bg-black text-white hover:bg-gray-800"} transition-all flex items-center gap-1.5`}
+                  >
+                    <span>Mudar de Plano</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* REAL USAGE CONSUMPTION & LIMITS SECTION */}
+            <div>
+              <div className="mb-6">
+                <h3 className="text-xl font-serif font-bold mb-1">Consumo de Recursos & Limites</h3>
+                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Medição em tempo real dos recursos consumidos na sua conta. As barras mudam de cor conforme a porcentagem de uso.
+                </p>
+              </div>
+
+              {/* Usage Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* METRIC 1: Projetos de Livros */}
+                <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#0D1017] border-white/10" : "bg-white border-gray-200 shadow-sm"} flex flex-col justify-between`}>
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10 text-white" : "bg-gray-100 text-gray-900"}`}>
+                          <BookOpen className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold">Projetos de Livros</h4>
+                          <span className="text-[11px] text-gray-500 font-mono">Livros Ativos na Conta</span>
+                        </div>
+                      </div>
+
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${projectsMetric.badgeStyle}`}>
+                        {projectsMetric.label}
+                      </span>
+                    </div>
+
+                    <div className="mb-4">
+                      <div className="flex justify-between items-baseline mb-2">
+                        <span className={`text-2xl font-serif font-bold ${projectsMetric.textColor}`}>
+                          {user.projectsCount}
+                        </span>
+                        <span className="text-xs text-gray-400 font-mono">
+                          {projectsMetric.displayText}
+                        </span>
+                      </div>
+
+                      {/* Dynamic Progress Bar */}
+                      <div className={`w-full h-3 rounded-full overflow-hidden ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}>
+                        <div 
+                          className={`h-full rounded-full transition-all duration-700 ${projectsMetric.barColor}`} 
+                          style={{ width: `${projectsMetric.percent}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} leading-relaxed pt-3 border-t ${isDarkMode ? "border-white/5" : "border-gray-100"}`}>
+                    Cada projeto armazena capítulos, bíblia de personagens e lore sincronizados.
+                  </p>
+                </div>
+
+                {/* METRIC 2: Interações com Hermione IA */}
+                <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#0D1017] border-white/10" : "bg-white border-gray-200 shadow-sm"} flex flex-col justify-between`}>
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10 text-white" : "bg-gray-100 text-gray-900"}`}>
+                          <Sparkles className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold">Interações Hermione IA</h4>
+                          <span className="text-[11px] text-gray-500 font-mono">Coautoria & Análises</span>
+                        </div>
+                      </div>
+
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${aiCallsMetric.badgeStyle}`}>
+                        {aiCallsMetric.label}
+                      </span>
+                    </div>
+
+                    <div className="mb-4">
+                      <div className="flex justify-between items-baseline mb-2">
+                        <span className={`text-2xl font-serif font-bold ${aiCallsMetric.textColor}`}>
+                          {user.aiCallsCount}
+                        </span>
+                        <span className="text-xs text-gray-400 font-mono">
+                          {aiCallsMetric.displayText}
+                        </span>
+                      </div>
+
+                      {/* Dynamic Progress Bar */}
+                      <div className={`w-full h-3 rounded-full overflow-hidden ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}>
+                        <div 
+                          className={`h-full rounded-full transition-all duration-700 ${aiCallsMetric.barColor}`} 
+                          style={{ width: `${aiCallsMetric.percent}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} leading-relaxed pt-3 border-t ${isDarkMode ? "border-white/5" : "border-gray-100"}`}>
+                    Gerações de texto, revisões ortográficas e consultas à Bíblia RAG.
+                  </p>
+                </div>
+
+                {/* METRIC 3: Volume de Palavras Escritas */}
+                <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#0D1017] border-white/10" : "bg-white border-gray-200 shadow-sm"} flex flex-col justify-between`}>
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10 text-white" : "bg-gray-100 text-gray-900"}`}>
+                          <TrendingUp className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold">Total de Palavras Escritas</h4>
+                          <span className="text-[11px] text-gray-500 font-mono">Volume no Banco de Dados</span>
+                        </div>
+                      </div>
+
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                        Sem Restrição
+                      </span>
+                    </div>
+
+                    <div className="mb-4">
+                      <div className="flex justify-between items-baseline mb-2">
+                        <span className="text-2xl font-serif font-bold text-emerald-400">
+                          {user.totalWords.toLocaleString()}
+                        </span>
+                        <span className="text-xs text-gray-400 font-mono">
+                          palavras salvas
+                        </span>
+                      </div>
+
+                      {/* Infinite Progress Bar */}
+                      <div className={`w-full h-3 rounded-full overflow-hidden ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}>
+                        <div className="h-full rounded-full w-full bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} leading-relaxed pt-3 border-t ${isDarkMode ? "border-white/5" : "border-gray-100"}`}>
+                    Todas as palavras geradas e sincronizadas entre computador e aplicativo.
+                  </p>
+                </div>
+
+                {/* METRIC 4: Manuscritos & Segurança */}
+                <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#0D1017] border-white/10" : "bg-white border-gray-200 shadow-sm"} flex flex-col justify-between`}>
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10 text-white" : "bg-gray-100 text-gray-900"}`}>
+                          <ShieldCheck className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold">Capítulos Sincronizados</h4>
+                          <span className="text-[11px] text-gray-500 font-mono">Criptografia E2EE</span>
+                        </div>
+                      </div>
+
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                        Protegido
+                      </span>
+                    </div>
+
+                    <div className="mb-4">
+                      <div className="flex justify-between items-baseline mb-2">
+                        <span className="text-2xl font-serif font-bold text-white">
+                          {user.documentsCount}
+                        </span>
+                        <span className="text-xs text-gray-400 font-mono">
+                          capítulos ativos
+                        </span>
+                      </div>
+
+                      {/* Infinite Progress Bar */}
+                      <div className={`w-full h-3 rounded-full overflow-hidden ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}>
+                        <div className="h-full rounded-full w-full bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} leading-relaxed pt-3 border-t ${isDarkMode ? "border-white/5" : "border-gray-100"}`}>
+                    Backup contínuo na nuvem com chave PIN Mestre.
+                  </p>
+                </div>
+
+              </div>
+
+              {/* HIGH USAGE WARNING / UPGRADE CALLOUT BANNER */}
+              {(user.selectedPlan === "free" && (user.aiCallsCount >= 5 || user.projectsCount >= 3)) && (
+                <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-amber-950/40 via-[#19130D] to-[#0D1017] border border-amber-500/40 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40">
+                      <AlertTriangle className="w-6 h-6 animate-pulse" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white mb-1">Você está próximo dos limites do Plano Essencial</h4>
+                      <p className="text-xs text-gray-300 leading-relaxed">
+                        Faça o upgrade para o **Pro Co-Author** e libere até 8 projetos simultâneos e interações ilimitadas com a Hermione.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/pt/subscribe"
+                    className="px-6 py-3 rounded-xl bg-white hover:bg-gray-100 text-black text-xs font-bold tracking-wider uppercase transition-all shrink-0 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                  >
+                    Desbloquear Acesso Pro
+                  </Link>
+                </div>
+              )}
+            </div>
+
           </div>
-        </form>
-      </div>
+        )}
+
+        {/* TAB 2: ACCOUNT / PERFIL */}
+        {activeTab === "account" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Left Card: User Avatar Info */}
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#11141C]/80 border-white/10" : "bg-white border-gray-200 shadow-md"} flex flex-col items-center text-center`}>
+              <div className="relative w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-white/20 shadow-xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center">
+                {image ? (
+                  <img src={image} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-3xl font-serif font-bold text-white">
+                    {(name || user.email).substring(0, 2).toUpperCase()}
+                  </span>
+                )}
+              </div>
+
+              <h2 className="text-lg font-bold font-serif">{name || "Autor Hermione"}</h2>
+              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} font-mono mb-4`}>{user.email}</p>
+
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${planInfo.badgeStyle}`}>
+                {user.selectedPlan === "premium" ? <Crown className="w-3 h-3" /> : user.selectedPlan === "pro" ? <Zap className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+                Plano {planInfo.name}
+              </span>
+            </div>
+
+            {/* Right Card: Profile Edit Form */}
+            <div className={`lg:col-span-2 p-6 rounded-2xl border ${isDarkMode ? "bg-[#11141C]/80 border-white/10" : "bg-white border-gray-200 shadow-md"}`}>
+              <h3 className="text-base font-bold mb-1">Dados de Perfil</h3>
+              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-6`}>
+                Atualize seu nome de exibição e foto de avatar.
+              </p>
+
+              {profileMsg.success && (
+                <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs">
+                  {profileMsg.success}
+                </div>
+              )}
+              {profileMsg.error && (
+                <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs">
+                  {profileMsg.error}
+                </div>
+              )}
+
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider block mb-1.5">
+                    Nome Completo / Pseudônimo
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Seu Nome de Autor"
+                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-gray-50 border-gray-200 text-gray-900"} focus:outline-none focus:border-white/40`}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider block mb-1.5">
+                    URL da Foto de Perfil (Avatar)
+                  </label>
+                  <input
+                    type="url"
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                    placeholder="https://exemplo.com/sua-foto.jpg"
+                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-gray-50 border-gray-200 text-gray-900"} focus:outline-none focus:border-white/40`}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-1.5">
+                    E-mail da Conta (Não editável)
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={user.email}
+                    className={`w-full px-4 py-2.5 rounded-xl text-xs border ${isDarkMode ? "bg-black/20 border-white/5 text-gray-500" : "bg-gray-100 border-gray-200 text-gray-500"} cursor-not-allowed`}
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isUpdatingProfile}
+                    className={`px-5 py-2.5 rounded-xl text-xs font-bold ${isDarkMode ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"} transition-all`}
+                  >
+                    {isUpdatingProfile ? "Salvando..." : "Salvar Perfil"}
+                  </button>
+                </div>
+              </form>
+
+              <hr className={`my-8 border-t ${isDarkMode ? "border-white/10" : "border-gray-200"}`} />
+
+              {/* Master PIN Section */}
+              <div>
+                <h3 className="text-base font-bold mb-1 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> Security PIN (Criptografia E2EE)
+                </h3>
+                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"} mb-4`}>
+                  PIN de 4 dígitos para desbloquear rascunhos com criptografia no navegador e app mobile.
+                </p>
+
+                {pinMsg.success && (
+                  <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs">
+                    {pinMsg.success}
+                  </div>
+                )}
+                {pinMsg.error && (
+                  <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs">
+                    {pinMsg.error}
+                  </div>
+                )}
+
+                <form onSubmit={handleUpdatePin} className="flex gap-3 items-center">
+                  <input
+                    type="password"
+                    maxLength={4}
+                    value={masterPin}
+                    onChange={(e) => setMasterPin(e.target.value.replace(/[^0-9]/g, ''))}
+                    placeholder="••••"
+                    className={`w-32 px-4 py-2.5 rounded-xl text-xs font-mono text-center tracking-[0.5em] border ${isDarkMode ? "bg-black/40 border-white/10 text-white" : "bg-gray-50 border-gray-200 text-gray-900"}`}
+                  />
+                  <button
+                    type="submit"
+                    disabled={masterPin.length !== 4 || isUpdatingPin}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-bold border ${isDarkMode ? "border-white/20 hover:bg-white/10 text-white" : "border-gray-300 hover:bg-gray-100 text-gray-900"} disabled:opacity-50`}
+                  >
+                    {isUpdatingPin ? "Salvando..." : "Salvar PIN"}
+                  </button>
+                </form>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* TAB 3: RAG & PREFERÊNCIAS DE IA */}
+        {activeTab === "rag" && (
+          <div className={`p-6 rounded-2xl border ${isDarkMode ? "bg-[#11141C]/80 border-white/10" : "bg-white border-gray-200 shadow-md"}`}>
+            <div className="mb-6">
+              <h3 className="text-lg font-bold font-serif mb-1">Contexto Customizado do Usuário (RAG)</h3>
+              <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                Instrua a IA Hermione sobre seu estilo de escrita, vocabulário preferido e detalhes pessoais. Este contexto é utilizado em cada sugestão de texto e chat.
+              </p>
+            </div>
+
+            {ragMsg.success && (
+              <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs">
+                {ragMsg.success}
+              </div>
+            )}
+            {ragMsg.error && (
+              <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs">
+                {ragMsg.error}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateRag} className="space-y-4">
+              <textarea
+                value={ragContext}
+                onChange={(e) => setRagContext(e.target.value)}
+                placeholder="Ex: O usuário se chama Paulo, é desenvolvedor e prefere respostas rápidas e sem rodeios. Hermione deve tratar o autor por 'Mestre' e adicionar toques de inteligência editorial..."
+                rows={8}
+                className={`w-full p-4 rounded-xl text-xs font-mono border leading-relaxed ${isDarkMode ? "bg-black/50 border-white/10 text-white" : "bg-gray-50 border-gray-200 text-gray-900"} focus:outline-none focus:border-white/40`}
+              />
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isUpdatingRag}
+                  className={`px-6 py-2.5 rounded-xl text-xs font-bold ${isDarkMode ? "bg-white text-black hover:bg-gray-200 shadow-lg" : "bg-black text-white hover:bg-gray-800"}`}
+                >
+                  {isUpdatingRag ? "Salvando..." : "Salvar Contexto RAG"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+      </main>
+
     </div>
   )
 }

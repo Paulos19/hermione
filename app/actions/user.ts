@@ -28,6 +28,29 @@ export async function salvarRagAction(prevState: any, formData: FormData): Promi
   }
 }
 
+export async function updateUserProfileServerAction(name: string, image: string): Promise<{ success?: string; error?: string }> {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { error: "Não autorizado." }
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        name: name || null,
+        image: image || null,
+      },
+    })
+
+    revalidatePath("/configuracoes")
+    return { success: "Perfil atualizado com sucesso!" }
+  } catch (error) {
+    console.error("Erro ao atualizar perfil:", error)
+    return { error: "Erro ao atualizar o perfil. Tente novamente." }
+  }
+}
+
 export async function salvarMasterPinAction(pin: string): Promise<{ success?: string; error?: string }> {
   const session = await auth()
   if (!session?.user?.id) {
