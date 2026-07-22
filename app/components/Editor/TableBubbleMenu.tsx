@@ -24,7 +24,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
   return (
     <BubbleMenu 
       editor={editor} 
-      tippyOptions={{ duration: 150, placement: 'top' }}
+      options={{ placement: 'top' }}
       shouldShow={({ editor }) => editor.isActive('table')}
       className="flex items-center gap-1 bg-[var(--theme-bg-surface)] p-1 rounded-lg border border-[var(--theme-border)] shadow-xl overflow-hidden z-50"
     >
