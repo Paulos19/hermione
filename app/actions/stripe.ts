@@ -6,7 +6,7 @@ import Stripe from "stripe"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {})
 
-export async function createStripeCheckoutSessionAction(lang: string = "pt") {
+export async function createStripeCheckoutSessionAction(lang: string = "pt", plan: "pro" | "premium" = "premium") {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -33,7 +33,13 @@ export async function createStripeCheckoutSessionAction(lang: string = "pt") {
       })
     }
 
-    const priceId = process.env.STRIPE_PRICE_ID || "price_test"
+    let priceId = process.env.STRIPE_PRICE_ID || "price_test"
+    if (plan === "pro") {
+      priceId = process.env.STRIPE_PRO_PRICE_ID || priceId
+    } else if (plan === "premium") {
+      priceId = process.env.STRIPE_PREMIUM_PRICE_ID || priceId
+    }
+
     // Use localhost in dev, or actual domain in prod
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 

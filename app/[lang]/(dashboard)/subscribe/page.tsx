@@ -13,7 +13,7 @@ export default async function SubscribePage({ params }: { params: Promise<{ lang
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { isPremium: true }
+    select: { isPremium: true, selectedPlan: true }
   })
 
   return (
@@ -21,6 +21,7 @@ export default async function SubscribePage({ params }: { params: Promise<{ lang
       <SubscribeClient 
         lang={lang}
         isPremium={user?.isPremium || false}
+        selectedPlan={user?.selectedPlan || "free"}
       />
     </div>
   )

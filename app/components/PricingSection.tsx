@@ -29,7 +29,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "29",
+    price: "19,99",
     description: "Para escritores dedicados que precisam de mais espaço e ajuda.",
     features: [
       { name: "Até 8 Projetos", included: true },
@@ -43,7 +43,7 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "69",
+    price: "49,99",
     description: "A experiência definitiva. Sem limites para a sua criatividade.",
     features: [
       { name: "Projetos Ilimitados", included: true },

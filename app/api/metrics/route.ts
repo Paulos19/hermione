@@ -46,11 +46,39 @@ export async function GET() {
       };
     });
 
+    const recentSubscribers = await prisma.user.findMany({
+      where: {
+        isPremium: true,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      take: 10,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        selectedPlan: true,
+        updatedAt: true,
+      },
+    });
+
+    const formattedSubscribers = recentSubscribers.map((u) => {
+      const displayName = u.name || u.email?.split("@")[0] || "Autor";
+      return {
+        id: u.id,
+        name: displayName,
+        plan: u.selectedPlan === "pro" ? "Pro" : "Premium",
+        updatedAt: u.updatedAt,
+      };
+    });
+
     return NextResponse.json({
       chapters: chaptersCount,
       words: words,
       subscribers: subscribers,
       recentActivity: recentActivity,
+      recentSubscribers: formattedSubscribers,
     });
   } catch (error) {
     console.error("Erro ao buscar métricas:", error);
