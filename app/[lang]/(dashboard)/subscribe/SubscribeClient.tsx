@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import logoImg from "@/assets/design/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, 
@@ -73,21 +75,23 @@ function MorphingText() {
   }, [subIndex, index, reverse]);
 
   return (
-    <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-400 to-amber-400 font-serif italic font-normal">
+    <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400 font-serif italic font-normal">
       {words[index].substring(0, subIndex)}
-      <span className={`${blink ? "opacity-100" : "opacity-0"} text-red-500 font-sans not-italic ml-0.5 transition-opacity`}>
+      <span className={`${blink ? "opacity-100" : "opacity-0"} text-white font-sans not-italic ml-0.5 transition-opacity`}>
         |
       </span>
     </span>
   );
 }
 
-// --- REAL-TIME WEBSOCKET TYPING TOAST BANNER ---
+// --- REAL-TIME WEBSOCKET TYPING TOAST BANNER (APARECE APENAS COM ATUALIZAÇÕES EM TEMPO REAL) ---
 function LiveSubscriberToast() {
   const [liveEvent, setLiveEvent] = useState<{ id: string; text: string } | null>(null);
   const [typedText, setTypedText] = useState("");
   const queueRef = useRef<Array<{ id: string; text: string }>>([]);
   const isTypingRef = useRef(false);
+  const seenEventsRef = useRef<Set<string>>(new Set());
+  const isInitialLoadRef = useRef(true);
 
   // Typewriter effect logic
   useEffect(() => {
@@ -102,11 +106,11 @@ function LiveSubscriberToast() {
         charIndex++;
       } else {
         clearInterval(interval);
-        // Hold for 4.5 seconds then clear
+        // Exibe por 3.5 segundos e fecha suavemente
         setTimeout(() => {
           setLiveEvent(null);
           isTypingRef.current = false;
-          // Check if queue has next item
+          // Processa próximo evento se houver na fila
           if (queueRef.current.length > 0) {
             const next = queueRef.current.shift();
             if (next) {
@@ -116,14 +120,14 @@ function LiveSubscriberToast() {
               }, 400);
             }
           }
-        }, 4500);
+        }, 3500);
       }
-    }, 45);
+    }, 40);
 
     return () => clearInterval(interval);
   }, [liveEvent]);
 
-  // Connect to WS Metrics
+  // WebSocket / Live updates listener
   useEffect(() => {
     let ws: WebSocket | null = null;
     let fallbackInterval: NodeJS.Timeout | null = null;
@@ -133,35 +137,47 @@ function LiveSubscriberToast() {
         isTypingRef.current = true;
         setLiveEvent(evt);
       } else {
-        // Prevent huge queues
         if (queueRef.current.length < 5 && !queueRef.current.some(q => q.id === evt.id)) {
           queueRef.current.push(evt);
         }
       }
     };
 
-    const fetchRealDataFallback = async () => {
-      try {
-        const res = await fetch("/api/metrics", { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
-          // Real subscribers
-          if (data.recentSubscribers && data.recentSubscribers.length > 0) {
-            const sub = data.recentSubscribers[Math.floor(Math.random() * data.recentSubscribers.length)];
+    const processMetricsData = (metrics: any) => {
+      // Se for a primeira carga de dados ao abrir a página, apenas registramos os IDs como já existentes (históricos)
+      if (isInitialLoadRef.current) {
+        if (metrics.recentSubscribers) {
+          metrics.recentSubscribers.forEach((sub: any) => {
+            if (sub.id) seenEventsRef.current.add(`sub-${sub.id}`);
+          });
+        }
+        if (metrics.recentActivity) {
+          metrics.recentActivity.forEach((act: any) => {
+            if (act.user) seenEventsRef.current.add(`act-${act.user}-${act.chapter}`);
+          });
+        }
+        isInitialLoadRef.current = false;
+        return;
+      }
+
+      // Verificação para novas assinaturas REAL-TIME ocorridas DEPOIS que o usuário já abriu a página
+      if (metrics.recentSubscribers && metrics.recentSubscribers.length > 0) {
+        const latestSub = metrics.recentSubscribers[0];
+        const subKey = `sub-${latestSub.id}`;
+        
+        // Data de atualização em milissegundos
+        const updatedAtTime = latestSub.updatedAt ? new Date(latestSub.updatedAt).getTime() : Date.now();
+        const isRecent = (Date.now() - updatedAtTime) < (3 * 60 * 1000); // nos últimos 3 minutos
+
+        if (!seenEventsRef.current.has(subKey)) {
+          seenEventsRef.current.add(subKey);
+          if (isRecent) {
             pushEvent({
-              id: `${sub.id}-${Date.now()}`,
-              text: `✨ ${sub.name} acabou de assinar o plano ${sub.plan}!`
-            });
-          } else if (data.recentActivity && data.recentActivity.length > 0) {
-            const act = data.recentActivity[Math.floor(Math.random() * data.recentActivity.length)];
-            pushEvent({
-              id: `${act.user}-${Date.now()}`,
-              text: `⚡ ${act.user} ${act.action} no livro!`
+              id: `${subKey}-${Date.now()}`,
+              text: `✨ ${latestSub.name} acabou de assinar o plano ${latestSub.plan}!`
             });
           }
         }
-      } catch (err) {
-        // Ignore fallback errors
       }
     };
 
@@ -175,20 +191,7 @@ function LiveSubscriberToast() {
         try {
           const data = JSON.parse(event.data);
           if (data.type === "metrics_update" && data.data) {
-            const metrics = data.data;
-            if (metrics.recentSubscribers && metrics.recentSubscribers.length > 0) {
-              const latestSub = metrics.recentSubscribers[0];
-              pushEvent({
-                id: `${latestSub.id}-${latestSub.updatedAt}`,
-                text: `✨ ${latestSub.name} acabou de assinar o plano ${latestSub.plan}!`
-              });
-            } else if (metrics.recentActivity && metrics.recentActivity.length > 0) {
-              const act = metrics.recentActivity[0];
-              pushEvent({
-                id: `${act.user}-${Date.now()}`,
-                text: `⚡ ${act.user} ${act.action}!`
-              });
-            }
+            processMetricsData(data.data);
           }
         } catch (e) {
           // Parse error
@@ -196,15 +199,19 @@ function LiveSubscriberToast() {
       };
 
       ws.onerror = () => {
-        // Fallback polling if WS has error
-        fallbackInterval = setInterval(fetchRealDataFallback, 8000);
+        fallbackInterval = setInterval(async () => {
+          try {
+            const res = await fetch("/api/metrics", { cache: "no-store" });
+            if (res.ok) {
+              const data = await res.json();
+              processMetricsData(data);
+            }
+          } catch (e) {}
+        }, 15000);
       };
     } catch (e) {
-      fallbackInterval = setInterval(fetchRealDataFallback, 8000);
+      // Fallback
     }
-
-    // Initial fetch to show immediate real event
-    fetchRealDataFallback();
 
     return () => {
       if (ws) ws.close();
@@ -220,24 +227,24 @@ function LiveSubscriberToast() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ duration: 0.3 }}
-          className="fixed bottom-6 left-6 z-50 max-w-md bg-[#0F1117]/95 border border-red-500/30 text-white p-4 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl flex items-center gap-3.5"
+          className="fixed bottom-6 left-6 z-50 max-w-md bg-[#0A0C10]/95 border border-white/20 text-white p-4 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl flex items-center gap-3.5"
         >
-          <div className="relative shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-600/30 to-rose-500/10 border border-red-500/40 text-red-400">
-            <Radio className="w-5 h-5 animate-pulse text-red-500" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+          <div className="relative shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 border border-white/20 text-white">
+            <Radio className="w-5 h-5 animate-pulse text-white" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
           </div>
 
           <div className="flex-1 overflow-hidden">
             <div className="flex items-center justify-between gap-2 mb-0.5">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-red-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                AO VIVO NO BANCO DE DADOS
+              <span className="text-[10px] uppercase tracking-wider font-bold text-gray-300 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                ATUALIZAÇÃO EM TEMPO REAL
               </span>
-              <span className="text-[9px] text-gray-500 font-mono">Real-time</span>
+              <span className="text-[9px] text-gray-400 font-mono">Ao Vivo</span>
             </div>
-            <p className="text-xs font-medium text-gray-200 leading-snug font-mono">
+            <p className="text-xs font-medium text-gray-100 leading-snug font-mono">
               {typedText}
-              <span className="inline-block w-1.5 h-3 bg-red-500 ml-0.5 animate-pulse" />
+              <span className="inline-block w-1.5 h-3 bg-white ml-0.5 animate-pulse" />
             </p>
           </div>
         </motion.div>
@@ -283,7 +290,7 @@ function FAQAccordion() {
               className="w-full py-5 px-6 flex items-center justify-between text-left text-sm md:text-base font-medium text-white hover:bg-white/5 transition-colors"
             >
               <span>{faq.q}</span>
-              <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isOpen ? "rotate-180 text-red-400" : ""}`} />
+              <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isOpen ? "rotate-180 text-white" : ""}`} />
             </button>
             <AnimatePresence>
               {isOpen && (
@@ -367,28 +374,35 @@ export default function SubscribeClient({
   };
 
   return (
-    <div className="min-h-screen bg-[#050507] text-[#F5F5F5] font-sans antialiased selection:bg-red-500 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#050507] text-[#F5F5F5] font-sans antialiased selection:bg-white selection:text-black relative overflow-x-hidden">
       
-      {/* BACKGROUND POSTER / AMBIENT GLOW (GATEPLAY STYLE) */}
-      <div className="absolute top-0 left-0 right-0 h-[850px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-red-950/25 via-[#0A0B10] to-[#050507] pointer-events-none -z-10" />
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-red-600/10 blur-[150px] rounded-full pointer-events-none -z-10" />
+      {/* BACKGROUND POSTER / AMBIENT GLOW (MONOCHROME SYSTEM DESIGN) */}
+      <div className="absolute top-0 left-0 right-0 h-[850px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 via-[#0A0B10] to-[#050507] pointer-events-none -z-10" />
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-white/5 blur-[150px] rounded-full pointer-events-none -z-10" />
 
-      {/* LIVE WEBSOCKET TOAST */}
+      {/* LIVE WEBSOCKET TOAST (SOMENTE QUANDO HOUVER ATUALIZAÇÃO REAIS) */}
       <LiveSubscriberToast />
 
-      {/* CUSTOM GATEPLAY HEADER */}
+      {/* CUSTOM SYSTEM DESIGN HEADER */}
       <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[#050507]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
           {/* Logo / Brand */}
           <div className="flex items-center gap-3">
-            <Link href={`/${lang}/dashboard`} className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 via-rose-600 to-amber-600 flex items-center justify-center text-white font-bold text-xl shadow-[0_0_20px_rgba(225,29,72,0.4)] group-hover:scale-105 transition-transform">
-                H
+            <Link href={`/${lang}/dashboard`} className="flex items-center gap-3 group">
+              <div className="relative w-10 h-10 rounded-xl bg-white border border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform overflow-hidden">
+                <Image 
+                  src={logoImg} 
+                  alt="Hermione Logo" 
+                  width={40} 
+                  height={40} 
+                  className="w-full h-full object-contain"
+                  priority
+                />
               </div>
               <div className="flex flex-col">
-                <span className="font-serif tracking-widest text-lg font-bold text-white group-hover:text-red-400 transition-colors">
-                  HERMIONE<span className="text-red-500">.AI</span>
+                <span className="font-serif tracking-widest text-lg font-bold text-white group-hover:text-gray-300 transition-colors">
+                  HERMIONE<span className="text-gray-400">.AI</span>
                 </span>
                 <span className="text-[9px] uppercase tracking-widest text-gray-400 -mt-1 font-mono">
                   Studio Editorial
@@ -410,7 +424,7 @@ export default function SubscribeClient({
             href={`/${lang}/dashboard`}
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-200"
           >
-            <ArrowLeft className="w-4 h-4 text-red-400" />
+            <ArrowLeft className="w-4 h-4 text-gray-300" />
             Dashboard
           </Link>
         </div>
@@ -423,8 +437,8 @@ export default function SubscribeClient({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-950/40 border border-red-500/30 text-red-400 text-xs font-semibold tracking-wider uppercase mb-8 shadow-inner">
-            <Flame className="w-4 h-4 animate-bounce" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/20 text-gray-200 text-xs font-semibold tracking-wider uppercase mb-8 shadow-inner">
+            <Sparkles className="w-4 h-4 text-white animate-pulse" />
             Experiência de Coautoria Definitiva
           </div>
 
@@ -439,7 +453,7 @@ export default function SubscribeClient({
         </motion.div>
       </section>
 
-      {/* PRICING SECTION - 3 CARDS GATEPLAY STYLE */}
+      {/* PRICING SECTION - SYSTEM DESIGN CARDS */}
       <section id="planos" className="pb-24 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           
@@ -449,7 +463,7 @@ export default function SubscribeClient({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className={`relative rounded-3xl bg-[#0E0F14]/90 border ${
-              currentPlan === "free" ? "border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.15)]" : "border-white/10 hover:border-white/20"
+              currentPlan === "free" ? "border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.1)]" : "border-white/10 hover:border-white/20"
             } p-8 flex flex-col justify-between backdrop-blur-xl transition-all duration-300`}
           >
             <div>
@@ -487,7 +501,7 @@ export default function SubscribeClient({
                   { name: "Suporte Prioritário Editorial", ok: false }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${item.ok ? "bg-red-500/20 text-red-400" : "bg-white/5 text-gray-600"}`}>
+                    <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${item.ok ? "bg-white/10 text-white" : "bg-white/5 text-gray-600"}`}>
                       <Check className="w-3 h-3" />
                     </div>
                     <span className={`text-xs ${item.ok ? "text-gray-300" : "text-gray-600 line-through"}`}>
@@ -517,24 +531,24 @@ export default function SubscribeClient({
             </div>
           </motion.div>
 
-          {/* CARD 2: PRO / FULL ACCESS (GATEPLAY POPULAR RED CARD) */}
+          {/* CARD 2: PRO / FULL ACCESS (FEATURED MONOCHROME CARD) */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className={`relative rounded-3xl bg-gradient-to-b from-[#161217] via-[#0E0F14] to-[#0E0F14] border ${
-              currentPlan === "pro" ? "border-red-500 shadow-[0_0_40px_rgba(239,68,68,0.3)]" : "border-red-500/40 hover:border-red-500/70"
+            className={`relative rounded-3xl bg-gradient-to-b from-[#161822] via-[#0F1017] to-[#0E0F14] border ${
+              currentPlan === "pro" ? "border-white shadow-[0_0_40px_rgba(255,255,255,0.2)]" : "border-white/20 hover:border-white/40"
             } p-8 flex flex-col justify-between backdrop-blur-xl shadow-2xl transition-all duration-300 transform lg:-translate-y-2`}
           >
             {/* POPULAR BADGE */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-red-600 to-rose-600 text-white text-[10px] font-bold uppercase tracking-widest shadow-lg flex items-center gap-1.5">
-              <Zap className="w-3 h-3 fill-current" />
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-white text-black text-[10px] font-bold uppercase tracking-widest shadow-lg flex items-center gap-1.5">
+              <Zap className="w-3 h-3 fill-current text-black" />
               Mais Escolhido Pelos Autores
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-6 pt-2">
-                <span className="text-xs font-bold uppercase tracking-widest text-red-400 bg-red-950/40 px-3 py-1 rounded-full border border-red-500/30">
+                <span className="text-xs font-bold uppercase tracking-widest text-white bg-white/10 px-3 py-1 rounded-full border border-white/20">
                   Pro Co-Author
                 </span>
                 {currentPlan === "pro" && (
@@ -550,12 +564,12 @@ export default function SubscribeClient({
                   <span className="text-5xl font-light font-serif text-white tracking-tight">19,99</span>
                   <span className="text-sm text-gray-500">/mês</span>
                 </div>
-                <p className="text-xs text-red-200/70 mt-2 leading-relaxed">
+                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
                   Para escritores em constante fluxo criativo que exigem mais limites e recursos.
                 </p>
               </div>
 
-              <hr className="border-red-500/20 my-6" />
+              <hr className="border-white/10 my-6" />
 
               <div className="space-y-4 mb-8">
                 {[
@@ -567,8 +581,8 @@ export default function SubscribeClient({
                   { name: "Análise de Personagens e Bíblia RAG", ok: true }
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div className="w-4 h-4 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-red-400" />
+                    <div className="w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-white" />
                     </div>
                     <span className="text-xs text-gray-200 font-medium">
                       {item.name}
@@ -582,7 +596,7 @@ export default function SubscribeClient({
               {currentPlan === "pro" ? (
                 <button
                   disabled
-                  className="w-full py-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-red-950/40 text-red-400 border border-red-500/40 cursor-not-allowed"
+                  className="w-full py-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-white/10 text-white border border-white/20 cursor-not-allowed"
                 >
                   Plano Ativo
                 </button>
@@ -590,7 +604,7 @@ export default function SubscribeClient({
                 <button
                   onClick={() => handleSubscribe("pro")}
                   disabled={isProcessing !== null}
-                  className="w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest bg-gradient-to-r from-red-600 via-rose-600 to-red-500 hover:from-red-500 hover:to-rose-500 text-white shadow-[0_0_25px_rgba(225,29,72,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest bg-white hover:bg-gray-100 text-black shadow-[0_0_25px_rgba(255,255,255,0.2)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isProcessing === "pro" ? "Gerando Checkout..." : "DESBLOQUEAR ACESSO PRO"}
                 </button>
@@ -693,15 +707,15 @@ export default function SubscribeClient({
               realActivity.slice(0, 6).map((act, i) => (
                 <div 
                   key={i} 
-                  className="p-6 rounded-2xl bg-[#0F1016] border border-white/10 hover:border-red-500/30 transition-all flex flex-col justify-between"
+                  className="p-6 rounded-2xl bg-[#0F1016] border border-white/10 hover:border-white/30 transition-all flex flex-col justify-between"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-9 h-9 rounded-full bg-red-950/50 border border-red-500/30 text-red-400 flex items-center justify-center font-bold text-xs font-mono">
+                    <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center font-bold text-xs font-mono">
                       {act.user?.substring(0, 2).toUpperCase() || "@A"}
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-white font-mono">{act.user}</h4>
-                      <span className="text-[10px] text-gray-500 flex items-center gap-1">
+                      <span className="text-[10px] text-gray-400 flex items-center gap-1">
                         <Activity className="w-2.5 h-2.5 text-emerald-400" />
                         Capítulo: {act.chapter}
                       </span>
@@ -713,8 +727,8 @@ export default function SubscribeClient({
                 </div>
               ))
             ) : (
-              <div className="col-span-3 text-center py-12 text-gray-500 text-sm font-mono">
-                Conectando às métricas do banco de dados em tempo real...
+              <div className="col-span-3 text-center py-12 text-gray-400 text-sm font-mono">
+                Aguardando atualizações do banco de dados em tempo real...
               </div>
             )}
           </div>
@@ -725,7 +739,7 @@ export default function SubscribeClient({
       <section id="recursos" className="py-24 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-red-400 mb-4 block">
+            <span className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 block">
               Tecnologia Literária
             </span>
             <h2 className="text-4xl sm:text-5xl font-serif text-white font-light leading-tight mb-6">
@@ -742,7 +756,7 @@ export default function SubscribeClient({
                 { title: "Exportação em Formato .hrm", desc: "Preserve seu acervo completo em um formato seguro e portátil." }
               ].map((feat, idx) => (
                 <div key={idx} className="flex gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-red-950/30 border border-red-500/20 text-red-400 flex items-center justify-center shrink-0 font-bold">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 text-white flex items-center justify-center shrink-0 font-bold">
                     0{idx + 1}
                   </div>
                   <div>
@@ -754,15 +768,15 @@ export default function SubscribeClient({
             </div>
           </div>
 
-          <div className="relative rounded-3xl bg-gradient-to-br from-[#161217] to-[#0A0B10] border border-white/10 p-8 shadow-2xl overflow-hidden">
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-red-600/10 blur-3xl rounded-full" />
+          <div className="relative rounded-3xl bg-gradient-to-br from-[#161822] to-[#0A0B10] border border-white/10 p-8 shadow-2xl overflow-hidden">
+            <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 blur-3xl rounded-full" />
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
                 <span className="text-xs font-mono text-gray-400">HERMIONE_CORE_ENGINE v2.4</span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">ONLINE</span>
               </div>
               <div className="p-4 rounded-xl bg-black/60 border border-white/5 font-mono text-xs text-gray-300 leading-relaxed">
-                <span className="text-red-400">&gt; Analisando arco do protagonista...</span><br />
+                <span className="text-white">&gt; Analisando arco do protagonista...</span><br />
                 <span className="text-gray-400">Verificando consistência com a Bíblia do Livro...</span><br />
                 <span className="text-emerald-400">✓ Nenhuma contradição encontrada. Sugestão de ritmo gerada.</span>
               </div>
@@ -786,12 +800,21 @@ export default function SubscribeClient({
         </div>
       </section>
 
-      {/* FOOTER GATEPLAY STYLE */}
+      {/* FOOTER SYSTEM DESIGN */}
       <footer className="py-16 px-6 border-t border-white/10 bg-[#040406] text-center relative overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
           <div className="flex items-center gap-3">
+            <div className="relative w-9 h-9 rounded-xl bg-white border border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.15)] flex items-center justify-center p-1.5 overflow-hidden">
+              <Image 
+                src={logoImg} 
+                alt="Hermione Logo" 
+                width={36} 
+                height={36} 
+                className="w-full h-full object-contain"
+              />
+            </div>
             <span className="font-serif tracking-widest text-xl font-bold text-white">
-              HERMIONE<span className="text-red-500">.AI</span>
+              HERMIONE<span className="text-gray-400">.AI</span>
             </span>
           </div>
           <div className="flex gap-8 text-xs font-medium text-gray-500">
@@ -805,7 +828,7 @@ export default function SubscribeClient({
           &copy; {new Date().getFullYear()} Hermione.AI Studio Editorial. Todos os direitos reservados.
         </p>
 
-        {/* HUGE GATEPLAY WATERMARK */}
+        {/* WATERMARK */}
         <div className="mt-12 select-none opacity-5 font-serif font-black text-6xl sm:text-9xl tracking-tighter text-white uppercase pointer-events-none">
           HERMIONE
         </div>
