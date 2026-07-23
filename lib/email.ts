@@ -63,7 +63,7 @@ export async function sendVerificationEmail({ to, code, name }: SendVerification
     return { success: true, previewUrl: null };
   }
 
-  const from = process.env.EMAIL_FROM || process.env.SMTP_FROM || '"Chat Secret" <paulohenrique.012araujo@gmail.com>';
+  const from = process.env.EMAIL_FROM || process.env.SMTP_FROM || '"Hermione" <paulohenrique.012araujo@gmail.com>';
 
   const html = `
     <div style="font-family: 'Inter', -apple-system, sans-serif; background-color: #0d0b15; color: #ffffff; padding: 40px 20px; text-align: center;">

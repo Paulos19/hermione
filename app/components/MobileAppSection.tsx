@@ -175,7 +175,7 @@ export default function MobileAppSection({ dict }: { dict: any }) {
           >
             <Image
               src="/smart.png"
-              alt="Chat Secret Mobile App"
+              alt="App Hermione Mobile"
               width={700}
               height={700}
               className="w-auto h-full max-h-full object-contain drop-shadow-[0_-10px_50px_rgba(0,0,0,0.8)] object-bottom"

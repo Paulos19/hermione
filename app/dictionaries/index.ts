@@ -43,13 +43,13 @@ export const dictionaries = {
     },
     mobileSection: {
       title: "Seu estúdio, sempre no seu bolso.",
-      subtitle: "Toda a potência da Hermione sincronizada em tempo real no seu dispositivo móvel com o aplicativo Chat Secret. Crie, revise e colabore de onde estiver.",
+      subtitle: "Toda a potência da Hermione sincronizada em tempo real no seu dispositivo móvel com o App Hermione. Crie, revise e colabore de onde estiver.",
       features: {
         sync: "Sincronização Yjs",
         offline: "Acesso Offline",
         ai: "Chat AI Nativo"
       },
-      cta: "Explorar Chat Secret"
+      cta: "Explorar App Hermione"
     },
     metricsSection: {
       tag: "Rede Neural Global",
@@ -140,7 +140,7 @@ export const dictionaries = {
         },
         {
           question: "Existe algum aplicativo para celular?",
-          answer: "Sim! O aplicativo Chat Secret funciona perfeitamente no seu smartphone ou tablet."
+          answer: "Sim! O App Hermione funciona perfeitamente no seu smartphone ou tablet."
         }
       ]
     },
@@ -209,13 +209,13 @@ export const dictionaries = {
     },
     mobileSection: {
       title: "Your studio, always in your pocket.",
-      subtitle: "All the power of Hermione synced in real-time to your mobile device with the Chat Secret app. Create, review, and collaborate wherever you are.",
+      subtitle: "All the power of Hermione synced in real-time to your mobile device with the Hermione App. Create, review, and collaborate wherever you are.",
       features: {
         sync: "Real-time Yjs Sync",
         offline: "Offline Access",
         ai: "Native AI Chat"
       },
-      cta: "Explore Chat Secret"
+      cta: "Explore Hermione App"
     },
     metricsSection: {
       tag: "Global Neural Network",
@@ -306,7 +306,7 @@ export const dictionaries = {
         },
         {
           question: "Is there a mobile app?",
-          answer: "Yes! The Chat Secret app works seamlessly on your smartphone or tablet."
+          answer: "Yes! The Hermione App works seamlessly on your smartphone or tablet."
         }
       ]
     },
@@ -375,13 +375,13 @@ export const dictionaries = {
     },
     mobileSection: {
       title: "Tu estudio, siempre en tu bolsillo.",
-      subtitle: "Todo el poder de Hermione sincronizado en tiempo real en tu dispositivo móvil con la app Chat Secret. Crea, revisa y colabora desde cualquier lugar.",
+      subtitle: "Todo el poder de Hermione sincronizado en tiempo real en tu dispositivo móvil con la App Hermione. Crea, revisa y colabora desde cualquier lugar.",
       features: {
         sync: "Sincronización Yjs",
         offline: "Acceso Offline",
         ai: "Chat AI Nativo"
       },
-      cta: "Explorar Chat Secret"
+      cta: "Explorar App Hermione"
     },
     metricsSection: {
       tag: "Red Neural Global",
@@ -472,7 +472,7 @@ export const dictionaries = {
         },
         {
           question: "¿Existe alguna aplicación para móvil?",
-          answer: "¡Sí! La app Chat Secret funciona perfectamente en tu smartphone o tablet."
+          answer: "¡Sí! La App Hermione funciona perfectamente en tu smartphone o tablet."
         }
       ]
     },

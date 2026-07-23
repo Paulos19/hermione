@@ -1,4 +1,4 @@
-const LOGO_URL = "https://w86ior3nfl.ufs.sh/f/nUSoVZAJYz1WenMCnVsq7xJW30O1p98ITG245mazFrEXPdLN";
+const LOGO_URL = "https://0nxicue7ew.ufs.sh/f/BGEz3YvO4INzFpfmyVigMzXKEwAL6v41tVqjo8CUcmsZJIQB";
 
 const baseTemplate = (content: string) => `
 <!DOCTYPE html>
@@ -91,7 +91,7 @@ const baseTemplate = (content: string) => `
       ${content}
     </div>
     <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} Chat Secret Hermione. Todos os direitos reservados.</p>
+      <p>&copy; ${new Date().getFullYear()} Hermione. Todos os direitos reservados.</p>
       <p>Este é um e-mail automático, por favor, não responda.</p>
     </div>
   </div>
