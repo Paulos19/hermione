@@ -112,9 +112,10 @@ interface SendPasswordResetEmailParams {
   to: string;
   token: string;
   name?: string;
+  appUrl?: string;
 }
 
-export async function sendPasswordResetEmail({ to, token, name }: SendPasswordResetEmailParams) {
+export async function sendPasswordResetEmail({ to, token, name, appUrl }: SendPasswordResetEmailParams) {
   const transporter = await getTransporter();
 
   if (!transporter) {
@@ -123,8 +124,8 @@ export async function sendPasswordResetEmail({ to, token, name }: SendPasswordRe
   }
 
   const from = process.env.EMAIL_FROM || process.env.SMTP_FROM || '"Hermione" <paulohenrique.012araujo@gmail.com>';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const resetLink = `${appUrl}/pt/reset-password?token=${token}`;
+  const finalAppUrl = appUrl || process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const resetLink = `${finalAppUrl}/pt/reset-password?token=${token}`;
 
   const html = `
     <div style="font-family: 'Inter', -apple-system, sans-serif; background-color: #0d0b15; color: #ffffff; padding: 40px 20px; text-align: center;">

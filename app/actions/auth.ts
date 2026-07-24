@@ -4,6 +4,7 @@ import { signIn, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email"
 import crypto from "crypto"
+import { headers } from "next/headers"
 import bcrypt from "bcryptjs"
 import { AuthError } from "next-auth"
 
@@ -279,7 +280,13 @@ export async function requestPasswordResetAction(email: string) {
       },
     })
 
-    const emailRes = await sendPasswordResetEmail({ to: email, token, name: user.name || undefined })
+    // Derive the appUrl from headers for accurate routing in production
+    const headersList = await headers()
+    const host = headersList.get("host")
+    const protocol = headersList.get("x-forwarded-proto") || "http"
+    const appUrl = host ? `${protocol}://${host}` : undefined
+
+    const emailRes = await sendPasswordResetEmail({ to: email, token, name: user.name || undefined, appUrl })
 
     return {
       success: true,
