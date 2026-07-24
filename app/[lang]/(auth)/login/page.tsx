@@ -145,9 +145,17 @@ export default function LoginPage() {
 
             {/* Password Field with Eye Toggle */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-white/70">
-                {authDict?.passwordLabel || "Sua Senha"}
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-white/70">
+                  {authDict?.passwordLabel || "Sua Senha"}
+                </label>
+                <Link
+                  href={`/${currentLang}/forgot-password`}
+                  className="text-[11px] font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                >
+                  Esqueci a senha
+                </Link>
+              </div>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-white/40">
                   <Lock className="w-4 h-4" />

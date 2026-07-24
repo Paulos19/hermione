@@ -2,7 +2,8 @@
 
 import { signIn, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { sendVerificationEmail } from "@/lib/email"
+import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email"
+import crypto from "crypto"
 import bcrypt from "bcryptjs"
 import { AuthError } from "next-auth"
 
@@ -251,4 +252,78 @@ export async function loginAction(prevState: any, formData: FormData) {
 
 export async function logoutAction() {
   await signOut({ redirectTo: "/login" })
+}
+
+// 7. Request Password Reset Action
+export async function requestPasswordResetAction(email: string) {
+  if (!email || !email.includes("@")) {
+    return { error: "Informe um endereço de e-mail válido." }
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } })
+    
+    if (!user) {
+      // Don't leak whether the email exists or not for security reasons
+      return { success: true, message: "Se o e-mail existir em nossa base, você receberá um link de redefinição em breve." }
+    }
+
+    const token = crypto.randomBytes(32).toString("hex")
+    const resetTokenExpiry = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
+
+    await prisma.user.update({
+      where: { email },
+      data: {
+        resetToken: token,
+        resetTokenExpiry,
+      },
+    })
+
+    const emailRes = await sendPasswordResetEmail({ to: email, token, name: user.name || undefined })
+
+    return {
+      success: true,
+      message: "Se o e-mail existir em nossa base, você receberá um link de redefinição em breve.",
+      previewUrl: emailRes?.previewUrl || null,
+    }
+  } catch (error: any) {
+    console.error("Erro ao solicitar redefinição de senha:", error)
+    return { error: "Ocorreu um erro. Tente novamente mais tarde." }
+  }
+}
+
+// 8. Reset Password Action
+export async function resetPasswordAction(token: string, newPassword: string) {
+  if (!token || !newPassword || newPassword.length < 6) {
+    return { error: "Token inválido ou senha muito curta (mínimo 6 caracteres)." }
+  }
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpiry: { gt: new Date() }, // Token must not be expired
+      },
+    })
+
+    if (!user) {
+      return { error: "O link de redefinição de senha é inválido ou expirou." }
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpiry: null,
+      },
+    })
+
+    return { success: true, message: "Senha redefinida com sucesso! Você já pode fazer login." }
+  } catch (error: any) {
+    console.error("Erro ao redefinir senha:", error)
+    return { error: "Ocorreu um erro ao redefinir a senha." }
+  }
 }

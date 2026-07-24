@@ -107,3 +107,67 @@ export async function sendVerificationEmail({ to, code, name }: SendVerification
     return { success: false, error };
   }
 }
+
+interface SendPasswordResetEmailParams {
+  to: string;
+  token: string;
+  name?: string;
+}
+
+export async function sendPasswordResetEmail({ to, token, name }: SendPasswordResetEmailParams) {
+  const transporter = await getTransporter();
+
+  if (!transporter) {
+    console.warn("⚠️ Transporter do Nodemailer não disponível. Token de reset impresso no console:", token);
+    return { success: true, previewUrl: null };
+  }
+
+  const from = process.env.EMAIL_FROM || process.env.SMTP_FROM || '"Hermione" <paulohenrique.012araujo@gmail.com>';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const resetLink = `${appUrl}/pt/reset-password?token=${token}`;
+
+  const html = `
+    <div style="font-family: 'Inter', -apple-system, sans-serif; background-color: #0d0b15; color: #ffffff; padding: 40px 20px; text-align: center;">
+      <div style="max-width: 500px; margin: 0 auto; background: #181524; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <h1 style="font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #ffffff; margin-bottom: 8px;">HERMIONE</h1>
+        <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 32px;">Recuperação de Senha</p>
+        
+        <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin-bottom: 24px;">
+          Olá, ${name || "Autor"}! Recebemos uma solicitação para redefinir a senha da sua conta.
+        </p>
+        <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin-bottom: 32px;">
+          Clique no botão abaixo para criar uma nova senha:
+        </p>
+
+        <a href="${resetLink}" style="display: inline-block; background-color: #8b5cf6; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);">
+          Redefinir Senha
+        </a>
+
+        <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 32px;">
+          Este link expira em 1 hora. Se você não solicitou a redefinição de senha, ignore este e-mail. Nenhuma alteração será feita na sua conta.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from,
+      to,
+      subject: "Redefinição de Senha - Hermione",
+      html,
+    });
+
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      console.log("🔗 Preview do e-mail de redefinição de senha (Ethereal):", previewUrl);
+    } else {
+      console.log(`✅ E-mail de redefinição enviado com sucesso via Gmail SMTP para ${to}! MessageId: ${info.messageId}`);
+    }
+
+    return { success: true, previewUrl: previewUrl || null };
+  } catch (error) {
+    console.error("Erro ao enviar e-mail de redefinição via Nodemailer:", error);
+    return { success: false, error };
+  }
+}
