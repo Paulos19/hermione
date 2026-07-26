@@ -136,8 +136,8 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={authDict?.emailPlaceholder || "seuemail@exemplo.com"}
-                  className={`w-full pl-10 pr-4 py-3 bg-white/5 border rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all ${
-                    error && error.includes("e-mail") ? "border-red-500/50" : "border-white/10 focus:border-purple-500/50"
+                  className={`w-full pl-10 pr-4 py-3 bg-white/5 border rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all ${
+                    error && error.includes("e-mail") ? "border-red-500/50" : "border-white/10 focus:border-white/20"
                   }`}
                 />
               </div>
@@ -151,7 +151,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   href={`/${currentLang}/forgot-password`}
-                  className="text-[11px] font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                  className="text-[11px] font-medium text-white/60 hover:text-white transition-colors"
                 >
                   Esqueci a senha
                 </Link>
@@ -165,7 +165,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={authDict?.passwordPlaceholder || "••••••••"}
-                  className="w-full pl-10 pr-11 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                  className="w-full pl-10 pr-11 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 transition-all"
                 />
                 <button
                   type="button"
@@ -181,7 +181,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm rounded-xl shadow-lg shadow-purple-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+              className="w-full py-3.5 px-4 bg-white text-black font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:bg-gray-100 hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               {isPending ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -200,7 +200,7 @@ export default function LoginPage() {
               {authDict?.noAccount || "Não tem uma conta?"}{" "}
               <Link
                 href={`/${currentLang}/cadastro`}
-                className="font-medium text-purple-400 hover:text-purple-300 transition-colors underline"
+                className="font-medium text-white/60 hover:text-white transition-colors underline"
               >
                 {authDict?.signUpLink || "Cadastre-se grátis"}
               </Link>

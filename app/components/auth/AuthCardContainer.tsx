@@ -6,6 +6,10 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import loginBg from "@/assets/design/login.png";
+import { Geist, Cormorant_Garamond } from "next/font/google";
+
+const geist = Geist({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
+const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "500", "600"] });
 
 interface AuthCardContainerProps {
   children: React.ReactNode;
@@ -38,17 +42,17 @@ export default function AuthCardContainer({ children, currentLang = "pt" }: Auth
   }, []);
 
   return (
-    <div className="w-screen h-screen min-h-screen bg-[#2D283E] p-3 sm:p-5 md:p-8 flex items-center justify-center font-sans overflow-hidden relative">
+    <div className={`w-screen h-screen min-h-screen bg-[#030303] p-3 sm:p-5 md:p-8 flex items-center justify-center ${geist.className} overflow-hidden relative`}>
       {/* Background Ambient Glows */}
-      <div className="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-purple-600/15 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-indigo-600/15 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-[160px] pointer-events-none" />
 
       {/* Main Dual-Column Container Card - Full Height & Width matching Template Image 2 */}
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[1280px] h-full max-h-[860px] min-h-[600px] bg-[#1C1827] border border-white/10 rounded-[28px] md:rounded-[36px] p-3 md:p-4 shadow-[0_32px_96px_rgba(0,0,0,0.7)] backdrop-blur-2xl grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-stretch relative z-10 my-auto"
+        className="w-full max-w-[1280px] h-full max-h-[860px] min-h-[600px] bg-[#09070f]/40 border border-white/5 rounded-[28px] md:rounded-[36px] p-3 md:p-4 shadow-[0_32px_96px_rgba(0,0,0,0.7)] backdrop-blur-3xl grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-stretch relative z-10 my-auto"
       >
         {/* LEFT COLUMN: Inner Card with login.png Image & Micro-Borders */}
         <div className="md:col-span-5 lg:col-span-5 relative rounded-[22px] md:rounded-[28px] overflow-hidden min-h-[300px] md:h-full flex flex-col justify-between p-6 md:p-8 border border-white/10 shadow-2xl group">
@@ -92,10 +96,10 @@ export default function AuthCardContainer({ children, currentLang = "pt" }: Auth
                 transition={{ duration: 0.5 }}
                 className="space-y-1.5"
               >
-                <h3 className="text-xl md:text-2xl lg:text-3xl font-light text-white leading-tight font-serif">
+                <h3 className={`text-xl md:text-2xl lg:text-3xl font-light text-white leading-tight ${cormorant.className} italic`}>
                   {QUOTES[quoteIndex].title}
                 </h3>
-                <p className="text-xs md:text-sm text-white/70 font-light leading-relaxed">
+                <p className={`text-xs md:text-sm text-white/70 font-light leading-relaxed ${geist.className}`}>
                   {QUOTES[quoteIndex].subtitle}
                 </p>
               </motion.div>

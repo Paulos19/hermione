@@ -151,7 +151,7 @@ export default function CadastroPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={authDict?.namePlaceholder || "Seu nome"}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 transition-all"
                 />
               </div>
             </div>
@@ -170,8 +170,8 @@ export default function CadastroPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={authDict?.emailPlaceholder || "seuemail@exemplo.com"}
-                  className={`w-full pl-10 pr-4 py-2.5 bg-white/5 border rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all ${
-                    error && error.includes("e-mail") ? "border-red-500/50" : "border-white/10 focus:border-purple-500/50"
+                  className={`w-full pl-10 pr-4 py-2.5 bg-white/5 border rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all ${
+                    error && error.includes("e-mail") ? "border-red-500/50" : "border-white/10 focus:border-white/20"
                   }`}
                 />
               </div>
@@ -191,7 +191,7 @@ export default function CadastroPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={authDict?.passwordPlaceholder || "••••••••"}
-                  className="w-full pl-10 pr-11 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                  className="w-full pl-10 pr-11 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 transition-all"
                 />
                 <button
                   type="button"
@@ -220,10 +220,10 @@ export default function CadastroPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder={authDict?.passwordPlaceholder || "••••••••"}
-                  className={`w-full pl-10 pr-11 py-2.5 bg-white/5 border rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all ${
+                  className={`w-full pl-10 pr-11 py-2.5 bg-white/5 border rounded-xl text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all ${
                     confirmPassword && confirmPassword !== password
                       ? "border-red-500/50"
-                      : "border-white/10 focus:border-purple-500/50"
+                      : "border-white/10 focus:border-white/20"
                   }`}
                 />
               </div>
@@ -233,7 +233,7 @@ export default function CadastroPage() {
             <button
               type="submit"
               disabled={isPending || (password.length > 0 && !passwordValidation.isStrong)}
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm rounded-xl shadow-lg shadow-purple-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer mt-2"
+              className="w-full py-3.5 px-4 bg-white text-black font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:bg-gray-100 hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer mt-2"
             >
               {isPending ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -252,7 +252,7 @@ export default function CadastroPage() {
               {authDict?.hasAccount || "Já possui uma conta?"}{" "}
               <Link
                 href={`/${currentLang}/login`}
-                className="font-medium text-purple-400 hover:text-purple-300 transition-colors underline"
+                className="font-medium text-white/60 hover:text-white transition-colors underline"
               >
                 {authDict?.loginLink || "Faça login"}
               </Link>
