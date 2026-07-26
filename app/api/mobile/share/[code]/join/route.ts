@@ -56,7 +56,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
         bookId: shareCode.bookId,
         userId: user.id,
         permissions: shareCode.permissions,
-        joinedAt: new Date(),
         isActive: true
       }
     });
