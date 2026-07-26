@@ -38,7 +38,7 @@ import { SearchHighlight } from './extensions/SearchHighlight'
 interface TiptapYjsEditorProps {
   documentId: string
   bookId: string
-  currentUser: { id: string, name: string | null, email: string }
+  currentUser: { id: string, name: string | null, email: string, image?: string | null }
   wsToken: string
   initialContent?: string
   onEditorReady: (editor: Editor | null) => void
@@ -111,9 +111,28 @@ export default function TiptapYjsEditor({
         CollaborationCaret.configure({
           provider: prov,
           user: {
-            name: currentUser.name || currentUser.email.split('@')[0],
+            name: currentUser?.name || "Usuário",
             color: cursorColor,
+            image: currentUser?.image || null
           },
+          render: (user) => {
+            const cursor = document.createElement('span')
+            cursor.classList.add('collaboration-carets__caret')
+            cursor.setAttribute('style', `border-color: ${user.color}`)
+
+            const label = document.createElement('div')
+            label.classList.add('collaboration-carets__label')
+            label.setAttribute('style', `background-color: ${user.color}`)
+            
+            if (user.image) {
+              label.style.backgroundImage = `url(${user.image})`;
+            } else {
+              label.innerText = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+            }
+            
+            cursor.insertBefore(label, null)
+            return cursor
+          }
         }),
         Underline,
         TextStyle,
@@ -258,7 +277,7 @@ export default function TiptapYjsEditor({
         
         {/* Typography & Cursors CSS */}
         <style dangerouslySetInnerHTML={{__html: `
-          .collaboration-cursor__caret {
+          .collaboration-carets__caret {
             border-left: 2px solid #F5F5F5;
             border-right: 2px solid #F5F5F5;
             margin-left: -2px;
@@ -268,18 +287,27 @@ export default function TiptapYjsEditor({
             word-break: normal;
           }
           
-          .collaboration-cursor__label {
-            border-radius: 4px 4px 4px 0;
-            color: #FFF;
-            font-size: 12px;
-            font-weight: 600;
-            left: -2px;
-            line-height: normal;
-            padding: 2px 6px;
+          .collaboration-carets__label {
             position: absolute;
             top: -1.8em;
+            left: -2px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFF;
+            font-size: 12px;
+            font-weight: bold;
             user-select: none;
-            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 2px solid var(--theme-bg-surface);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+            z-index: 10;
           }
 
           /* Editor Selection */

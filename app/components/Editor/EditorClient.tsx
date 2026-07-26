@@ -76,11 +76,21 @@ export default function EditorClient({
   const [wordCount, setWordCount] = useState(0)
   const [isSynced, setIsSynced] = useState(true)
   const [editorUpdateTick, setEditorUpdateTick] = useState(0)
+  const [isTyping, setIsTyping] = useState(false)
 
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true)
   const [isAssistantOpen, setIsAssistantOpen] = useState(false)
   const [isRibbonOpen, setIsRibbonOpen] = useState(true)
   const [printScope, setPrintScope] = useState<'chapter' | 'book' | null>(null)
+  
+  useEffect(() => {
+    if (editorUpdateTick === 0) return;
+    setIsTyping(true);
+    const timeout = setTimeout(() => {
+      setIsTyping(false);
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [editorUpdateTick]);
   
 
   const toggleAssistant = () => {
@@ -141,6 +151,8 @@ export default function EditorClient({
             bookTitle={bookTitle}
             setBookTitle={setBookTitle}
             isSynced={isSynced} 
+            isTyping={isTyping}
+            currentUser={currentUser}
             isRibbonOpen={isRibbonOpen}
             onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
             lang={lang as Locale}

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Search, Cloud, CloudOff, Sun, Moon, User, ChevronDown, LogOut, LayoutDashboard, PanelTopClose, PanelTopOpen, Menu, Edit2, Check, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { logoutAction } from "@/app/actions/auth";
 import { renomearLivroAction } from "@/app/actions/book";
 import { dict } from "@/lib/dictionaries"
@@ -13,6 +14,8 @@ interface TopbarProps {
   bookTitle: string;
   setBookTitle: (title: string) => void;
   isSynced: boolean;
+  isTyping?: boolean;
+  currentUser?: any;
   isRibbonOpen: boolean;
   onToggleRibbon: () => void;
   lang: Language;
@@ -24,6 +27,8 @@ export default function Topbar({
   bookTitle, 
   setBookTitle,
   isSynced, 
+  isTyping,
+  currentUser,
   isRibbonOpen, 
   onToggleRibbon, 
   lang, 
@@ -149,18 +154,39 @@ export default function Topbar({
 
       {/* Right: Actions */}
       <div className="flex items-center justify-end gap-2 md:gap-4 shrink-0 text-[var(--theme-text-muted)]">
-        <div className="flex items-center gap-1.5 text-xs">
-          {isSynced ? (
-            <>
-              <Cloud className="w-4 h-4 text-[#22C55E]" />
-              <span className="hidden md:inline">{t.saved}</span>
-            </>
-          ) : (
-            <>
-              <CloudOff className="w-4 h-4 text-[#FF6B6B]" />
-              <span className="hidden md:inline">{t.syncing}</span>
-            </>
-          )}
+        
+        {/* Animated User Sync Status */}
+        <div className="flex items-center justify-center mr-1" title={isTyping ? "Digitando..." : isSynced ? "Salvo" : "Sincronizando..."}>
+          <div className={`relative flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 ${
+            isTyping ? "ring-2 ring-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.6)]" : 
+            isSynced ? "ring-2 ring-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.3)]" : 
+            "ring-2 ring-red-400 animate-pulse"
+          }`}>
+            {currentUser?.image ? (
+              <Image 
+                src={currentUser.image} 
+                alt="User Status" 
+                width={24} 
+                height={24} 
+                className={`rounded-full object-cover w-6 h-6 border-2 border-[var(--theme-bg-surface)] ${isTyping ? "animate-pulse" : ""}`}
+              />
+            ) : (
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center bg-[var(--theme-accent)] text-white text-[10px] font-bold border-2 border-[var(--theme-bg-surface)] ${isTyping ? "animate-pulse" : ""}`}>
+                {currentUser?.name?.charAt(0).toUpperCase() || "U"}
+              </div>
+            )}
+            
+            {/* Typing Indicator Sparkle */}
+            {isTyping && (
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-violet-500 rounded-full animate-ping" />
+            )}
+            {/* Sync Check */}
+            {!isTyping && isSynced && (
+              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-[var(--theme-bg-surface)] flex items-center justify-center">
+                <Check className="w-1.5 h-1.5 text-white stroke-[3px]" />
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="w-px h-4 bg-[var(--theme-bg-surface-elevated)]" />
