@@ -14,6 +14,7 @@ import PrintPreview from "./PrintPreview"
 import { dict } from "@/lib/dictionaries"
 import { Locale } from "@/lib/i18n-config"
 import { toast } from "sonner"
+import { NotificationsListener } from "@/app/components/NotificationsListener"
 
 const TiptapYjsEditor = dynamic(() => import("./TiptapYjsEditor"), {
   ssr: false,
@@ -33,6 +34,7 @@ interface EditorClientProps {
   isEncrypted?: boolean
   lang: string
   isPremium?: boolean
+  permissions?: string[]
 }
 
 export default function EditorClient({ 
@@ -47,12 +49,16 @@ export default function EditorClient({
   pin, 
   isEncrypted, 
   lang, 
-  isPremium = false 
+  isPremium = false,
+  permissions = ["OWNER"]
 }: EditorClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const urlSearch = searchParams.get('search') || ""
   const urlDocId = searchParams.get('docId')
+
+  const isOwner = permissions.includes("OWNER")
+  const canWrite = isOwner || permissions.includes("WRITE")
 
   const [documents, setDocuments] = useState<any[]>(initialDocuments)
   const [bookTitle, setBookTitle] = useState(book.title)
@@ -157,22 +163,26 @@ export default function EditorClient({
             onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
             lang={lang as Locale}
             onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+            isOwner={isOwner}
+            canWrite={canWrite}
           />
 
         {/* Ribbon: Conditionally rendered below Topbar */}
         {isRibbonOpen && (
-          <Ribbon 
-            editor={editor} 
-            editorUpdateTick={editorUpdateTick} 
-            onToggleAssistant={toggleAssistant} 
-            isAssistantOpen={isAssistantOpen}
-            book={book}
-            documents={documents}
-            activeDocumentId={activeDocumentId}
-            onPrintPreview={setPrintScope}
-            lang={lang as Locale}
-            isPremium={isPremium}
-          />
+          <div className={!canWrite ? "pointer-events-none opacity-50 grayscale" : ""}>
+            <Ribbon 
+              editor={editor} 
+              editorUpdateTick={editorUpdateTick} 
+              onToggleAssistant={toggleAssistant} 
+              isAssistantOpen={isAssistantOpen}
+              book={book}
+              documents={documents}
+              activeDocumentId={activeDocumentId}
+              onPrintPreview={setPrintScope}
+              lang={lang as Locale}
+              isPremium={isPremium}
+            />
+          </div>
         )}
 
         {/* Workspace: Flex-1 remaining space */}
@@ -216,6 +226,7 @@ export default function EditorClient({
                 onWordCountChange={setWordCount}
                 onSyncStatusChange={setIsSynced}
                 onEditorStateChange={() => setEditorUpdateTick(t => t + 1)}
+                editable={canWrite}
               />
             )
           })() : (
@@ -223,17 +234,17 @@ export default function EditorClient({
               {dict[lang as Locale].editor.emptyState}
             </div>
           )}
-        </main>
-      </div>
+          </main>
+        </div>
 
-      {/* StatusBar: Fixed at Bottom */}
-      <StatusBar 
-        wordCount={wordCount}
-        readingTime={readingTime}
-        isSynced={isSynced}
-        lang={lang as Locale}
-      />
-      </div>
+        {/* StatusBar: Fixed at Bottom */}
+        <StatusBar 
+          wordCount={wordCount}
+          readingTime={readingTime}
+          isSynced={isSynced}
+          lang={lang as Locale}
+        />
+        </div>
 
       {/* Assistant Sidebar: Full Height on Right */}
       {isAssistantOpen && (
@@ -247,6 +258,7 @@ export default function EditorClient({
           bookId={book.id}
         />
       )}
+      </div>
       
       {/* Print Preview Overlay */}
       {printScope && (
@@ -269,7 +281,8 @@ export default function EditorClient({
           onClose={() => setQuickEditModal({ isOpen: false, type: 'note', item: null })}
         />
       )}
-    </div>
+      
+      <NotificationsListener userId={currentUser.id} />
     </div>
   )
 }

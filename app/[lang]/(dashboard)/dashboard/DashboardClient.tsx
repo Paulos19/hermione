@@ -20,6 +20,8 @@ import {
 import { DashboardSidebar } from "@/app/components/Dashboard/DashboardSidebar"
 import { DashboardTopbar } from "@/app/components/Dashboard/DashboardTopbar"
 import { WeatherWidget } from "@/app/components/Dashboard/WeatherWidget"
+import { JoinBookModal } from "@/app/components/Dashboard/JoinBookModal"
+import { NotificationsListener } from "@/app/components/NotificationsListener"
 import { dict } from "@/lib/dictionaries"
 import { Locale } from "@/lib/i18n-config"
 import { useRouter } from "next/navigation"
@@ -43,6 +45,7 @@ interface Activity {
 }
 
 interface DashboardProps {
+  userId: string
   books: Book[]
   userName: string
   userImage?: string | null
@@ -62,7 +65,7 @@ function formatDate(date: Date, locale: string) {
   return new Intl.DateTimeFormat(loc, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(date))
 }
 
-export default function DashboardClient({ books: initialBooks, userName, userImage, wordsToday, recentActivity, characterCount, worldNoteCount, lang, isPremium,
+export default function DashboardClient({ userId, books: initialBooks, userName, userImage, wordsToday, recentActivity, characterCount, worldNoteCount, lang, isPremium,
   selectedPlan,
   projectsCount,
   aiCallsCount }: DashboardProps) {
@@ -151,6 +154,7 @@ export default function DashboardClient({ books: initialBooks, userName, userIma
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false)
 
   const recentBook = books[0]
 
@@ -409,13 +413,21 @@ export default function DashboardClient({ books: initialBooks, userName, userIma
               <section>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-[16px] font-medium text-[var(--theme-text-muted)]">{t.yourLibrary}</h2>
-                  <button
-                    onClick={handleCriarLivro}
-                    className="text-[14px] text-[var(--theme-text-main)] hover:text-[var(--theme-accent)] flex items-center gap-1 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    {t.newBook}
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setIsJoinModalOpen(true)}
+                      className="text-[14px] text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] flex items-center gap-1 transition-colors"
+                    >
+                      Resgatar Código
+                    </button>
+                    <button
+                      onClick={handleCriarLivro}
+                      className="text-[14px] text-[var(--theme-text-main)] hover:text-[var(--theme-accent)] flex items-center gap-1 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      {t.newBook}
+                    </button>
+                  </div>
                 </div>
 
                 {books.length > 0 ? (
@@ -480,6 +492,13 @@ export default function DashboardClient({ books: initialBooks, userName, userIma
           </main>
         </div>
       </div>
+
+      <JoinBookModal 
+        isOpen={isJoinModalOpen} 
+        onClose={() => setIsJoinModalOpen(false)} 
+        lang={lang} 
+      />
+      <NotificationsListener userId={userId} />
     </div>
   )
 }

@@ -16,7 +16,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
 
   const [books, user, progressToday, recentDocuments, characterCount, worldNoteCount] = await Promise.all([
     prisma.book.findMany({
-      where: { userId: session.user.id },
+      where: { 
+        OR: [
+          { userId: session.user.id },
+          { collaborators: { some: { userId: session.user.id, isActive: true } } }
+        ]
+      },
       orderBy: { updatedAt: "desc" },
       include: {
         documents: {
@@ -79,6 +84,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
   return (
     <div className="h-screen w-full bg-[#0A0D12] text-[#F5F5F5] overflow-hidden">
       <DashboardClient 
+        userId={session.user.id}
         books={serializedBooks} 
         userName={user?.name?.split(' ')[0] || "Usuário"} 
         userImage={user?.image}

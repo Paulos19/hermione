@@ -37,10 +37,26 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     const document = await prisma.document.findUnique({
       where: { id },
-      include: { book: true }
+      include: { 
+        book: {
+          include: {
+            collaborators: {
+              where: { userId: user.id },
+              select: { permissions: true }
+            }
+          }
+        } 
+      }
     })
 
-    if (!document || document.userId !== user.id) {
+    if (!document) {
+      return NextResponse.json({ error: "Documento não encontrado." }, { status: 404 })
+    }
+
+    const isOwner = document.userId === user.id;
+    const isCollab = document.book?.collaborators?.[0]?.permissions.includes("READ") ?? false;
+
+    if (!isOwner && !isCollab) {
       return NextResponse.json({ error: "Documento não encontrado." }, { status: 404 })
     }
 
@@ -74,10 +90,28 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const document = await prisma.document.findUnique({
       where: { id },
+      include: {
+        book: {
+          include: {
+            collaborators: {
+              where: { userId: user.id },
+              select: { permissions: true }
+            }
+          }
+        }
+      }
     })
 
-    if (!document || document.userId !== user.id) {
+    if (!document) {
       return NextResponse.json({ error: "Documento não encontrado." }, { status: 404 })
+    }
+
+    const isOwner = document.userId === user.id;
+    const isCollab = (document.book?.collaborators?.length ?? 0) > 0;
+    const canWrite = isCollab && (document.book?.collaborators?.[0]?.permissions.includes("WRITE") ?? false);
+
+    if (!isOwner && !canWrite) {
+      return NextResponse.json({ error: "Permissão negada." }, { status: 403 })
     }
 
     if (body.content !== undefined) {

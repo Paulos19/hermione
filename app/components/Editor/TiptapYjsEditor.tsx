@@ -47,6 +47,7 @@ interface TiptapYjsEditorProps {
   onEditorStateChange?: () => void
   searchQuery?: string
   onClearSearch?: () => void
+  editable?: boolean
 }
 
 export default function TiptapYjsEditor({ 
@@ -60,7 +61,8 @@ export default function TiptapYjsEditor({
   onSyncStatusChange,
   onEditorStateChange,
   searchQuery,
-  onClearSearch
+  onClearSearch,
+  editable = true
 }: TiptapYjsEditorProps) {
   const [editor, setEditor] = useState<Editor | null>(null)
 
@@ -68,6 +70,12 @@ export default function TiptapYjsEditor({
     const colors = ['#B899FF', '#F98181', '#FBCE41', '#4D96FF', '#68CE86']
     return colors[Math.floor(Math.random() * colors.length)]
   }, [])
+
+  useEffect(() => {
+    if (editor && editor.isEditable !== editable) {
+      editor.setEditable(editable);
+    }
+  }, [editor, editable])
 
   useEffect(() => {
     const doc = new Y.Doc()
@@ -166,7 +174,7 @@ export default function TiptapYjsEditor({
           lang: 'pt-BR',
         },
       },
-      editable: true,
+      editable: editable,
       onTransaction: () => {
         if (onEditorStateChange) onEditorStateChange();
       },

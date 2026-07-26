@@ -8,6 +8,7 @@ import { dict } from "@/lib/dictionaries"
 import { Locale as Language } from "@/lib/i18n-config";
 import { toast } from "sonner";
 import { useTheme, ThemeType } from "@/app/providers/ThemeProvider";
+import { BookCollaboratorsModal } from "./BookCollaboratorsModal";
 
 interface TopbarProps {
   bookId: string;
@@ -20,6 +21,8 @@ interface TopbarProps {
   onToggleRibbon: () => void;
   lang: Language;
   onToggleLeftSidebar?: () => void;
+  isOwner?: boolean;
+  canWrite?: boolean;
 }
 
 export default function Topbar({ 
@@ -32,12 +35,15 @@ export default function Topbar({
   isRibbonOpen, 
   onToggleRibbon, 
   lang, 
-  onToggleLeftSidebar
+  onToggleLeftSidebar,
+  isOwner,
+  canWrite
 }: TopbarProps) {
   const t = dict[lang].topbar;
   const { theme, setTheme } = useTheme();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isThemeOpen, setIsThemeOpen] = useState(false);
+  const [isCollabModalOpen, setIsCollabModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const themeRef = useRef<HTMLDivElement>(null);
 
@@ -135,7 +141,7 @@ export default function Topbar({
             >
               {bookTitle}
             </h1>
-            <Edit2 className="w-3 h-3 text-[var(--theme-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+            {canWrite && <Edit2 className="w-3 h-3 text-[var(--theme-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />}
           </div>
         )}
       </div>
@@ -236,6 +242,16 @@ export default function Topbar({
             </div>
           )}
         </div>
+
+        {isOwner && (
+          <button 
+            onClick={() => setIsCollabModalOpen(true)}
+            className="p-1.5 hover:bg-[var(--theme-bg-surface-elevated)] rounded-lg hover:text-[var(--theme-accent)] transition-colors"
+            title="Colaboradores do Projeto"
+          >
+            <User className="w-4 h-4" />
+          </button>
+        )}
         
         <div className="relative" ref={menuRef}>
           <button 
@@ -273,6 +289,15 @@ export default function Topbar({
           )}
         </div>
       </div>
+      
+      {isOwner && (
+        <BookCollaboratorsModal
+          bookId={bookId}
+          isOpen={isCollabModalOpen}
+          onClose={() => setIsCollabModalOpen(false)}
+          isOwner={isOwner}
+        />
+      )}
     </header>
   );
 }

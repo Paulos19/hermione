@@ -16,9 +16,18 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
 
   // Busca o livro com seus capítulos (documents), personagens e anotações
   const [book, user, progressToday] = await Promise.all([
-    prisma.book.findUnique({
-      where: { id: id, userId: session.user.id },
+    prisma.book.findFirst({
+      where: { 
+        id: id,
+        OR: [
+          { userId: session.user.id },
+          { collaborators: { some: { userId: session.user.id, isActive: true } } }
+        ]
+      },
       include: {
+        collaborators: {
+          where: { userId: session.user.id }
+        },
         documents: {
           select: {
             id: true,
@@ -69,6 +78,11 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
   // Usar o masterPin do usuário (banco) como fonte principal, com fallback para o pin do livro
   const masterPin = user?.masterPin || book.pin
 
+  const isOwner = book.userId === session.user.id;
+  const permissions = isOwner 
+    ? ["OWNER", "READ", "WRITE", "SHARE"] 
+    : (book.collaborators?.[0]?.permissions || ["READ"]);
+
   return (
     <EditorClient 
       book={book}
@@ -83,6 +97,7 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
       isEncrypted={book.securityType === 'pin' || book.securityType === 'biometrics'}
       lang={lang}
       isPremium={user?.isPremium || false}
+      permissions={permissions}
     />
   )
 }

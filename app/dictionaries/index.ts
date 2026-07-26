@@ -1,12 +1,12 @@
 export const dictionaries = {
   pt: {
-    heroPrefix: "Escrita sem complexidade — ",
+    heroPrefix: "O seu estúdio de escrita inteligente — ",
     typingPhrases: [
-      "clara, inteligente e desenhada para você.",
-      "um editor que entende o seu universo.",
-      "colaboração multiplayer com latência zero."
+      "onde a Inteligência Artificial expande a sua criatividade.",
+      "edição colaborativa com um co-piloto nativo.",
+      "sincronização em tempo real, online e offline."
     ],
-    heroSubtitle: "Assuma o controle total do seu processo criativo com um editor colaborativo que parece mágica.",
+    heroSubtitle: "Escreva, faça brainstorming e colabore em um editor de texto avançado com um assistente de IA integrado ao seu fluxo de trabalho.",
     nav: {
       product: "Produto",
       methodology: "Metodologia",
@@ -43,7 +43,7 @@ export const dictionaries = {
     },
     mobileSection: {
       title: "Seu estúdio, sempre no seu bolso.",
-      subtitle: "Toda a potência da Hermione sincronizada em tempo real no seu dispositivo móvel com o App Hermione. Crie, revise e colabore de onde estiver.",
+      subtitle: "Toda a potência do editor Hermione e do Chat IA sincronizados em tempo real no seu dispositivo móvel. Crie, debata ideias e colabore de onde estiver, até sem internet.",
       features: {
         sync: "Sincronização Yjs",
         offline: "Acesso Offline",
@@ -76,6 +76,10 @@ export const dictionaries = {
       title: "Tudo o que você precisa.",
       subtitle: "Nada do que não precisa.",
       features: [
+        {
+          title: "Co-piloto de IA Integrado",
+          description: "Mais que um editor. Converse com a Hermione lado a lado com seu documento para debater ideias, revisar textos e superar o bloqueio criativo."
+        },
         {
           title: "Sincronização Absoluta",
           description: "Cada letra que você digita é salva e sincronizada em tempo real em todos os seus dispositivos."
@@ -166,13 +170,13 @@ export const dictionaries = {
     }
   },
   en: {
-    heroPrefix: "Writing without complexity — ",
+    heroPrefix: "Your intelligent writing studio — ",
     typingPhrases: [
-      "clear, smart, and designed to work for you.",
-      "an editor that understands your universe.",
-      "multiplayer collaboration with zero latency."
+      "where Artificial Intelligence expands your creativity.",
+      "collaborative editing with a native co-pilot.",
+      "real-time synchronization, online and offline."
     ],
-    heroSubtitle: "Take full control of your creative process with a collaborative editor that feels like magic.",
+    heroSubtitle: "Write, brainstorm, and collaborate in an advanced text editor with an AI assistant integrated into your workflow.",
     nav: {
       product: "Product",
       methodology: "Methodology",
@@ -209,7 +213,7 @@ export const dictionaries = {
     },
     mobileSection: {
       title: "Your studio, always in your pocket.",
-      subtitle: "All the power of Hermione synced in real-time to your mobile device with the Hermione App. Create, review, and collaborate wherever you are.",
+      subtitle: "All the power of the Hermione editor and AI Chat synced in real-time to your mobile device. Create, brainstorm, and collaborate wherever you are, even without internet.",
       features: {
         sync: "Real-time Yjs Sync",
         offline: "Offline Access",
@@ -242,6 +246,10 @@ export const dictionaries = {
       title: "Everything you need.",
       subtitle: "Nothing you don't.",
       features: [
+        {
+          title: "Integrated AI Co-pilot",
+          description: "More than an editor. Chat with Hermione side-by-side with your document to brainstorm ideas, revise texts, and overcome writer's block."
+        },
         {
           title: "Absolute Sync",
           description: "Every character you type is saved and synced in real time across all your devices."

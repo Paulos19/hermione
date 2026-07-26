@@ -17,9 +17,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const user = getUserFromRequest(request)
     if (!user || !user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
 
-    const book = await prisma.book.findUnique({
-      where: { id, userId: user.id },
+    const book = await prisma.book.findFirst({
+      where: { 
+        id,
+        OR: [
+          { userId: user.id },
+          { collaborators: { some: { userId: user.id, isActive: true } } }
+        ]
+      },
       include: {
+        collaborators: {
+          where: { userId: user.id },
+          select: { permissions: true }
+        },
         documents: {
           orderBy: { order: 'asc' }
         },

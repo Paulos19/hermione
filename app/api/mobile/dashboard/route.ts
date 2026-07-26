@@ -29,9 +29,18 @@ export async function GET(request: Request) {
 
     // 1. Fetch books and documents for overview
     const books = await prisma.book.findMany({
-      where: { userId: user.id },
+      where: {
+        OR: [
+          { userId: user.id },
+          { collaborators: { some: { userId: user.id, isActive: true } } }
+        ]
+      },
       orderBy: { updatedAt: "desc" },
       include: {
+        collaborators: {
+          where: { userId: user.id },
+          select: { permissions: true }
+        },
         documents: {
           select: {
             id: true,

@@ -7,7 +7,7 @@ import { Geist } from "next/font/google";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Menu, X } from "lucide-react";
-import logoImg from "../../assets/design/logo.png";
+import logoImg from "../../assets/design/logobranco.png";
 
 const geistSans = Geist({ subsets: ["latin"] });
 
@@ -116,9 +116,9 @@ export default function Navbar({ dict }: { dict: any }) {
               }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className="relative w-11 h-11 bg-white/95 backdrop-blur-md rounded-full border border-white/40 shadow-[0_0_25px_rgba(255,255,255,0.25)] flex items-center justify-center p-1.5 cursor-pointer overflow-hidden group"
+              className="relative w-11 h-11 bg-[#09070f]/60 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.4)] flex items-center justify-center p-1.5 cursor-pointer overflow-hidden group"
             >
-              {/* Authentic black H logo with adaptive contrast background */}
+              {/* Authentic white H logo with dark glassmorphic background */}
               <Image 
                 src={logoImg} 
                 alt="Hermione Logo" 
@@ -127,7 +127,7 @@ export default function Navbar({ dict }: { dict: any }) {
                 className="w-full h-full object-contain"
                 priority
               />
-              <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
             </motion.div>
           </Link>
         </div>
