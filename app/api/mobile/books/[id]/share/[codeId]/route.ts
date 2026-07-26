@@ -11,7 +11,7 @@ function getUserFromRequest(request: Request) {
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string, codeId: string } }
+  { params }: { params: Promise<{ id: string, codeId: string }> }
 ) {
   try {
     const user = getUserFromRequest(request)
@@ -19,7 +19,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
     }
 
-    const { id, codeId } = params
+    const resolvedParams = await params
+    const { id, codeId } = resolvedParams
     if (!id || !codeId) {
       return NextResponse.json({ error: "Parâmetros ausentes." }, { status: 400 })
     }

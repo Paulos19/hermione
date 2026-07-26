@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { logoutAction } from "@/app/actions/auth"
-import logoImg from "@/assets/design/logo.png"
+import logoImg from "@/assets/design/logobranco.png"
 import {
   BookOpen,
   Library,
@@ -118,7 +118,7 @@ export function DashboardSidebar({
   const PlanIcon = currentConfig.icon
 
   // Cálculo de porcentagem de uso para barras de progresso
-  const projectsPercent = typeof currentConfig.maxProjects === "number" 
+  const projectsPercent = typeof currentConfig.maxProjects === "number"
     ? Math.min(100, Math.round((projectsCount / currentConfig.maxProjects) * 100))
     : 100
 
@@ -143,21 +143,21 @@ export function DashboardSidebar({
           isMobileOpen
             ? "fixed inset-y-0 left-0 w-[280px] shadow-2xl translate-x-0"
             : "fixed inset-y-0 left-0 -translate-x-full md:relative md:translate-x-0"
-        } ${
+          } ${
           // Desktop state: collapsed vs expanded
           isCollapsed ? "md:w-[72px]" : "md:w-[280px]"
-        }`}
+          }`}
       >
         {/* Header Bar inside Sidebar */}
         <div className="p-4 md:p-6 flex items-center justify-between border-b border-gray-100 dark:border-white/5">
           <div className="flex items-center gap-3 overflow-hidden">
             {/* White glass logo container badge with original H logo */}
             <div className="relative w-9 h-9 rounded-xl bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] shadow-[0_0_15px_var(--theme-accent-light)] flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
-              <Image 
-                src={logoImg} 
-                alt="Hermione Logo" 
-                width={36} 
-                height={36} 
+              <Image
+                src={logoImg}
+                alt="Hermione Logo"
+                width={36}
+                height={36}
                 className="w-full h-full object-contain"
                 priority
               />
@@ -200,11 +200,10 @@ export function DashboardSidebar({
                 href={item.href}
                 onClick={onCloseMobile}
                 title={isCollapsed ? item.name : undefined}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all duration-150 ${
-                  isActive
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all duration-150 ${isActive
                     ? "bg-violet-50 dark:bg-[#141A22] text-[var(--theme-accent)] font-semibold shadow-sm"
                     : "text-[var(--theme-text-muted)] hover:text-gray-900 dark:hover:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-[#141A22]/50"
-                } ${isCollapsed ? "justify-center px-0" : ""}`}
+                  } ${isCollapsed ? "justify-center px-0" : ""}`}
               >
                 <Icon className="w-[18px] h-[18px] shrink-0" />
                 {!isCollapsed && <span className="truncate">{item.name}</span>}
@@ -217,9 +216,8 @@ export function DashboardSidebar({
           <button
             onClick={() => logoutAction()}
             title={isCollapsed ? "Sair" : undefined}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] text-[var(--theme-text-muted)] hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-150 text-left ${
-              isCollapsed ? "justify-center px-0" : ""
-            }`}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] text-[var(--theme-text-muted)] hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-150 text-left ${isCollapsed ? "justify-center px-0" : ""
+              }`}
           >
             <LogOut className="w-[18px] h-[18px] shrink-0" />
             {!isCollapsed && <span>Sair</span>}
@@ -229,10 +227,10 @@ export function DashboardSidebar({
         {/* Bottom Section (Usage & Dynamic Illuminated Plan Card) */}
         {!isCollapsed ? (
           <div className="p-4 border-t border-[var(--theme-border-subtle)] bg-[var(--theme-bg-surface)] flex flex-col gap-3">
-            
+
             {/* Dynamic Illuminated Plan Info Card */}
             <div className={`relative p-4 rounded-2xl ${currentConfig.cardStyle} transition-all duration-300 overflow-hidden group`}>
-              
+
               {/* Radial ambient background light flare */}
               <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full ${currentConfig.glowColor} blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500`} />
 
@@ -246,7 +244,7 @@ export function DashboardSidebar({
                     {currentConfig.title}
                   </span>
                 </div>
-                
+
                 <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full border ${currentConfig.badgeStyle}`}>
                   {currentConfig.badgeText}
                 </span>
@@ -254,7 +252,7 @@ export function DashboardSidebar({
 
               {/* Stats & Progress Bars */}
               <div className="space-y-2.5 relative z-10">
-                
+
                 {/* Projetos */}
                 <div>
                   <div className="flex justify-between items-center text-[11px] mb-1">
@@ -265,8 +263,8 @@ export function DashboardSidebar({
                   </div>
                   {typeof currentConfig.maxProjects === "number" && (
                     <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                      <div 
-                        className={`h-full ${currentConfig.progressBg} rounded-full transition-all duration-500`} 
+                      <div
+                        className={`h-full ${currentConfig.progressBg} rounded-full transition-all duration-500`}
                         style={{ width: `${projectsPercent}%` }}
                       />
                     </div>
@@ -289,8 +287,8 @@ export function DashboardSidebar({
                   </div>
                   {typeof currentConfig.maxAiCalls === "number" && (
                     <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                      <div 
-                        className={`h-full ${aiPercent >= 85 ? "bg-amber-400" : currentConfig.progressBg} rounded-full transition-all duration-500`} 
+                      <div
+                        className={`h-full ${aiPercent >= 85 ? "bg-amber-400" : currentConfig.progressBg} rounded-full transition-all duration-500`}
                         style={{ width: `${aiPercent}%` }}
                       />
                     </div>
@@ -302,16 +300,16 @@ export function DashboardSidebar({
               {/* Upgrade / Subscription Action link inside card */}
               <div className="mt-3.5 pt-3 border-t border-white/10 flex items-center justify-between relative z-10">
                 {selectedPlan === "free" ? (
-                  <Link 
-                    href={`/${lang}/configuracoes?tab=billings`} 
+                  <Link
+                    href={`/${lang}/configuracoes?tab=billings`}
                     className="w-full inline-flex items-center justify-between text-[11px] font-bold text-white hover:text-emerald-400 transition-colors group/link"
                   >
                     <span>Fazer Upgrade para Pro</span>
                     <ArrowUpRight className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                   </Link>
                 ) : (
-                  <Link 
-                    href={`/${lang}/configuracoes?tab=billings`} 
+                  <Link
+                    href={`/${lang}/configuracoes?tab=billings`}
                     className="w-full inline-flex items-center justify-between text-[11px] font-medium text-gray-400 hover:text-white transition-colors"
                   >
                     <span>Gerenciar Assinatura</span>

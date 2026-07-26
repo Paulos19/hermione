@@ -18,7 +18,7 @@ function generateRandomCode() {
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = getUserFromRequest(request)
@@ -26,7 +26,8 @@ export async function POST(
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
     }
 
-    const { id } = params
+    const resolvedParams = await params
+    const { id } = resolvedParams
     if (!id) {
       return NextResponse.json({ error: "ID do livro ausente." }, { status: 400 })
     }

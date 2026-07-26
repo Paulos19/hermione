@@ -3,20 +3,20 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import logoImg from "@/assets/design/logo.png";
+import logoImg from "@/assets/design/logobranco.png";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Sparkles, 
-  Check, 
-  ArrowLeft, 
-  Crown, 
-  Package, 
-  Zap, 
-  Radio, 
-  ChevronDown, 
-  BookOpen, 
-  Feather, 
-  Flame, 
+import {
+  Sparkles,
+  Check,
+  ArrowLeft,
+  Crown,
+  Package,
+  Zap,
+  Radio,
+  ChevronDown,
+  BookOpen,
+  Feather,
+  Flame,
   ShieldCheck,
   UserCheck,
   FileText,
@@ -164,7 +164,7 @@ function LiveSubscriberToast() {
       if (metrics.recentSubscribers && metrics.recentSubscribers.length > 0) {
         const latestSub = metrics.recentSubscribers[0];
         const subKey = `sub-${latestSub.id}`;
-        
+
         // Data de atualização em milissegundos
         const updatedAtTime = latestSub.updatedAt ? new Date(latestSub.updatedAt).getTime() : Date.now();
         const isRecent = (Date.now() - updatedAtTime) < (3 * 60 * 1000); // nos últimos 3 minutos
@@ -206,7 +206,7 @@ function LiveSubscriberToast() {
               const data = await res.json();
               processMetricsData(data);
             }
-          } catch (e) {}
+          } catch (e) { }
         }, 15000);
       };
     } catch (e) {
@@ -281,8 +281,8 @@ function FAQAccordion() {
       {faqs.map((faq, i) => {
         const isOpen = openIndex === i;
         return (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className="border border-white/10 rounded-2xl bg-[#0F1015]/80 overflow-hidden transition-all duration-200"
           >
             <button
@@ -315,14 +315,14 @@ function FAQAccordion() {
 }
 
 // --- MAIN SUBSCRIBE CLIENT COMPONENT ---
-export default function SubscribeClient({ 
-  lang, 
-  isPremium, 
-  selectedPlan: initialPlan 
-}: { 
-  lang: string; 
-  isPremium: boolean; 
-  selectedPlan: string 
+export default function SubscribeClient({
+  lang,
+  isPremium,
+  selectedPlan: initialPlan
+}: {
+  lang: string;
+  isPremium: boolean;
+  selectedPlan: string
 }) {
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
   const [currentPlan, setCurrentPlan] = useState(initialPlan);
@@ -359,7 +359,7 @@ export default function SubscribeClient({
           setRealActivity(data.recentActivity);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleSubscribe = async (plan: "pro" | "premium") => {
@@ -375,7 +375,7 @@ export default function SubscribeClient({
 
   return (
     <div className="min-h-screen bg-[#050507] text-[#F5F5F5] font-sans antialiased selection:bg-white selection:text-black relative overflow-x-hidden">
-      
+
       {/* BACKGROUND POSTER / AMBIENT GLOW (MONOCHROME SYSTEM DESIGN) */}
       <div className="absolute top-0 left-0 right-0 h-[850px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 via-[#0A0B10] to-[#050507] pointer-events-none -z-10" />
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-white/5 blur-[150px] rounded-full pointer-events-none -z-10" />
@@ -386,16 +386,16 @@ export default function SubscribeClient({
       {/* CUSTOM SYSTEM DESIGN HEADER */}
       <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[#050507]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          
+
           {/* Logo / Brand */}
           <div className="flex items-center gap-3">
             <Link href={`/${lang}/dashboard`} className="flex items-center gap-3 group">
               <div className="relative w-10 h-10 rounded-xl bg-white border border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform overflow-hidden">
-                <Image 
-                  src={logoImg} 
-                  alt="Hermione Logo" 
-                  width={40} 
-                  height={40} 
+                <Image
+                  src={logoImg}
+                  alt="Hermione Logo"
+                  width={40}
+                  height={40}
                   className="w-full h-full object-contain"
                   priority
                 />
@@ -456,15 +456,14 @@ export default function SubscribeClient({
       {/* PRICING SECTION - SYSTEM DESIGN CARDS */}
       <section id="planos" className="pb-24 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          
+
           {/* CARD 1: GRÁTIS / ESSENTIAL */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className={`relative rounded-3xl bg-[#0E0F14]/90 border ${
-              currentPlan === "free" ? "border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.1)]" : "border-white/10 hover:border-white/20"
-            } p-8 flex flex-col justify-between backdrop-blur-xl transition-all duration-300`}
+            className={`relative rounded-3xl bg-[#0E0F14]/90 border ${currentPlan === "free" ? "border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.1)]" : "border-white/10 hover:border-white/20"
+              } p-8 flex flex-col justify-between backdrop-blur-xl transition-all duration-300`}
           >
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -536,9 +535,8 @@ export default function SubscribeClient({
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className={`relative rounded-3xl bg-gradient-to-b from-[#161822] via-[#0F1017] to-[#0E0F14] border ${
-              currentPlan === "pro" ? "border-white shadow-[0_0_40px_rgba(255,255,255,0.2)]" : "border-white/20 hover:border-white/40"
-            } p-8 flex flex-col justify-between backdrop-blur-xl shadow-2xl transition-all duration-300 transform lg:-translate-y-2`}
+            className={`relative rounded-3xl bg-gradient-to-b from-[#161822] via-[#0F1017] to-[#0E0F14] border ${currentPlan === "pro" ? "border-white shadow-[0_0_40px_rgba(255,255,255,0.2)]" : "border-white/20 hover:border-white/40"
+              } p-8 flex flex-col justify-between backdrop-blur-xl shadow-2xl transition-all duration-300 transform lg:-translate-y-2`}
           >
             {/* POPULAR BADGE */}
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-white text-black text-[10px] font-bold uppercase tracking-widest shadow-lg flex items-center gap-1.5">
@@ -617,9 +615,8 @@ export default function SubscribeClient({
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className={`relative rounded-3xl bg-[#0E0F14]/90 border ${
-              currentPlan === "premium" ? "border-amber-500/60 shadow-[0_0_35px_rgba(245,158,11,0.2)]" : "border-white/10 hover:border-white/20"
-            } p-8 flex flex-col justify-between backdrop-blur-xl transition-all duration-300`}
+            className={`relative rounded-3xl bg-[#0E0F14]/90 border ${currentPlan === "premium" ? "border-amber-500/60 shadow-[0_0_35px_rgba(245,158,11,0.2)]" : "border-white/10 hover:border-white/20"
+              } p-8 flex flex-col justify-between backdrop-blur-xl transition-all duration-300`}
           >
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -705,8 +702,8 @@ export default function SubscribeClient({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {realActivity.length > 0 ? (
               realActivity.slice(0, 6).map((act, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="p-6 rounded-2xl bg-[#0F1016] border border-white/10 hover:border-white/30 transition-all flex flex-col justify-between"
                 >
                   <div className="flex items-center gap-3 mb-4">
@@ -805,11 +802,11 @@ export default function SubscribeClient({
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
           <div className="flex items-center gap-3">
             <div className="relative w-9 h-9 rounded-xl bg-white border border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.15)] flex items-center justify-center p-1.5 overflow-hidden">
-              <Image 
-                src={logoImg} 
-                alt="Hermione Logo" 
-                width={36} 
-                height={36} 
+              <Image
+                src={logoImg}
+                alt="Hermione Logo"
+                width={36}
+                height={36}
                 className="w-full h-full object-contain"
               />
             </div>

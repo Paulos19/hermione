@@ -12,7 +12,7 @@ function getUserFromRequest(request: Request) {
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string, collabId: string } }
+  { params }: { params: Promise<{ id: string, collabId: string }> }
 ) {
   try {
     const user = getUserFromRequest(request)
@@ -20,7 +20,8 @@ export async function PUT(
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
     }
 
-    const { id, collabId } = params
+    const resolvedParams = await params
+    const { id, collabId } = resolvedParams
     if (!id || !collabId) {
       return NextResponse.json({ error: "Parâmetros ausentes." }, { status: 400 })
     }
