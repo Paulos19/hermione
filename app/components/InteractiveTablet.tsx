@@ -197,9 +197,9 @@ export default function InteractiveTablet({ scrollYProgress, dict }: { scrollYPr
                       <div className="flex-1" />
                       <button 
                         onClick={() => setView('chat')}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#B899FF]/10 text-[#B899FF] text-[10px] uppercase tracking-wider font-medium hover:bg-[#B899FF]/20 transition-colors shrink-0"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#B899FF]/15 text-[#B899FF] text-[10px] uppercase tracking-wider font-semibold hover:bg-[#B899FF]/25 transition-all shrink-0 animate-pulse border border-[#B899FF]/30 shadow-[0_0_12px_rgba(184,153,255,0.25)]"
                       >
-                        <Sparkles className="w-3 h-3" /> Ask AI
+                        <Sparkles className="w-3.5 h-3.5" /> Ask AI
                       </button>
                     </div>
 

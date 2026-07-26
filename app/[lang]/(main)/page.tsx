@@ -47,8 +47,6 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       <CtaFinalSection dict={dict} />
       <FooterSection dict={dict} />
       
-      {/* Gradient fade out at the very bottom just in case the tablet overflows aggressively */}
-      <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#030303] to-transparent pointer-events-none z-50" />
     </main>
   )
 }
