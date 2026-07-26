@@ -54,7 +54,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const isOwner = document.userId === user.id;
-    const isCollab = document.book?.collaborators?.[0]?.permissions.includes("READ") ?? false;
+    const isCollab = (document.book?.collaborators?.length ?? 0) > 0;
 
     if (!isOwner && !isCollab) {
       return NextResponse.json({ error: "Documento não encontrado." }, { status: 404 })
