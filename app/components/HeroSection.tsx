@@ -49,7 +49,7 @@ export default function HeroSection({ dict }: { dict: any }) {
           setActiveCount(data.activeWriters);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
@@ -66,7 +66,7 @@ export default function HeroSection({ dict }: { dict: any }) {
         className="absolute top-8 left-8 md:top-12 md:left-12 z-30"
       >
         <span className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-white/50 uppercase">
-          {dict?.heroTitle || "HERMIONE"}
+
         </span>
       </motion.div>
 
@@ -78,8 +78,6 @@ export default function HeroSection({ dict }: { dict: any }) {
         className="absolute top-8 right-8 md:top-12 md:right-12 z-30 flex items-center gap-6"
       >
         <button className="flex items-center gap-2 text-[10px] md:text-[11px] font-medium tracking-[0.2em] text-white/50 hover:text-white transition-colors">
-          {dict?.heroShare || "COMPARTILHAR"}
-          <span className="text-white/30">+</span>
         </button>
         <button className="text-white/40 hover:text-white transition-colors">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -234,9 +232,8 @@ export default function HeroSection({ dict }: { dict: any }) {
           <button
             key={num}
             onClick={() => setCurrentSlide(num)}
-            className={`w-6 h-6 flex items-center justify-center text-[9px] font-mono transition-colors ${
-              currentSlide === num ? 'text-white' : 'text-white/20 hover:text-white/50'
-            }`}
+            className={`w-6 h-6 flex items-center justify-center text-[9px] font-mono transition-colors ${currentSlide === num ? 'text-white' : 'text-white/20 hover:text-white/50'
+              }`}
           >
             {String(num).padStart(2, '0')}
           </button>

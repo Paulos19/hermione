@@ -17,7 +17,7 @@ export default function ParticleTransitionCanvas({
   const [progress, setProgress] = useState(0);
 
   // Track scroll progress
-  useMotionValueEvent(scrollProgress, "change", (latest) => {
+  useMotionValueEvent(scrollProgress, "change", (latest: number) => {
     setProgress(latest);
     if (orbRef.current) {
       orbRef.current.setProgress(latest);
