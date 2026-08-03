@@ -1,159 +1,219 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, X } from "lucide-react";
-import { Cormorant_Garamond } from "next/font/google";
-import { TiltCard } from "./ui/be-ui-tilt-card";
+import { Check, ArrowRight } from "lucide-react";
 
-const cormorant = Cormorant_Garamond({ 
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap"
-});
-
-const plans = [
+const PLANS = [
   {
     name: "Grátis",
     price: "0",
+    period: "",
     description: "Ideal para experimentar o ecossistema e começar sua jornada.",
     features: [
-      { name: "Até 3 Projetos", included: true },
-      { name: "Sincronização em tempo real", included: true },
-      { name: "Modo Foco", included: true },
-      { name: "Acesso à IA (Hermione)", included: false },
-      { name: "Exportação (.hrm, .pdf, .docx)", included: false },
+      "Até 3 Projetos",
+      "Sincronização em tempo real",
+      "Modo Foco",
+    ],
+    limitations: [
+      "Acesso à IA (Hermione)",
+      "Exportação (.hrm, .pdf, .docx)",
     ],
     buttonText: "Começar Grátis",
-    isPopular: false
+    popular: false,
   },
   {
     name: "Pro",
     price: "19,99",
+    period: "/mês",
     description: "Para escritores dedicados que precisam de mais espaço e ajuda.",
     features: [
-      { name: "Até 8 Projetos", included: true },
-      { name: "Sincronização em tempo real", included: true },
-      { name: "Modo Foco", included: true },
-      { name: "Acesso à IA Limitado", included: true },
-      { name: "Exportação Completa", included: true },
+      "Até 8 Projetos",
+      "Sincronização em tempo real",
+      "Modo Foco",
+      "Acesso à IA Limitado",
+      "Exportação Completa",
     ],
+    limitations: [],
     buttonText: "Assinar Pro",
-    isPopular: true
+    popular: true,
   },
   {
     name: "Premium",
     price: "49,99",
+    period: "/mês",
     description: "A experiência definitiva. Sem limites para a sua criatividade.",
     features: [
-      { name: "Projetos Ilimitados", included: true },
-      { name: "Sincronização em tempo real", included: true },
-      { name: "Modo Foco", included: true },
-      { name: "Acesso à IA Ilimitado", included: true },
-      { name: "Exportação Completa", included: true },
+      "Projetos Ilimitados",
+      "Sincronização em tempo real",
+      "Modo Foco",
+      "Acesso à IA Ilimitado",
+      "Exportação Completa",
+      "Suporte Prioritário",
     ],
+    limitations: [],
     buttonText: "Assinar Premium",
-    isPopular: false
-  }
+    popular: false,
+  },
 ];
 
 export default function PricingSection({ dict }: { dict?: any }) {
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const priceDict = dict?.pricingSection;
 
-  const dynamicPlans = [
-    {
-      ...plans[0],
-      name: priceDict?.freePlan?.name || plans[0].name,
-      description: priceDict?.freePlan?.description || plans[0].description,
-      buttonText: priceDict?.freePlan?.buttonText || plans[0].buttonText,
-    },
-    {
-      ...plans[1],
-      name: priceDict?.proPlan?.name || plans[1].name,
-      description: priceDict?.proPlan?.description || plans[1].description,
-      buttonText: priceDict?.proPlan?.buttonText || plans[1].buttonText,
-    },
-    {
-      ...plans[2],
-      name: priceDict?.premiumPlan?.name || plans[2].name,
-      description: priceDict?.premiumPlan?.description || plans[2].description,
-      buttonText: priceDict?.premiumPlan?.buttonText || plans[2].buttonText,
-    },
-  ];
+  const plans = PLANS.map((plan, i) => ({
+    ...plan,
+    name: priceDict?.[`${["free", "pro", "premium"][i]}Plan`]?.name || plan.name,
+    description: priceDict?.[`${["free", "pro", "premium"][i]}Plan`]?.description || plan.description,
+    buttonText: priceDict?.[`${["free", "pro", "premium"][i]}Plan`]?.buttonText || plan.buttonText,
+  }));
 
   return (
-    <section className="bg-[#030303] py-32 relative overflow-hidden flex flex-col items-center">
-      <div className="container px-4 z-10 mx-auto max-w-6xl">
-        <div className="flex flex-col items-center justify-center max-w-[700px] mx-auto mb-20 text-center">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className={`${cormorant.className} text-5xl md:text-7xl font-light tracking-wide leading-tight text-white`}
-          >
-            {priceDict?.title || "Invista na sua"} <br />
-            <span className="italic opacity-60">obra prima</span>
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="mt-6 text-white/50 text-lg max-w-[500px] font-light leading-relaxed"
-          >
-            Escolha o plano perfeito para as suas necessidades de escrita. Desde o rascunho inicial até o manuscrito final.
-          </motion.p>
-        </div>
+    <section id="pricing" className="relative bg-[#030303] py-24 md:py-32 overflow-hidden">
+      {/* Grid background */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
 
-        <div className="flex flex-col lg:flex-row gap-8 justify-center items-center lg:items-stretch">
-          {dynamicPlans.map((plan, idx) => (
-            <TiltCard 
-              key={plan.name} 
-              className={`w-full max-w-[340px] flex flex-col p-8 bg-[#0a0a0a] border ${plan.isPopular ? 'border-violet-500/50' : 'border-white/10'}`}
+      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16">
+
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-col items-center text-center mb-16 md:mb-20"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#E84855]" />
+            <span className="text-[10px] font-bold tracking-[0.3em] text-white/40 uppercase">
+              {priceDict?.badge || "Planos & Assinaturas"}
+            </span>
+          </div>
+          <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] leading-[1.05] font-bold text-white/90 uppercase tracking-tight">
+            {priceDict?.title || "Escolha o seu"}
+            <br />
+            <span className="text-[#E84855]">plano</span>
+          </h2>
+
+          {/* Billing Toggle */}
+          <div className="flex items-center gap-3 mt-8 p-1 bg-white/[0.03] rounded-full border border-white/[0.06]">
+            <button
+              onClick={() => setBillingCycle("monthly")}
+              className={`px-5 py-2 rounded-full text-[11px] font-bold tracking-[0.15em] uppercase transition-all duration-300 ${
+                billingCycle === "monthly"
+                  ? "bg-[#E84855] text-white"
+                  : "text-white/40 hover:text-white/60"
+              }`}
             >
-              {plan.isPopular && (
-                <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500 to-transparent" />
-              )}
-              
-              <div className="mb-8">
-                <span className="inline-block px-3 py-1 text-xs font-semibold tracking-wider uppercase text-white/70 bg-white/5 rounded-full border border-white/10 mb-6">
-                  {plan.name}
-                </span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl text-white/50">R$</span>
-                  <span className="text-5xl font-light text-white tracking-tight">{plan.price}</span>
-                  <span className="text-white/50">/mês</span>
-                </div>
-                <p className="mt-4 text-sm text-white/50 leading-relaxed min-h-[60px]">
-                  {plan.description}
-                </p>
-              </div>
+              Mensal
+            </button>
+            <button
+              onClick={() => setBillingCycle("yearly")}
+              className={`px-5 py-2 rounded-full text-[11px] font-bold tracking-[0.15em] uppercase transition-all duration-300 ${
+                billingCycle === "yearly"
+                  ? "bg-[#E84855] text-white"
+                  : "text-white/40 hover:text-white/60"
+              }`}
+            >
+              Anual
+              <span className="ml-2 text-[9px] text-[#E84855]">-20%</span>
+            </button>
+          </div>
+        </motion.div>
 
-              <button className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
-                plan.isPopular 
-                  ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]' 
-                  : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'
+        {/* Pricing Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+          {plans.map((plan, index) => (
+            <motion.div
+              key={plan.name}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.15, duration: 0.8 }}
+              className={`relative group ${plan.popular ? "md:-mt-4 md:mb-4" : ""}`}
+            >
+              <div className={`relative h-full p-8 transition-all duration-500 ${
+                plan.popular
+                  ? "bg-[#080808] border border-[#E84855]/30"
+                  : "bg-[#060606] border border-white/[0.04] hover:border-white/[0.08]"
               }`}>
-                {plan.buttonText}
-              </button>
-
-              <div className="mt-8 space-y-4 flex-1">
-                {plan.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    {feature.included ? (
-                      <Check className="w-5 h-5 text-violet-400 shrink-0" />
-                    ) : (
-                      <X className="w-5 h-5 text-white/20 shrink-0" />
-                    )}
-                    <span className={`text-sm ${feature.included ? 'text-white/80' : 'text-white/30'}`}>
-                      {feature.name}
+                {/* Popular badge */}
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="px-4 py-1 bg-[#E84855] text-white text-[9px] font-bold tracking-[0.2em] uppercase">
+                      Mais Popular
                     </span>
                   </div>
-                ))}
+                )}
+
+                {/* Plan name */}
+                <div className="mb-6">
+                  <h3 className="text-[12px] font-bold tracking-[0.3em] text-white/40 uppercase mb-4">
+                    {plan.name}
+                  </h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-[14px] text-white/30">R$</span>
+                    <span className="text-[48px] md:text-[56px] font-bold text-white leading-none tracking-tight">
+                      {plan.price}
+                    </span>
+                    {plan.period && (
+                      <span className="text-[13px] text-white/30">{plan.period}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Description */}
+                <p className="text-[13px] text-white/40 leading-relaxed mb-8 min-h-[60px]">
+                  {plan.description}
+                </p>
+
+                {/* CTA Button */}
+                <button className={`w-full py-4 px-6 text-[11px] font-bold tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-3 ${
+                  plan.popular
+                    ? "bg-[#E84855] text-white hover:bg-[#E84855]/90"
+                    : "bg-white/[0.04] text-white/70 border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.15]"
+                }`}>
+                  <span>{plan.buttonText}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                {/* Divider */}
+                <div className="h-[1px] bg-white/[0.04] my-8" />
+
+                {/* Features */}
+                <div className="space-y-4">
+                  {plan.features.map((feature, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-[#E84855]/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-3 h-3 text-[#E84855]" />
+                      </div>
+                      <span className="text-[13px] text-white/60">{feature}</span>
+                    </div>
+                  ))}
+                  {plan.limitations.map((limitation, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-white/[0.03] flex items-center justify-center shrink-0 mt-0.5">
+                        <span className="text-[10px] text-white/20">✕</span>
+                      </div>
+                      <span className="text-[13px] text-white/25">{limitation}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </TiltCard>
+            </motion.div>
           ))}
         </div>
+
+        {/* Bottom note */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 }}
+          className="text-center text-[11px] text-white/20 mt-12"
+        >
+          Todos os planos incluem atualizações gratuitas • Cancele quando quiser
+        </motion.p>
+
       </div>
     </section>
   );

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react"
 
-export type ThemeType = "light" | "dark" | "ocean" | "dracula" | "sunset" | "desert"
+export type ThemeType = "light" | "dark" | "ocean" | "dracula" | "sunset" | "desert" | "premium-dark"
 
 interface ThemeContextType {
   theme: ThemeType
@@ -12,7 +12,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeType>("dark")
+  const [theme, setThemeState] = useState<ThemeType>("premium-dark")
 
   useEffect(() => {
     // Load saved theme on mount
@@ -27,7 +27,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement
     
     // Remove all old theme classes (if any, like 'dark')
-    root.classList.remove("light", "dark", "ocean", "dracula", "sunset", "desert")
+    root.classList.remove("light", "dark", "ocean", "dracula", "sunset", "desert", "premium-dark")
     
     // Add current theme class (used for Tailwind variants if needed)
     root.classList.add(theme)

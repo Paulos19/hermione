@@ -1,5 +1,6 @@
 export const dictionaries = {
   pt: {
+    heroTitle: "HERMIONE",
     heroPrefix: "O seu estúdio de escrita inteligente — ",
     typingPhrases: [
       "onde a Inteligência Artificial expande a sua criatividade.",
@@ -7,11 +8,14 @@ export const dictionaries = {
       "sincronização em tempo real, online e offline."
     ],
     heroSubtitle: "Escreva, faça brainstorming e colabore em um editor de texto avançado com um assistente de IA integrado ao seu fluxo de trabalho.",
+    heroNext: "Começar agora",
+    heroSocialProof: "escritores ativos",
+    heroSocialProofIdle: "Escritores colaborando",
     nav: {
-      product: "Produto",
-      methodology: "Metodologia",
-      company: "Empresa",
-      resources: "Recursos",
+      overview: "VISÃO GERAL",
+      ecosystem: "ECOSSISTEMA",
+      pricing: "PREÇOS",
+      metrics: "TELEMETRIA",
       signIn: "Entrar",
       start: "Começar Grátis"
     },
@@ -42,23 +46,49 @@ export const dictionaries = {
       signUpButton: "Criar Conta Grátis"
     },
     mobileSection: {
-      title: "Seu estúdio, sempre no seu bolso.",
-      subtitle: "Toda a potência do editor Hermione e do Chat IA sincronizados em tempo real no seu dispositivo móvel. Crie, debata ideias e colabore de onde estiver, até sem internet.",
-      features: {
-        sync: "Sincronização Yjs",
-        offline: "Acesso Offline",
-        ai: "Chat AI Nativo"
-      },
-      cta: "Explorar App Hermione"
+      tag: "ECOSSISTEMA",
+      title: "MODERN\nSTYLE",
+      subtitle: "Toda a potência do editor de mesa reimaginada para a tela que está sempre com você. Sincronização em tempo real, colaboração e IA nativa.",
+      cta: "EXPLORAR",
+      scrollDown: "ROLE PARA BAIXO",
+      followUs: "SIGA-NOS",
+      features: [
+        {
+          title: "Sincronização em Tempo Real",
+          desc: "Suas alterações fluem entre dispositivos instantaneamente."
+        },
+        {
+          title: "Modo Offline",
+          desc: "Continue escrevendo mesmo sem internet."
+        },
+        {
+          title: "IA Nativa",
+          desc: "Assistente criativa otimizada para o toque."
+        }
+      ],
+      sideLabels: ["EDITOR", "OFFLINE", "MOBILE"]
     },
     metricsSection: {
-      tag: "Rede Neural Global",
-      title: "Escrevendo a história",
-      together: "juntos.",
-      activeUsersLabel: "Usuários Conectados",
-      chaptersLabel: "Capítulos Escritos",
-      wordsLabel: "Palavras Geradas",
-      subscribersLabel: "Autores Premium"
+      tag: "REDE GLOBAL",
+      title: "Escritores",
+      titleAccent: "Conectados",
+      titlePrefix: "UMA COMUNIDADE DE",
+      cta: "VER MÉTRICAS",
+      share: "COMPARTILHAR",
+      connected: "Online agora",
+      viewCommunity: "Ver Comunidade",
+      communityTitle: "Comunidade Hermione",
+      communitySubtitle: "Autores que estão transformando suas ideias em obras-primas.",
+      author: "Autor",
+      status: "Plano",
+      memberSince: "Membro desde",
+      page: "Página",
+      metrics: [
+        { label: "ESCRITORES ATIVOS", suffix: "" },
+        { label: "CAPÍTULOS ESCRITOS", suffix: "+" },
+        { label: "PALAVRAS GERADAS", suffix: "M" },
+        { label: "OBRAS EM COLABORAÇÃO", suffix: "" }
+      ]
     },
     phasePresentation: {
       morphWords: ["Sua história.", "Sua visão.", "Seu legado."],
@@ -170,6 +200,7 @@ export const dictionaries = {
     }
   },
   en: {
+    heroTitle: "HERMIONE",
     heroPrefix: "Your intelligent writing studio — ",
     typingPhrases: [
       "where Artificial Intelligence expands your creativity.",
@@ -177,11 +208,14 @@ export const dictionaries = {
       "real-time synchronization, online and offline."
     ],
     heroSubtitle: "Write, brainstorm, and collaborate in an advanced text editor with an AI assistant integrated into your workflow.",
+    heroNext: "Start now",
+    heroSocialProof: "active writers",
+    heroSocialProofIdle: "Writers collaborating",
     nav: {
-      product: "Product",
-      methodology: "Methodology",
-      company: "Company",
-      resources: "Resources",
+      overview: "OVERVIEW",
+      ecosystem: "ECOSYSTEM",
+      pricing: "PRICING",
+      metrics: "TELEMETRY",
       signIn: "Sign In",
       start: "Start Free"
     },
@@ -212,23 +246,49 @@ export const dictionaries = {
       signUpButton: "Create Free Account"
     },
     mobileSection: {
-      title: "Your studio, always in your pocket.",
-      subtitle: "All the power of the Hermione editor and AI Chat synced in real-time to your mobile device. Create, brainstorm, and collaborate wherever you are, even without internet.",
-      features: {
-        sync: "Real-time Yjs Sync",
-        offline: "Offline Access",
-        ai: "Native AI Chat"
-      },
-      cta: "Explore Hermione App"
+      tag: "ECOSYSTEM",
+      title: "MODERN\nSTYLE",
+      subtitle: "All the power of the desktop editor reimagined for the screen that's always with you. Real-time sync, collaboration, and native AI.",
+      cta: "EXPLORE",
+      scrollDown: "SCROLL DOWN",
+      followUs: "FOLLOW US",
+      features: [
+        {
+          title: "Real-Time Sync",
+          desc: "Your changes flow between devices instantly."
+        },
+        {
+          title: "Offline Mode",
+          desc: "Keep writing even without internet."
+        },
+        {
+          title: "Native AI",
+          desc: "Creative assistant optimized for touch."
+        }
+      ],
+      sideLabels: ["EDITOR", "OFFLINE", "MOBILE"]
     },
     metricsSection: {
-      tag: "Global Neural Network",
-      title: "Writing history",
-      together: "together.",
-      activeUsersLabel: "Connected Users",
-      chaptersLabel: "Chapters Written",
-      wordsLabel: "Words Generated",
-      subscribersLabel: "Premium Authors"
+      tag: "GLOBAL NETWORK",
+      title: "Writers",
+      titleAccent: "Connected",
+      titlePrefix: "A COMMUNITY OF",
+      cta: "VIEW METRICS",
+      share: "SHARE",
+      connected: "Online now",
+      viewCommunity: "View Community",
+      communityTitle: "Hermione Community",
+      communitySubtitle: "Authors turning their ideas into masterpieces.",
+      author: "Author",
+      status: "Plan",
+      memberSince: "Member since",
+      page: "Page",
+      metrics: [
+        { label: "ACTIVE WRITERS", suffix: "" },
+        { label: "CHAPTERS WRITTEN", suffix: "+" },
+        { label: "WORDS GENERATED", suffix: "M" },
+        { label: "COLLABORATIVE WORKS", suffix: "" }
+      ]
     },
     phasePresentation: {
       morphWords: ["Your story.", "Your vision.", "Your legacy."],
@@ -340,18 +400,22 @@ export const dictionaries = {
     }
   },
   es: {
-    heroPrefix: "Escritura sin complejidad — ",
+    heroTitle: "HERMIONE",
+    heroPrefix: "Tu estudio de escritura inteligente — ",
     typingPhrases: [
-      "clara, inteligente y diseñada para ti.",
-      "un editor que entiende tu universo.",
-      "colaboración multijugador con latencia cero."
+      "donde la Inteligencia Artificial expande tu creatividad.",
+      "edición colaborativa con un copiloto nativo.",
+      "sincronización en tiempo real, online y offline."
     ],
-    heroSubtitle: "Toma el control total de tu proceso creativo con un editor colaborativo que se siente como magia.",
+    heroSubtitle: "Escribe, haz brainstorming y colabora en un editor de texto avanzado con un asistente de IA integrado en tu flujo de trabajo.",
+    heroNext: "Empezar ahora",
+    heroSocialProof: "escritores activos",
+    heroSocialProofIdle: "Escritores colaborando",
     nav: {
-      product: "Producto",
-      methodology: "Metodología",
-      company: "Empresa",
-      resources: "Recursos",
+      overview: "VISIÓN GENERAL",
+      ecosystem: "ECOSISTEMA",
+      pricing: "PRECIOS",
+      metrics: "TELEMETRÍA",
       signIn: "Iniciar sesión",
       start: "Empezar Gratis"
     },
@@ -382,23 +446,49 @@ export const dictionaries = {
       signUpButton: "Crear Cuenta Gratis"
     },
     mobileSection: {
-      title: "Tu estudio, siempre en tu bolsillo.",
-      subtitle: "Todo el poder de Hermione sincronizado en tiempo real en tu dispositivo móvil con la App Hermione. Crea, revisa y colabora desde cualquier lugar.",
-      features: {
-        sync: "Sincronización Yjs",
-        offline: "Acceso Offline",
-        ai: "Chat AI Nativo"
-      },
-      cta: "Explorar App Hermione"
+      tag: "ECOSISTEMA",
+      title: "MODERN\nSTYLE",
+      subtitle: "Todo el poder del editor de escritorio reimaginado para la pantalla que siempre está contigo. Sincronización en tiempo real, colaboración e IA nativa.",
+      cta: "EXPLORAR",
+      scrollDown: "DESPLEGAR",
+      followUs: "SÍGUENOS",
+      features: [
+        {
+          title: "Sincronización en Tiempo Real",
+          desc: "Tus cambios fluyen entre dispositivos al instante."
+        },
+        {
+          title: "Modo Offline",
+          desc: "Sigue escribiendo sin conexión a internet."
+        },
+        {
+          title: "IA Nativa",
+          desc: "Asistente creativa optimizada para touch."
+        }
+      ],
+      sideLabels: ["EDITOR", "OFFLINE", "MÓVIL"]
     },
     metricsSection: {
-      tag: "Red Neural Global",
-      title: "Escribiendo la historia",
-      together: "juntos.",
-      activeUsersLabel: "Usuarios Conectados",
-      chaptersLabel: "Capítulos Escritos",
-      wordsLabel: "Palabras Generadas",
-      subscribersLabel: "Autores Premium"
+      tag: "RED GLOBAL",
+      title: "Escritores",
+      titleAccent: "Conectados",
+      titlePrefix: "UNA COMUNIDAD DE",
+      cta: "VER MÉTRICAS",
+      share: "COMPARTIR",
+      connected: "En línea ahora",
+      viewCommunity: "Ver Comunidad",
+      communityTitle: "Comunidad Hermione",
+      communitySubtitle: "Autores transformando sus ideas en obras maestras.",
+      author: "Autor",
+      status: "Plan",
+      memberSince: "Miembro desde",
+      page: "Página",
+      metrics: [
+        { label: "ESCRITORES ACTIVOS", suffix: "" },
+        { label: "CAPÍTULOS ESCRITOS", suffix: "+" },
+        { label: "PALABRAS GENERADAS", suffix: "M" },
+        { label: "OBRAS EN COLABORACIÓN", suffix: "" }
+      ]
     },
     phasePresentation: {
       morphWords: ["Tu historia.", "Tu visión.", "Tu legado."],
@@ -416,6 +506,10 @@ export const dictionaries = {
       title: "Todo lo que necesitas.",
       subtitle: "Nada de lo que no necesitas.",
       features: [
+        {
+          title: "Copiloto de IA Integrado",
+          description: "Más que un editor. Conversa con Hermione lado a lado con tu documento para debatir ideas, revisar textos y superar el bloqueo creativo."
+        },
         {
           title: "Sincronización Absoluta",
           description: "Cada letra que escribes se guarda y sincroniza en tiempo real en todos tus dispositivos."
@@ -491,7 +585,7 @@ export const dictionaries = {
         leftTop: { label: "DA VIDA A", words: ["Tu Historia.", "Tu Visión.", "Tu Legado.", "Tu Arte."] },
         leftBottom: { label: "ESCRIBE CON", words: ["Enfoque Total.", "Claridad Absoluta.", "Flujo Creativo.", "Libertad."] },
         rightTop: { label: "TU MENTE", words: ["Sin Límites.", "Sin Barreras.", "Sin Distracciones.", "En Armonía."] },
-        rightBottom: { label: "TRANSFORMA EN", words: ["Obra Maestra.", "Libro Inolvidable.", "Bestseller.", "Realidade."] }
+        rightBottom: { label: "TRANSFORMA EN", words: ["Obra Maestra.", "Libro Inolvidable.", "Bestseller.", "Realidad."] }
       }
     },
     footer: {

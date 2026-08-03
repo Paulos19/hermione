@@ -58,6 +58,7 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
+        image: true,
         selectedPlan: true,
         updatedAt: true,
       },
@@ -68,10 +69,48 @@ export async function GET() {
       return {
         id: u.id,
         name: displayName,
+        image: u.image || null,
         plan: u.selectedPlan === "pro" ? "Pro" : "Premium",
         updatedAt: u.updatedAt,
       };
     });
+
+    // Active writers: users who have updated a document in the last 7 days
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const activeWriters = await prisma.user.count({
+      where: {
+        documents: {
+          some: {
+            updatedAt: { gte: sevenDaysAgo },
+          },
+        },
+      },
+    });
+
+    // Recent active writers with avatars (for social proof display)
+    const recentActiveWriters = await prisma.user.findMany({
+      where: {
+        documents: {
+          some: {
+            updatedAt: { gte: sevenDaysAgo },
+          },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+      },
+    });
+
+    const formattedActiveWriters = recentActiveWriters.map((u) => ({
+      id: u.id,
+      name: u.name || u.email?.split("@")[0] || "Autor",
+      image: u.image || null,
+    }));
 
     return NextResponse.json({
       chapters: chaptersCount,
@@ -79,6 +118,8 @@ export async function GET() {
       subscribers: subscribers,
       recentActivity: recentActivity,
       recentSubscribers: formattedSubscribers,
+      activeWriters: activeWriters,
+      recentActiveWriters: formattedActiveWriters,
     });
   } catch (error) {
     console.error("Erro ao buscar métricas:", error);

@@ -87,6 +87,20 @@
   --theme-accent-light: rgba(234, 179, 8, 0.1);
 }
 
+[data-theme="premium-dark"] {
+  /* Premium Dark Minimalist (Inspired by reference) */
+  --theme-bg-main: #050505;
+  --theme-bg-surface: #0a0a0a;
+  --theme-bg-surface-elevated: #111111;
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-border-subtle: rgba(255, 255, 255, 0.03);
+  --theme-text-main: #FAFAFA;
+  --theme-text-muted: #A1A1AA; /* zinc-400 */
+  --theme-accent: #C08A7C; /* Rose Gold / Copper */
+  --theme-accent-hover: #D49A89; /* Lighter Copper */
+  --theme-accent-light: rgba(192, 138, 124, 0.1);
+}
+
 @theme inline {
   --color-theme-main: var(--theme-bg-main);
   --color-theme-surface: var(--theme-bg-surface);

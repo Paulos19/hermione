@@ -88,6 +88,11 @@ export default function EditorClient({
   const [isAssistantOpen, setIsAssistantOpen] = useState(false)
   const [isRibbonOpen, setIsRibbonOpen] = useState(true)
   const [printScope, setPrintScope] = useState<'chapter' | 'book' | null>(null)
+  const [zoomLevel, setZoomLevel] = useState<number>(100);
+
+  const handleZoomIn = () => setZoomLevel(prev => Math.min(200, prev + 10));
+  const handleZoomOut = () => setZoomLevel(prev => Math.max(50, prev - 10));
+  const handleResetZoom = () => setZoomLevel(100);
   
   useEffect(() => {
     if (editorUpdateTick === 0) return;
@@ -152,24 +157,34 @@ export default function EditorClient({
         
         <div className="flex flex-col flex-1 h-screen overflow-hidden">
           {/* Topbar: Fixed at Top */}
-          <Topbar 
-            bookId={book.id}
-            bookTitle={bookTitle}
-            setBookTitle={setBookTitle}
-            isSynced={isSynced} 
-            isTyping={isTyping}
-            currentUser={currentUser}
-            isRibbonOpen={isRibbonOpen}
-            onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
-            lang={lang as Locale}
-            onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
-            isOwner={isOwner}
-            canWrite={canWrite}
-          />
+          <div className="relative z-[80] overflow-visible">
+            <Topbar 
+              bookId={book.id}
+              bookTitle={bookTitle}
+              setBookTitle={setBookTitle}
+              isSynced={isSynced} 
+              isTyping={isTyping}
+              currentUser={currentUser}
+              isRibbonOpen={isRibbonOpen}
+              onToggleRibbon={() => setIsRibbonOpen(!isRibbonOpen)}
+              lang={lang as Locale}
+              onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+              isOwner={isOwner}
+              canWrite={canWrite}
+              documents={documents}
+              characters={characters}
+              notes={notes}
+              activeDocumentId={activeDocumentId}
+              onSelectDocument={setActiveDocumentId}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              onOpenQuickEdit={(type, item) => setQuickEditModal({ isOpen: true, type, item })}
+            />
+          </div>
 
         {/* Ribbon: Conditionally rendered below Topbar */}
         {isRibbonOpen && (
-          <div className={!canWrite ? "pointer-events-none opacity-50 grayscale" : ""}>
+          <div className={`relative z-[60] overflow-visible ${!canWrite ? "pointer-events-none opacity-50 grayscale" : ""}`}>
             <Ribbon 
               editor={editor} 
               editorUpdateTick={editorUpdateTick} 
@@ -186,7 +201,7 @@ export default function EditorClient({
         )}
 
         {/* Workspace: Flex-1 remaining space */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden relative z-10">
           
           {/* Sidebar */}
           <Sidebar 
@@ -213,21 +228,29 @@ export default function EditorClient({
             const activeDocument = documents.find(d => d.id === activeDocumentId)
             let initialContent = activeDocument?.content || ''
             return (
-              <TiptapYjsEditor 
-                key={activeDocumentId}
-                documentId={activeDocumentId} 
-                bookId={book.id}
-                currentUser={currentUser} 
-                wsToken={wsToken} 
-                initialContent={initialContent}
-                searchQuery={searchQuery}
-                onClearSearch={() => setSearchQuery("")}
-                onEditorReady={setEditor}
-                onWordCountChange={setWordCount}
-                onSyncStatusChange={setIsSynced}
-                onEditorStateChange={() => setEditorUpdateTick(t => t + 1)}
-                editable={canWrite}
-              />
+              <div 
+                className="w-full flex justify-center transition-transform duration-150 ease-out origin-top shrink-0"
+                style={{ 
+                  transform: `scale(${zoomLevel / 100})`,
+                  marginBottom: zoomLevel > 100 ? `${(zoomLevel - 100) * 10}px` : undefined 
+                }}
+              >
+                <TiptapYjsEditor 
+                  key={activeDocumentId}
+                  documentId={activeDocumentId} 
+                  bookId={book.id}
+                  currentUser={currentUser} 
+                  wsToken={wsToken} 
+                  initialContent={initialContent}
+                  searchQuery={searchQuery}
+                  onClearSearch={() => setSearchQuery("")}
+                  onEditorReady={setEditor}
+                  onWordCountChange={setWordCount}
+                  onSyncStatusChange={setIsSynced}
+                  onEditorStateChange={() => setEditorUpdateTick(t => t + 1)}
+                  editable={canWrite}
+                />
+              </div>
             )
           })() : (
             <div className="h-full flex items-center justify-center text-[#8A94A0]">
@@ -243,6 +266,11 @@ export default function EditorClient({
           readingTime={readingTime}
           isSynced={isSynced}
           lang={lang as Locale}
+          zoomLevel={zoomLevel}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onResetZoom={handleResetZoom}
+          setZoomLevel={setZoomLevel}
         />
         </div>
 

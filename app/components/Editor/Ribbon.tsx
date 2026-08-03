@@ -42,7 +42,17 @@ import {
   AArrowUp,
   AArrowDown,
   CaseSensitive,
-  Table as TableIcon
+  Table as TableIcon,
+  ArrowLeftToLine,
+  ArrowRightToLine,
+  ArrowUpToLine,
+  ArrowDownToLine,
+  Combine,
+  SplitSquareHorizontal,
+  Trash2,
+  Trash,
+  Plus,
+  Grid
 } from "lucide-react";
 import FindAndReplace from "./FindAndReplace";
 import { dict } from "@/lib/dictionaries"
@@ -106,6 +116,14 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
   const [exportMenuOpen, setExportMenuOpen] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("home");
   
+  // Table Selector States
+  const [tablePickerOpen, setTablePickerOpen] = useState(false);
+  const [hoverRows, setHoverRows] = useState(3);
+  const [hoverCols, setHoverCols] = useState(3);
+  const [customRows, setCustomRows] = useState(3);
+  const [customCols, setCustomCols] = useState(3);
+  const [withHeaderRow, setWithHeaderRow] = useState(true);
+  
   const fontRef = useRef<HTMLDivElement>(null);
   const sizeRef = useRef<HTMLDivElement>(null);
   const colorRef = useRef<HTMLDivElement>(null);
@@ -113,6 +131,21 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
   const lineSpacingRef = useRef<HTMLDivElement>(null);
   const changeCaseRef = useRef<HTMLDivElement>(null);
   const exportRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  const getFixedStyle = (ref: React.RefObject<HTMLDivElement | null>, width = 160) => {
+    if (typeof window === 'undefined' || !ref.current) {
+      return { position: 'fixed' as const, top: 120, left: 16, zIndex: 100 };
+    }
+    const rect = ref.current.getBoundingClientRect();
+    const left = Math.min(Math.max(8, rect.left), window.innerWidth - width - 12);
+    return {
+      position: 'fixed' as const,
+      top: `${rect.bottom + 4}px`,
+      left: `${left}px`,
+      zIndex: 100,
+    };
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -123,6 +156,7 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
       if (lineSpacingRef.current && !lineSpacingRef.current.contains(event.target as Node)) setLineSpacingMenuOpen(false);
       if (changeCaseRef.current && !changeCaseRef.current.contains(event.target as Node)) setChangeCaseMenuOpen(false);
       if (exportRef.current && !exportRef.current.contains(event.target as Node)) setExportMenuOpen(null);
+      if (tableRef.current && !tableRef.current.contains(event.target as Node)) setTablePickerOpen(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -379,7 +413,7 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
   );
 
   return (
-    <div className="w-full bg-[var(--theme-bg-surface)] border-b border-[var(--theme-border-subtle)] flex flex-col relative z-30">
+    <div className="w-full bg-[var(--theme-bg-surface)] border-b border-[var(--theme-border-subtle)] flex flex-col relative z-[60]">
       
       {/* Tabs */}
       <div className="flex items-center gap-1 px-4 pt-2 overflow-x-auto scrollbar-hide">
@@ -395,7 +429,7 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
       </div>
 
       {/* Ribbon Content */}
-      <div className="h-[90px] md:h-[100px] py-1 md:py-0 w-full bg-[var(--theme-bg-surface-elevated)] flex flex-nowrap items-center px-2 shrink-0 select-none overflow-x-auto overflow-y-visible scrollbar-hide gap-y-2 shadow-sm">
+      <div className="min-h-[85px] md:min-h-[100px] py-1 md:py-0 w-full bg-[var(--theme-bg-surface-elevated)] flex items-center px-2 shrink-0 select-none overflow-x-auto custom-scrollbar md:overflow-visible flex-nowrap gap-1.5 md:gap-2 shadow-sm relative z-[60]">
         
         {activeTab === 'home' && (
           <>
@@ -426,10 +460,13 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
                 <ChevronDown className="w-3.5 h-3.5 text-[var(--theme-text-muted)]" />
               </button>
               {fontMenuOpen && (
-                <div className="absolute top-full left-0 mt-1 min-w-[150px] bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 z-50 overflow-hidden">
-                  <button onMouseDown={(e) => e.preventDefault()} onClick={() => setFontFamily("Inter, sans-serif")} className="w-full text-left px-3 py-1.5 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-[var(--theme-bg-main)] font-sans">Inter</button>
-                  <button onMouseDown={(e) => e.preventDefault()} onClick={() => setFontFamily("var(--font-geist-sans), sans-serif")} className="w-full text-left px-3 py-1.5 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-[var(--theme-bg-main)] font-sans">Geist</button>
-                  <button onMouseDown={(e) => e.preventDefault()} onClick={() => setFontFamily("var(--font-cormorant-garamond), serif")} className="w-full text-left px-3 py-1.5 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-[var(--theme-bg-main)] font-serif">Cormorant</button>
+                <div 
+                  className="fixed z-[100] min-w-[150px] bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 overflow-hidden backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                  style={getFixedStyle(fontRef, 150)}
+                >
+                  <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setFontFamily("Inter, sans-serif"); setFontMenuOpen(false); }} className="w-full text-left px-3 py-1.5 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white font-sans">Inter</button>
+                  <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setFontFamily("var(--font-geist-sans), sans-serif"); setFontMenuOpen(false); }} className="w-full text-left px-3 py-1.5 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white font-sans">Geist</button>
+                  <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setFontFamily("var(--font-cormorant-garamond), serif"); setFontMenuOpen(false); }} className="w-full text-left px-3 py-1.5 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white font-serif">Cormorant</button>
                 </div>
               )}
             </div>
@@ -444,9 +481,12 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
                 <ChevronDown className="w-3.5 h-3.5 text-[var(--theme-text-muted)]" />
               </button>
               {sizeMenuOpen && (
-                <div className="absolute top-full left-0 mt-1 w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 z-50 overflow-hidden">
+                <div 
+                  className="fixed z-[100] w-[70px] bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 overflow-hidden backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                  style={getFixedStyle(sizeRef, 70)}
+                >
                   {['12px', '14px', '17px', '20px', '24px', '34px'].map(size => (
-                    <button onMouseDown={(e) => e.preventDefault()} key={size} onClick={() => setFontSize(size)} className="w-full text-left px-3 py-1.5 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-[var(--theme-bg-main)]">{size.replace('px', '')}</button>
+                    <button onMouseDown={(e) => e.preventDefault()} key={size} onClick={() => { setFontSize(size); setSizeMenuOpen(false); }} className="w-full text-left px-3 py-1.5 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white">{size.replace('px', '')}</button>
                   ))}
                 </div>
               )}
@@ -478,12 +518,15 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
                 </div>
               </button>
               {colorMenuOpen && (
-                <div className="absolute top-full left-0 mt-1 p-2 bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-md shadow-xl z-50 grid grid-cols-5 gap-1 w-[140px]">
+                <div 
+                  className="fixed z-[100] p-2 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl shadow-2xl grid grid-cols-5 gap-1 w-[140px] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                  style={getFixedStyle(colorRef, 140)}
+                >
                   {['#F5F5F5', '#8A94A0', '#B899FF', '#F98181', '#FBCE41', '#4D96FF', '#68CE86', '#0A0D12'].map(color => (
                     <button onMouseDown={(e) => e.preventDefault()} 
                       key={color} 
                       onClick={() => { editor.chain().focus().setColor(color).run(); setColorMenuOpen(false); }}
-                      className="w-5 h-5 rounded-full border border-[var(--theme-border)]" 
+                      className="w-5 h-5 rounded-full border border-[var(--theme-border)] hover:scale-110 transition-transform" 
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -505,12 +548,15 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
                 </div>
               </button>
               {highlightMenuOpen && (
-                <div className="absolute top-full left-0 mt-1 p-2 bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-md shadow-xl z-50 grid grid-cols-4 gap-1 w-[120px]">
+                <div 
+                  className="fixed z-[100] p-2 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl shadow-2xl grid grid-cols-4 gap-1 w-[120px] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                  style={getFixedStyle(highlightRef, 120)}
+                >
                   {['#B899FF50', '#F9818150', '#FBCE4150', '#4D96FF50', '#68CE8650'].map(color => (
                     <button onMouseDown={(e) => e.preventDefault()} 
                       key={color} 
                       onClick={() => { editor.chain().focus().setHighlight({ color }).run(); setHighlightMenuOpen(false); }}
-                      className="w-5 h-5 rounded-md border border-[var(--theme-border)]" 
+                      className="w-5 h-5 rounded-md border border-[var(--theme-border)] hover:scale-110 transition-transform" 
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -534,9 +580,12 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
           <div className="relative" ref={lineSpacingRef}>
              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setLineSpacingMenuOpen(!lineSpacingMenuOpen)} className={`${btnBase} ${btnHover}`} title="Line Spacing"><ArrowUpDown className="w-4 h-4" /></button>
              {lineSpacingMenuOpen && (
-                <div className="absolute top-full left-0 mt-1 w-24 bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-md shadow-xl py-1 z-50">
+                <div 
+                  className="fixed z-[100] w-24 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                  style={getFixedStyle(lineSpacingRef, 96)}
+                >
                   {['1', '1.15', '1.5', '2'].map(spacing => (
-                    <button onMouseDown={(e) => e.preventDefault()} key={spacing} onClick={() => setLineSpacing(spacing)} className="w-full text-left px-3 py-1.5 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-[var(--theme-bg-main)]">{spacing}</button>
+                    <button onMouseDown={(e) => e.preventDefault()} key={spacing} onClick={() => { setLineSpacing(spacing); setLineSpacingMenuOpen(false); }} className="w-full text-left px-3 py-1.5 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white">{spacing}</button>
                   ))}
                 </div>
              )}
@@ -592,10 +641,128 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
       <RibbonGroup title={t.insert}>
         <div className="flex items-center gap-0.5">
           
-          <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={`${getBtnClass(editor.isActive('table'))} !w-[48px] !h-[48px]`} title="Inserir Tabela">
-            <TableIcon className="w-4 h-4 mb-1" />
-            <span className="text-[9px]">Tabela</span>
-          </button>
+          <div className="relative" ref={tableRef}>
+            <button 
+              onMouseDown={(e) => e.preventDefault()} 
+              onClick={() => setTablePickerOpen(!tablePickerOpen)} 
+              className={`${getBtnClass(editor.isActive('table'))} !w-[48px] !h-[48px] relative flex flex-col items-center justify-center`} 
+              title="Inserir Tabela Personalizada"
+            >
+              <TableIcon className="w-4 h-4 mb-1" />
+              <span className="text-[9px]">Tabela</span>
+            </button>
+
+            {tablePickerOpen && (
+              <div 
+                className="fixed z-[100] p-3 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-2xl shadow-2xl min-w-[240px] text-[var(--theme-text-main)] flex flex-col gap-3 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                style={getFixedStyle(tableRef, 240)}
+              >
+                {editor.isActive('table') && (
+                  <div className="pb-2 border-b border-[var(--theme-border-subtle)]">
+                    <button
+                      onClick={() => {
+                        editor.chain().focus().deleteTable().run();
+                        setTablePickerOpen(false);
+                      }}
+                      className="w-full py-1.5 px-3 bg-red-500/15 hover:bg-red-500/25 text-red-400 hover:text-red-300 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-red-500/20 shadow-sm"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Remover Tabela Selecionada
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between border-b border-[var(--theme-border-subtle)] pb-2">
+                  <span className="text-xs font-semibold flex items-center gap-1.5">
+                    <TableIcon className="w-3.5 h-3.5 text-[var(--theme-accent,#3b82f6)]" />
+                    Inserir Tabela
+                  </span>
+                  <span className="text-[11px] font-mono font-bold text-[var(--theme-accent,#3b82f6)] bg-[var(--theme-accent,#3b82f6)]/10 px-2 py-0.5 rounded">
+                    {hoverCols} x {hoverRows}
+                  </span>
+                </div>
+
+                {/* Grid Selector 10x10 */}
+                <div className="flex flex-col gap-1 items-center justify-center p-2 bg-[var(--theme-bg-surface)] rounded-lg border border-[var(--theme-border-subtle)]">
+                  {Array.from({ length: 10 }).map((_, rIndex) => (
+                    <div key={rIndex} className="flex gap-1">
+                      {Array.from({ length: 10 }).map((_, cIndex) => {
+                        const isSelected = rIndex < hoverRows && cIndex < hoverCols;
+                        return (
+                          <div
+                            key={cIndex}
+                            onMouseEnter={() => {
+                              setHoverRows(rIndex + 1);
+                              setHoverCols(cIndex + 1);
+                            }}
+                            onClick={() => {
+                              editor.chain().focus().insertTable({ rows: rIndex + 1, cols: cIndex + 1, withHeaderRow }).run();
+                              setTablePickerOpen(false);
+                            }}
+                            className={`w-3.5 h-3.5 rounded-sm transition-all duration-75 cursor-pointer border ${
+                              isSelected
+                                ? "bg-[var(--theme-accent,#3b82f6)] border-[var(--theme-accent,#3b82f6)] shadow-sm"
+                                : "bg-transparent border-[var(--theme-border-subtle)] hover:border-[var(--theme-border)]"
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Manual inputs & header toggle */}
+                <div className="flex flex-col gap-2 pt-1 border-t border-[var(--theme-border-subtle)]">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center justify-between text-[11px] text-[var(--theme-text-muted)]">
+                      <span>Colunas:</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={customCols}
+                        onChange={(e) => setCustomCols(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-12 h-6 px-1 text-center bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded text-xs text-[var(--theme-text-main)] outline-none focus:border-[var(--theme-accent)]"
+                      />
+                    </div>
+                    <div className="flex-1 flex items-center justify-between text-[11px] text-[var(--theme-text-muted)]">
+                      <span>Linhas:</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={30}
+                        value={customRows}
+                        onChange={(e) => setCustomRows(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-12 h-6 px-1 text-center bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded text-xs text-[var(--theme-text-main)] outline-none focus:border-[var(--theme-accent)]"
+                      />
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 text-[11px] text-[var(--theme-text-muted)] cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={withHeaderRow}
+                      onChange={(e) => setWithHeaderRow(e.target.checked)}
+                      className="rounded accent-[var(--theme-accent,#3b82f6)] cursor-pointer"
+                    />
+                    Linha de Cabeçalho
+                  </label>
+
+                  <button
+                    onClick={() => {
+                      editor.chain().focus().insertTable({ rows: customRows, cols: customCols, withHeaderRow }).run();
+                      setTablePickerOpen(false);
+                    }}
+                    className="w-full mt-1 py-1.5 bg-[var(--theme-accent,#3b82f6)] text-white text-xs font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 shadow-md"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Inserir Tabela ({customCols}x{customRows})
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="relative w-[48px] h-[48px]">
             <UploadImageButton editor={editor} />
             <button onMouseDown={(e) => e.preventDefault()} className={`${btnBase} !w-[48px] !h-[48px] pointer-events-none`}>
@@ -617,6 +784,104 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
         </div>
       </RibbonGroup>
 
+      {/* Ferramentas Contextuais da Tabela */}
+      {editor.isActive('table') && (
+        <RibbonGroup title="Tabela">
+          <div className="flex items-center gap-0.5">
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().addColumnBefore().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col`}
+              title="Adicionar Coluna à Esquerda"
+            >
+              <ArrowLeftToLine className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">+ Col Esq</span>
+            </button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col`}
+              title="Adicionar Coluna à Direita"
+            >
+              <ArrowRightToLine className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">+ Col Dir</span>
+            </button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().deleteColumn().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col text-red-400 hover:text-red-500`}
+              title="Excluir Coluna"
+            >
+              <Trash className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">Del Col</span>
+            </button>
+
+            <div className="w-[1px] h-6 bg-[var(--theme-border)] mx-1" />
+
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().addRowBefore().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col`}
+              title="Adicionar Linha Acima"
+            >
+              <ArrowUpToLine className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">+ Lin Acima</span>
+            </button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col`}
+              title="Adicionar Linha Abaixo"
+            >
+              <ArrowDownToLine className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">+ Lin Abaixo</span>
+            </button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().deleteRow().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col text-red-400 hover:text-red-500`}
+              title="Excluir Linha"
+            >
+              <Trash className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">Del Lin</span>
+            </button>
+
+            <div className="w-[1px] h-6 bg-[var(--theme-border)] mx-1" />
+
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().mergeCells().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col`}
+              title="Mesclar Células"
+            >
+              <Combine className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">Mesclar</span>
+            </button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().splitCell().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col`}
+              title="Dividir Célula"
+            >
+              <SplitSquareHorizontal className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">Dividir</span>
+            </button>
+
+            <div className="w-[1px] h-6 bg-[var(--theme-border)] mx-1" />
+
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().deleteTable().run()}
+              className={`${btnBase} !h-[48px] px-2 flex-col text-red-500 hover:text-red-600`}
+              title="Excluir Tabela Completa"
+            >
+              <Trash2 className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px]">Excluir Tab</span>
+            </button>
+          </div>
+        </RibbonGroup>
+      )}
+
       </>
         )}
 
@@ -635,17 +900,20 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
               <span className="text-[9px]">DOCX</span>
             </button>
             {exportMenuOpen === 'docx' && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-lg shadow-xl overflow-hidden z-50">
+              <div 
+                className="fixed z-[100] w-48 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 overflow-hidden backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                style={getFixedStyle(exportRef, 190)}
+              >
                 <div className="flex flex-col">
                   <button onMouseDown={(e) => e.preventDefault()} 
-                    onClick={() => handleExportDOCX('chapter')}
-                    className="flex items-center justify-between px-3 py-2 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-surface-elevated)] transition-colors"
+                    onClick={() => { handleExportDOCX('chapter'); setExportMenuOpen(null); }}
+                    className="flex items-center justify-between px-3 py-2 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white transition-colors"
                   >
                     <span>{t.currentChapter}</span>
                   </button>
                   <button onMouseDown={(e) => e.preventDefault()} 
-                    onClick={() => handleExportDOCX('book')}
-                    className="flex items-center justify-between px-3 py-2 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-surface-elevated)] transition-colors border-t border-[var(--theme-border-subtle)]"
+                    onClick={() => { handleExportDOCX('book'); setExportMenuOpen(null); }}
+                    className="flex items-center justify-between px-3 py-2 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white transition-colors border-t border-[var(--theme-border-subtle)]"
                   >
                     <span>{t.entireBook}</span>
                   </button>
@@ -664,17 +932,20 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
               <span className="text-[9px]">.HRM</span>
             </button>
             {exportMenuOpen === 'hrm' && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-lg shadow-xl overflow-hidden z-50">
+              <div 
+                className="fixed z-[100] w-48 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 overflow-hidden backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                style={getFixedStyle(exportRef, 190)}
+              >
                 <div className="flex flex-col">
                   <button onMouseDown={(e) => e.preventDefault()} 
-                    onClick={() => handleExportHRM('chapter')}
-                    className="flex items-center justify-between px-3 py-2 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-surface-elevated)] transition-colors"
+                    onClick={() => { handleExportHRM('chapter'); setExportMenuOpen(null); }}
+                    className="flex items-center justify-between px-3 py-2 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white transition-colors"
                   >
                     <span>{t.currentChapter}</span>
                   </button>
                   <button onMouseDown={(e) => e.preventDefault()} 
-                    onClick={() => handleExportHRM('book')}
-                    className="flex items-center justify-between px-3 py-2 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-surface-elevated)] transition-colors border-t border-[var(--theme-border-subtle)]"
+                    onClick={() => { handleExportHRM('book'); setExportMenuOpen(null); }}
+                    className="flex items-center justify-between px-3 py-2 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white transition-colors border-t border-[var(--theme-border-subtle)]"
                   >
                     <span>{t.entireBook}</span>
                   </button>
@@ -693,14 +964,17 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
               <span className="text-[9px]">PDF</span>
             </button>
             {exportMenuOpen === 'pdf' && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-lg shadow-xl overflow-hidden z-50">
+              <div 
+                className="fixed z-[100] w-48 bg-[var(--theme-bg-surface-elevated)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 overflow-hidden backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                style={getFixedStyle(exportRef, 190)}
+              >
                 <div className="flex flex-col">
                   <button onMouseDown={(e) => e.preventDefault()} 
                     onClick={() => {
                       if (onPrintPreview) onPrintPreview('chapter');
                       setExportMenuOpen(null);
                     }}
-                    className="flex items-center justify-between px-3 py-2 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-surface-elevated)] transition-colors"
+                    className="flex items-center justify-between px-3 py-2 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white transition-colors"
                   >
                     <span>{t.currentChapter}</span>
                   </button>
@@ -709,7 +983,7 @@ export default function Ribbon({ editor, editorUpdateTick, onToggleAssistant, is
                       if (onPrintPreview) onPrintPreview('book');
                       setExportMenuOpen(null);
                     }}
-                    className="flex items-center justify-between px-3 py-2 text-sm text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-surface-elevated)] transition-colors border-t border-[var(--theme-border-subtle)]"
+                    className="flex items-center justify-between px-3 py-2 text-xs font-medium text-[var(--theme-text-main)] hover:bg-[var(--theme-accent)] hover:text-white transition-colors border-t border-[var(--theme-border-subtle)]"
                   >
                     <span>{t.entireBook}</span>
                   </button>

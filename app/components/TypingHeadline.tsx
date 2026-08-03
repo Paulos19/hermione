@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
-export default function TypingHeadline({ phrases }: { phrases: string[] }) {
+interface TypingHeadlineProps {
+  phrases: string[];
+  className?: string;
+}
+
+export default function TypingHeadline({ phrases, className = "" }: TypingHeadlineProps) {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -31,12 +36,12 @@ export default function TypingHeadline({ phrases }: { phrases: string[] }) {
   }, [currentText, isDeleting, currentPhraseIndex, phrases]);
 
   return (
-    <span className="text-white/40 font-light inline-block min-h-[1.2em] relative">
+    <span className={`inline-block min-h-[1.1em] align-top relative ${className}`}>
       {currentText}
       <motion.span
         animate={{ opacity: [1, 0, 1] }}
         transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-        className="inline-block w-[2px] h-[0.9em] bg-white/60 align-middle ml-1 -translate-y-[2px]"
+        className="inline-block w-[2px] h-[0.85em] bg-white/50 align-middle ml-1 -translate-y-[2px]"
       />
     </span>
   );

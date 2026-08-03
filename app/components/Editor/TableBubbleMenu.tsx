@@ -113,10 +113,11 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
       <button 
         onMouseDown={(e) => e.preventDefault()} 
         onClick={() => editor.chain().focus().deleteTable().run()} 
-        className={btnBase + " text-red-500 hover:text-red-600 hover:bg-red-500/20 ml-1"} 
-        title="Excluir Tabela"
+        className="flex items-center gap-1 px-2 py-1 rounded bg-red-500/15 hover:bg-red-500/25 text-red-400 hover:text-red-300 text-xs font-semibold transition-colors ml-1 border border-red-500/20 shadow-sm" 
+        title="Excluir Tabela Inteira"
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className="w-3.5 h-3.5" />
+        <span>Remover Tabela</span>
       </button>
     </BubbleMenu>
   );

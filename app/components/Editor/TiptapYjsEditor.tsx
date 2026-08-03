@@ -274,6 +274,42 @@ export default function TiptapYjsEditor({
     }
   }, [documentId, wsToken, currentUser.id, bookId, initialContent, cursorColor])
 
+  // Real-time search query highlighting & auto-scroll effect
+  useEffect(() => {
+    if (!editor || !editor.commands) return;
+    if (searchQuery && searchQuery.trim()) {
+      const q = searchQuery.trim();
+      editor.commands.setSearchHighlight?.(q);
+
+      let firstMatchPos = -1;
+      editor.state.doc.descendants((node, pos) => {
+        if (firstMatchPos !== -1) return false;
+        if (node.isText && node.text) {
+          const index = node.text.toLowerCase().indexOf(q.toLowerCase());
+          if (index !== -1) {
+            firstMatchPos = pos + index;
+            return false;
+          }
+        }
+      });
+
+      if (firstMatchPos !== -1) {
+        editor.commands.setTextSelection?.({ from: firstMatchPos, to: firstMatchPos + q.length });
+        setTimeout(() => {
+          try {
+            const domAtPos = editor.view.domAtPos(firstMatchPos);
+            const el = domAtPos.node.nodeType === 3 ? domAtPos.node.parentElement : (domAtPos.node as Element);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } catch (e) {
+            editor.commands?.scrollIntoView?.();
+          }
+        }, 50);
+      }
+    } else {
+      editor.commands.setSearchHighlight?.(null);
+    }
+  }, [searchQuery, editor]);
+
   if (!editor) {
     return <div className="p-8 text-[var(--theme-text-muted)] flex justify-center w-full">Loading writing environment...</div>
   }
@@ -390,18 +426,21 @@ export default function TiptapYjsEditor({
           .ProseMirror table {
             margin: 32px 0;
             border-collapse: collapse;
+            table-layout: fixed;
             width: 100%;
             border-radius: 8px;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 0 0 1px var(--theme-border);
           }
           
           .ProseMirror table td,
           .ProseMirror table th {
+            min-width: 1em;
             padding: 12px 16px;
             border: 1px solid var(--theme-border-subtle);
             position: relative;
             vertical-align: top;
+            box-sizing: border-box;
           }
 
           .ProseMirror table th {
@@ -411,12 +450,29 @@ export default function TiptapYjsEditor({
             color: var(--theme-text-main);
           }
 
+          .ProseMirror table .column-resize-handle {
+            position: absolute;
+            right: -2px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--theme-accent, #3b82f6);
+            pointer-events: none;
+            z-index: 20;
+          }
+
+          .ProseMirror.resize-cursor,
+          .ProseMirror table.resize-cursor {
+            cursor: col-resize;
+          }
+
           .ProseMirror table .selectedCell:after {
             z-index: 2;
             position: absolute;
             content: "";
             left: 0; right: 0; top: 0; bottom: 0;
-            background: rgba(200, 200, 255, 0.2);
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.4);
             pointer-events: none;
           }
 

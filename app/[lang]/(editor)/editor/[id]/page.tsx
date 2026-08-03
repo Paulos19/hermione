@@ -47,7 +47,7 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
     }),
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { masterPin: true, isPremium: true, dailyGoal: true }
+      select: { masterPin: true, isPremium: true, dailyGoal: true, image: true, name: true }
     }),
     prisma.dailyProgress.findUnique({
       where: {
@@ -65,8 +65,9 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
 
   const currentUser = {
     id: session.user.id,
-    name: session.user.name || null,
+    name: user?.name || session.user.name || null,
     email: session.user.email,
+    image: user?.image || session.user?.image || null,
   }
 
   const wsToken = signToken({

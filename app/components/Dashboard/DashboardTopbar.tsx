@@ -167,7 +167,7 @@ export function DashboardTopbar({ lang, userImage, onOpenMobileMenu }: TopbarPro
           <span className="text-[12px] font-medium text-[var(--theme-text-muted)]">{t.synced}</span>
         </div>
         
-        <LanguageSwitcher currentLang={lang as Locale} />
+        <LanguageSwitcher currentLang={lang as Locale} dropDirection="down" />
         
         <button className="p-2 rounded-xl text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-surface-elevated)] transition-colors">
           <Bell className="w-4 h-4" />
