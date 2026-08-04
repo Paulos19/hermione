@@ -12,6 +12,8 @@ const NAV_LINKS = [
   { name: "Preços", href: "#pricing" },
   { name: "FAQ", href: "#faq" },
   { name: "Métricas", href: "#metrics" },
+  { name: "Termos de Uso", href: "/terms" },
+  { name: "Política de Privacidade", href: "/privacy" },
 ];
 
 const SOCIAL_LINKS = [

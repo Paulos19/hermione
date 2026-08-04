@@ -54,7 +54,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
       where: { book: { userId: session.user.id } }
     }),
     prisma.bookNote.count({
-      where: { book: { userId: session.user.id } }
+      where: { 
+        book: { userId: session.user.id },
+        category: "world"
+      }
     })
   ])
 

@@ -58,8 +58,8 @@ export default function Sidebar({
   const [editDocTitle, setEditDocTitle] = useState("");
   const [isCreatingDoc, setIsCreatingDoc] = useState(false);
 
-  const worldNotes = notes.filter(n => n.type === 'world');
-  const normalNotes = notes.filter(n => n.type === 'note' || !n.type);
+  const worldNotes = notes.filter(n => n.category === 'world');
+  const normalNotes = notes.filter(n => n.category === 'note' || !n.category);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
